@@ -1,1 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zero Notes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="label">PRIVATE MEMO ARCHIVE</p>
+      <h1>Zero Notes</h1>
+      <p class="lead">思いついたことを、すぐ残しておく自分用メモ保管庫。</p>
+    </div>
 
+    <div class="auth-area">
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="memo-grid">
+      <a href="quick.html" class="memo-card active">
+        <span class="card-icon">✍️</span>
+        <h2>クイックメモ</h2>
+        <p>タイトルなし。1行目をタイトルとして扱う、文字だけの即書きメモ。</p>
+        <span class="status">使用可能</span>
+      </a>
+
+      <div class="memo-card coming-soon">
+        <span class="card-icon">📝</span>
+        <h2>通常メモ</h2>
+        <p>タイトルと本文を分けて、しっかり整理するメモ。</p>
+        <span class="status">準備中</span>
+      </div>
+
+      <div class="memo-card coming-soon">
+        <span class="card-icon">🧩</span>
+        <h2>アイデアメモ</h2>
+        <p>サイト制作、創作、思いつきの種を保管する場所。</p>
+        <span class="status">準備中</span>
+      </div>
+
+      <div class="memo-card coming-soon">
+        <span class="card-icon">🔗</span>
+        <h2>リンクメモ</h2>
+        <p>参考サイトや便利リンクをカテゴリごとに保存。</p>
+        <span class="status">準備中</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Zero Notes / private memo archive</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
