@@ -77,13 +77,14 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
   if (user) {
-    loginBtn.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
-    userInfo.textContent = user.displayName || user.email || "ログイン中";
-    musicStatus.textContent = "曲メモを保存できます";
+  blockIfNotAdmin(user);
 
-    await loadMusicMemos();
-  } else {
+  loginBtn.classList.add("hidden");
+  logoutBtn.classList.remove("hidden");
+  userInfo.textContent = user.displayName || user.email || "ログイン中";
+
+  await loadMusicMemos();
+} else {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     userInfo.textContent = "";
