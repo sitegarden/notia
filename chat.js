@@ -47,6 +47,8 @@ const addChatFolderBtn = document.getElementById("addChatFolderBtn");
 const chatFolderList = document.getElementById("chatFolderList");
 const roomFolderSelect = document.getElementById("roomFolderSelect");
 
+const editRoomBtn = document.getElementById("editRoomBtn");
+
 let currentUser = null;
 let rooms = [];
 let speakers = [];
@@ -216,6 +218,10 @@ async function loadRoomData() {
   await loadSpeakers();
   await loadMessages();
 }
+
+editRoomBtn.addEventListener("click", async () => {
+  await editCurrentRoom();
+});
 
 /* speakers */
 
@@ -634,6 +640,100 @@ async function editSpeaker(speaker) {
 }
 
 /* helpers */
+
+async function editCurrentRoom() {
+  if (!currentUser) return;
+
+  if (!selectedRoomId) {
+    alert("編集するチャット部屋を選んでください");
+    return;
+  }
+
+  const room = getCurrentRoom();
+
+  const overlay = document.createElement("div");
+  overlay.className = "edit-overlay";
+
+  const box = document.createElement("div");
+  box.className = "edit-box";
+
+  const title = document.createElement("h3");
+  title.textContent = "チャット部屋を編集";
+
+  const titleInput = document.createElement("input");
+  titleInput.className = "speaker-edit-input";
+  titleInput.value = room?.title || "";
+  titleInput.placeholder = "チャット部屋名";
+
+  const folderSelect = document.createElement("select");
+  folderSelect.className = "speaker-edit-input";
+
+  const noFolderOption = document.createElement("option");
+  noFolderOption.value = "";
+  noFolderOption.textContent = "フォルダなし";
+  folderSelect.appendChild(noFolderOption);
+
+  chatFolders.forEach((folder) => {
+    const option = document.createElement("option");
+    option.value = folder.id;
+    option.textContent = folder.name;
+    folderSelect.appendChild(option);
+  });
+
+  folderSelect.value = room?.folderId || "";
+
+  const actions = document.createElement("div");
+  actions.className = "edit-box-actions";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "キャンセル";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "保存";
+
+  cancelBtn.addEventListener("click", () => {
+    overlay.remove();
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const newTitle = titleInput.value.trim();
+
+    if (!newTitle) {
+      alert("部屋名を入力してください");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "chatRooms", selectedRoomId), {
+        title: newTitle,
+        folderId: folderSelect.value,
+        updatedAt: serverTimestamp()
+      });
+
+      overlay.remove();
+
+      await loadRooms();
+      renderRooms();
+      await loadRoomData();
+    } catch (error) {
+      console.error(error);
+      alert("チャット部屋の編集に失敗しました");
+    }
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+
+  box.appendChild(title);
+  box.appendChild(titleInput);
+  box.appendChild(folderSelect);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  titleInput.focus();
+}
 
 function getCurrentRoom() {
   return rooms.find((room) => room.id === selectedRoomId);
