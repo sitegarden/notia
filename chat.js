@@ -91,14 +91,15 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
   if (user) {
-    loginBtn.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
-    userInfo.textContent = user.displayName || user.email || "ログイン中";
+  blockIfNotAdmin(user);
 
-    await loadChatFolders();
-    await loadRooms();
-    
-  } else {
+  loginBtn.classList.add("hidden");
+  logoutBtn.classList.remove("hidden");
+  userInfo.textContent = user.displayName || user.email || "ログイン中";
+
+  await loadChatFolders();
+  await loadRooms();
+} else {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     userInfo.textContent = "";
