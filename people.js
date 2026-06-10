@@ -53,6 +53,8 @@ const newPersonBtn = document.getElementById("newPersonBtn");
 const deletePersonBtn = document.getElementById("deletePersonBtn");
 const savePersonBtn = document.getElementById("savePersonBtn");
 
+const personSubTypeInput = document.getElementById("personSubTypeInput");
+
 let currentUser = null;
 let people = [];
 let selectedPersonId = null;
@@ -137,7 +139,8 @@ peopleTypeFilter.addEventListener("change", () => {
   personTagsInput,
   personTraitsInput,
   personMemoInput,
-  personPropsInput
+  personPropsInput,
+  personSubTypeInput,
 ].forEach((input) => {
   input.addEventListener("input", () => {
     peopleStatus.textContent = selectedPersonId
@@ -190,6 +193,7 @@ async function savePerson() {
   const traits = personTraitsInput.value.trim();
   const memo = personMemoInput.value.trim();
   const props = personPropsInput.value.trim();
+  const subType = personSubTypeInput.value.trim();
 
   if (!name) {
     alert("名前を入力してください");
@@ -207,6 +211,7 @@ async function savePerson() {
     traits,
     memo,
     props,
+    subType,
     updatedAt: serverTimestamp()
   };
 
@@ -289,7 +294,8 @@ function renderPeople() {
         person.tags,
         person.traits,
         person.memo,
-        person.props
+        person.props,
+        person.subType
       ]
         .join(" ")
         .toLowerCase();
@@ -334,6 +340,10 @@ function renderPeople() {
       badges.appendChild(createBadge(person.enneagram));
     }
 
+    if (person.subType) {
+  badges.appendChild(createBadge(person.subType));
+}
+
     splitTags(person.tags).slice(0, 4).forEach((tag) => {
       badges.appendChild(createBadge(tag));
     });
@@ -364,6 +374,7 @@ function selectPerson(person) {
   personTraitsInput.value = person.traits || "";
   personMemoInput.value = person.memo || "";
   personPropsInput.value = person.props || "";
+  personSubTypeInput.value = person.subType || "";
 
   peopleStatus.textContent = "編集中";
 
@@ -384,6 +395,7 @@ function clearPersonForm() {
   personTraitsInput.value = "";
   personMemoInput.value = "";
   personPropsInput.value = "";
+  personSubTypeInput.value = "";
 }
 
 function createBadge(text) {
@@ -408,11 +420,11 @@ function makeSubText(person) {
   const parts = [];
 
   if (person.nickname) parts.push(person.nickname);
+  if (person.subType) parts.push(person.subType);
   if (person.relation) parts.push(person.relation);
 
   return parts.length ? parts.join(" / ") : "補足なし";
 }
-
 function splitTags(tags = "") {
   return tags
     .split(/[,\s、，]+/)
