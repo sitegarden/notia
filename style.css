@@ -1023,3 +1023,134 @@ button {
   background: #8b3a35;
   color: #fffaf3;
 }
+
+/* chat action menu */
+
+.chat-bubble {
+  cursor: default;
+}
+
+.chat-message-actions {
+  position: relative;
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.chat-message.right .chat-message-actions {
+  justify-content: flex-end;
+}
+
+.chat-menu-btn {
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255, 250, 243, 0.75);
+  color: #7d7065;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.chat-menu-btn:hover {
+  background: #fffaf3;
+}
+
+.chat-action-menu {
+  position: absolute;
+  top: 26px;
+  z-index: 5;
+  display: grid;
+  gap: 4px;
+  min-width: 88px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+  box-shadow: 0 10px 24px rgba(54, 43, 32, 0.14);
+}
+
+.chat-message.left .chat-action-menu {
+  left: 0;
+}
+
+.chat-message.right .chat-action-menu {
+  right: 0;
+}
+
+.chat-action-menu button {
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 9px;
+  background: transparent;
+  color: #4b4037;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chat-action-menu button:hover {
+  background: #f2eadf;
+}
+
+.chat-action-menu .danger-menu-btn {
+  color: #8b3a35;
+}
+
+/* edit modal */
+
+.edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(47, 41, 36, 0.45);
+}
+
+.edit-box {
+  width: min(560px, 100%);
+  padding: 18px;
+  border-radius: 22px;
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+}
+
+.edit-box h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.edit-box textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  padding: 14px;
+  border: 1px solid #d8c8b6;
+  border-radius: 16px;
+  background: #fff;
+  color: #2c2823;
+  line-height: 1.7;
+}
+
+.edit-box-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.edit-box-actions button {
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #efe3d4;
+  color: #4b4037;
+  font-weight: 800;
+}
+
+.edit-box-actions button:last-child {
+  background: #2f2924;
+  color: #fffaf3;
+}
