@@ -124,8 +124,7 @@ async function loadFolders() {
 
   const q = query(
     collection(db, "memoFolders"),
-    where("uid", "==", currentUser.uid),
-    orderBy("createdAt", "asc")
+    where("uid", "==", currentUser.uid)
   );
 
   const snapshot = await getDocs(q);
@@ -134,6 +133,12 @@ async function loadFolders() {
     id: docSnap.id,
     ...docSnap.data()
   }));
+
+  folders.sort((a, b) => {
+    const aTime = a.createdAt?.seconds || 0;
+    const bTime = b.createdAt?.seconds || 0;
+    return aTime - bTime;
+  });
 
   renderFolders();
   renderFolderSelect();
