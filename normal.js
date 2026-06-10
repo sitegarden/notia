@@ -43,6 +43,7 @@ const normalPreview = document.getElementById("normalPreview");
 
 const editModeBtn = document.getElementById("editModeBtn");
 const previewModeBtn = document.getElementById("previewModeBtn");
+const exportMdBtn = document.getElementById("exportMdBtn");
 
 const saveNormalMemoBtn = document.getElementById("saveNormalMemoBtn");
 const deleteNormalMemoBtn = document.getElementById("deleteNormalMemoBtn");
@@ -599,4 +600,45 @@ function formatInline(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/`(.*?)`/g, "<code>$1</code>");
+}
+
+
+exportMdBtn.addEventListener("click", () => {
+  exportCurrentMemoAsMarkdown();
+});
+
+function exportCurrentMemoAsMarkdown() {
+  const title = normalTitleInput.value.trim() || "無題";
+  const body = normalBodyEditor.value.trim();
+
+  if (!title && !body) {
+    alert("書き出す内容がありません");
+    return;
+  }
+
+  const markdown = body
+    ? `# ${title}\n\n${body}`
+    : `# ${title}\n`;
+
+  const blob = new Blob([markdown], {
+    type: "text/markdown;charset=utf-8"
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${sanitizeFileName(title)}.md`;
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function sanitizeFileName(name) {
+  return name
+    .replace(/[\\/:*?"<>|]/g, "_")
+    .replace(/\s+/g, "_")
+    .slice(0, 50) || "memo";
 }
