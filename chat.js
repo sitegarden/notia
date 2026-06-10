@@ -18,6 +18,7 @@ import {
   getDocs,
   doc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   serverTimestamp
@@ -275,23 +276,27 @@ function renderSpeakers() {
   }
 
   speakers.forEach((speaker) => {
-    const chip = document.createElement("span");
-    chip.className = room?.mainSpeakerId === speaker.id
-      ? "speaker-chip main"
-      : "speaker-chip";
+  const chip = document.createElement("button");
+  chip.className = room?.mainSpeakerId === speaker.id
+    ? "speaker-chip main"
+    : "speaker-chip";
 
-    const icon = document.createElement("span");
-    icon.className = "speaker-icon";
-    icon.textContent = speaker.icon || "💬";
+  const icon = document.createElement("span");
+  icon.className = "speaker-icon";
+  icon.textContent = speaker.icon || "💬";
 
-    const name = document.createElement("span");
-    name.textContent = speaker.name || "名前なし";
+  const name = document.createElement("span");
+  name.textContent = speaker.name || "名前なし";
 
-    chip.appendChild(icon);
-    chip.appendChild(name);
+  chip.appendChild(icon);
+  chip.appendChild(name);
 
-    speakerList.appendChild(chip);
+  chip.addEventListener("click", async () => {
+    await editSpeaker(speaker);
   });
+
+  speakerList.appendChild(chip);
+});
 }
 
 function renderSpeakerSelects() {
@@ -465,8 +470,24 @@ function renderMessages() {
     bubble.className = "chat-bubble";
     bubble.textContent = message.text || "";
 
+    bubble.addEventListener("click", async () => {
+  await editMessage(message);
+});
+
     wrap.appendChild(name);
     wrap.appendChild(bubble);
+
+    const actions = document.createElement("div");
+actions.className = "chat-message-actions";
+
+const deleteBtn = document.createElement("button");
+deleteBtn.textContent = "削除";
+deleteBtn.addEventListener("click", async () => {
+  await deleteMessage(message.id);
+});
+
+actions.appendChild(deleteBtn);
+wrap.appendChild(actions);
 
     messageEl.appendChild(avatar);
     messageEl.appendChild(wrap);
@@ -475,6 +496,29 @@ function renderMessages() {
   });
 
   chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function editSpeaker(speaker) {
+  if (!currentUser) return;
+
+  const newName = prompt("名前を編集", speaker.name || "");
+
+  if (!newName || !newName.trim()) return;
+
+  const newIcon = prompt("アイコンを編集", speaker.icon || "💬") || "💬";
+
+  try {
+    await updateDoc(doc(db, "chatSpeakers", speaker.id), {
+      name: newName.trim(),
+      icon: newIcon.trim().slice(0, 4) || "💬"
+    });
+
+    await loadSpeakers();
+    await loadMessages();
+  } catch (error) {
+    console.error(error);
+    alert("話す人の編集に失敗しました");
+  }
 }
 
 /* helpers */
@@ -489,4 +533,45 @@ function renderRoomEmpty() {
   mainSpeakerSelect.innerHTML = `<option value="">主役を選択</option>`;
   messageSpeakerSelect.innerHTML = `<option value="">話者</option>`;
   chatMessages.innerHTML = `<p class="empty-text">チャット部屋を選んでください</p>`;
+}
+
+async function editMessage(message) {
+  if (!currentUser) return;
+
+  const newText = prompt("吹き出しを編集", message.text || "");
+
+  if (newText === null) return;
+
+  if (!newText.trim()) {
+    alert("空にはできません");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "chatMessages", message.id), {
+      text: newText.trim()
+    });
+
+    await loadMessages();
+  } catch (error) {
+    console.error(error);
+    alert("吹き出しの編集に失敗しました");
+  }
+}
+
+async function deleteMessage(messageId) {
+  if (!currentUser) return;
+
+  const ok = confirm("この吹き出しを削除しますか？");
+
+  if (!ok) return;
+
+  try {
+    await deleteDoc(doc(db, "chatMessages", messageId));
+
+    await loadMessages();
+  } catch (error) {
+    console.error(error);
+    alert("吹き出しの削除に失敗しました");
+  }
 }
