@@ -143,7 +143,6 @@ async function loadFolders() {
   renderFolders();
   renderFolderSelect();
 }
-
 function renderFolders() {
   folderList.innerHTML = "";
 
@@ -287,8 +286,7 @@ async function loadMemos() {
 
   const q = query(
     collection(db, "quickMemos"),
-    where("uid", "==", currentUser.uid),
-    orderBy("updatedAt", "desc")
+    where("uid", "==", currentUser.uid)
   );
 
   const snapshot = await getDocs(q);
@@ -297,6 +295,12 @@ async function loadMemos() {
     id: docSnap.id,
     ...docSnap.data()
   }));
+
+  memos.sort((a, b) => {
+    const aTime = a.updatedAt?.seconds || 0;
+    const bTime = b.updatedAt?.seconds || 0;
+    return bTime - aTime;
+  });
 
   renderMemos();
 }
