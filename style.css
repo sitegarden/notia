@@ -2291,3 +2291,94 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* shared list */
+
+.shared-list-panel {
+  padding: 18px;
+  border-radius: 22px;
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+  box-shadow: 0 12px 30px rgba(54, 43, 32, 0.08);
+}
+
+.shared-memo-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.shared-list-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: #f2eadf;
+  border: 1px solid #e6d9c9;
+}
+
+.shared-list-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.shared-list-card h3 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  line-height: 1.5;
+}
+
+.shared-list-card small {
+  color: #8a7d70;
+  font-size: 12px;
+}
+
+.shared-list-preview {
+  margin: 12px 0;
+  color: #6f6255;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.shared-list-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.shared-list-actions a,
+.shared-list-actions button {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #fffaf3;
+  color: #4b4037;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.shared-list-actions .danger-btn {
+  background: #8b3a35;
+  color: #fffaf3;
+}
+
+.shared-url-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d8c8b6;
+  border-radius: 14px;
+  background: #fffaf3;
+  color: #6f6255;
+  font-size: 13px;
+}
+
+@media (max-width: 800px) {
+  .shared-list-card-head {
+    flex-direction: column;
+  }
+
+  .shared-list-actions {
+    justify-content: flex-start;
+  }
+}
