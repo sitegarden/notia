@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>プレイリスト | Zero Notes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="music-page">
+  <header class="site-header music-header">
+    <div>
+      <p class="label">MUSIC MEMO</p>
+      <h1>プレイリスト</h1>
+      <p class="lead">曲名、歌詞、和訳、URLをまとめて保管する曲メモ。</p>
+    </div>
+
+    <div class="auth-area">
+      <a href="index.html" class="back-link">トップへ戻る</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container music-layout">
+    <section class="music-form-panel">
+      <div class="music-form-head">
+        <p class="label">TRACK EDITOR</p>
+        <h2 id="musicFormTitle">曲メモを追加</h2>
+      </div>
+
+      <input type="text" id="musicTitleInput" placeholder="曲名" />
+      <input type="text" id="musicArtistInput" placeholder="アーティスト" />
+      <input type="text" id="musicGenreInput" placeholder="ジャンル" />
+      <input type="url" id="musicUrlInput" placeholder="URL" />
+
+      <textarea id="musicLyricsInput" placeholder="歌詞"></textarea>
+      <textarea id="musicTranslationInput" placeholder="和訳"></textarea>
+
+      <div class="editor-actions">
+        <p id="musicStatus">ログインしてください</p>
+        <button id="newMusicBtn" type="button">新規</button>
+        <button id="deleteMusicBtn" class="danger-btn" type="button">削除</button>
+        <button id="saveMusicBtn" type="button">保存</button>
+      </div>
+    </section>
+
+    <section class="music-list-panel">
+      <div class="music-toolbar">
+        <input
+          type="text"
+          id="musicSearchInput"
+          placeholder="曲名・アーティスト・ジャンル・歌詞で検索"
+        />
+
+        <select id="musicGenreFilter">
+          <option value="all">すべてのジャンル</option>
+        </select>
+      </div>
+
+      <div id="musicList" class="music-list"></div>
+    </section>
+  </main>
+
+  <script type="module" src="music.js"></script>
+</body>
+</html>
