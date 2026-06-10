@@ -521,24 +521,98 @@ wrap.appendChild(actions);
 async function editSpeaker(speaker) {
   if (!currentUser) return;
 
-  const newName = prompt("名前を編集", speaker.name || "");
+  const overlay = document.createElement("div");
+  overlay.className = "edit-overlay";
 
-  if (!newName || !newName.trim()) return;
+  const box = document.createElement("div");
+  box.className = "edit-box";
 
-  const newIcon = prompt("アイコンを編集", speaker.icon || "💬") || "💬";
+  const title = document.createElement("h3");
+  title.textContent = "話す人を編集";
 
-  try {
-    await updateDoc(doc(db, "chatSpeakers", speaker.id), {
-      name: newName.trim(),
-      icon: newIcon.trim().slice(0, 4) || "💬"
+  const nameInput = document.createElement("input");
+  nameInput.className = "speaker-edit-input";
+  nameInput.value = speaker.name || "";
+  nameInput.placeholder = "名前";
+
+  const iconInput = document.createElement("input");
+  iconInput.className = "speaker-edit-input";
+  iconInput.value = speaker.icon || "💬";
+  iconInput.placeholder = "アイコン";
+
+  const iconChoices = document.createElement("div");
+  iconChoices.className = "icon-choice-list";
+
+  defaultIcons.forEach((iconText) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = iconText === iconInput.value ? "icon-choice active" : "icon-choice";
+    btn.textContent = iconText;
+
+    btn.addEventListener("click", () => {
+      iconInput.value = iconText;
+
+      iconChoices.querySelectorAll(".icon-choice").forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      btn.classList.add("active");
     });
 
-    await loadSpeakers();
-    await loadMessages();
-  } catch (error) {
-    console.error(error);
-    alert("話す人の編集に失敗しました");
-  }
+    iconChoices.appendChild(btn);
+  });
+
+  const actions = document.createElement("div");
+  actions.className = "edit-box-actions";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "キャンセル";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "保存";
+
+  cancelBtn.addEventListener("click", () => {
+    overlay.remove();
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const newName = nameInput.value.trim();
+    const newIcon = iconInput.value.trim();
+
+    if (!newName) {
+      alert("名前を入力してください");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "chatSpeakers", speaker.id), {
+        name: newName,
+        icon: newIcon.slice(0, 4) || "💬"
+      });
+
+      overlay.remove();
+
+      await loadSpeakers();
+      await loadMessages();
+    } catch (error) {
+      console.error(error);
+      alert("話す人の編集に失敗しました");
+    }
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+
+  box.appendChild(title);
+  box.appendChild(nameInput);
+  box.appendChild(iconInput);
+  box.appendChild(iconChoices);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  nameInput.focus();
 }
 
 /* helpers */
