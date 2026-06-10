@@ -7,6 +7,10 @@ import {
 } from "./firebase.js";
 
 import {
+  isAdmin
+} from "./admin.js";
+
+import {
   signInWithPopup,
   signOut,
   onAuthStateChanged
@@ -41,6 +45,11 @@ const taskList = document.getElementById("taskList");
 
 let currentUser = null;
 let tasks = [];
+
+const TASK_LIMIT = 100;
+const TASK_TITLE_LIMIT = 100;
+const TASK_MEMO_LIMIT = 1000;
+const TASK_CATEGORY_LIMIT = 50;
 
 /* auth */
 
@@ -104,6 +113,26 @@ async function addTask() {
     alert("やることを入力してください");
     return;
   }
+
+  if (!isAdmin(currentUser) && tasks.length >= TASK_LIMIT) {
+  alert(`タスクは${TASK_LIMIT}件まで保存できます`);
+  return;
+}
+
+if (!isAdmin(currentUser) && title.length > TASK_TITLE_LIMIT) {
+  alert(`タスク名は${TASK_TITLE_LIMIT}文字までです`);
+  return;
+}
+
+if (!isAdmin(currentUser) && memo.length > TASK_MEMO_LIMIT) {
+  alert(`タスクメモは${TASK_MEMO_LIMIT}文字までです`);
+  return;
+}
+
+if (!isAdmin(currentUser) && category.length > TASK_CATEGORY_LIMIT) {
+  alert(`カテゴリは${TASK_CATEGORY_LIMIT}文字までです`);
+  return;
+}
 
   try {
     await addDoc(collection(db, "tasks"), {
