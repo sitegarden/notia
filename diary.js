@@ -79,6 +79,8 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
   if (user) {
+    blockIfNotAdmin(user);
+
     loginBtn.classList.add("hidden");
     logoutBtn.classList.remove("hidden");
     userInfo.textContent = user.displayName || user.email || "ログイン中";
