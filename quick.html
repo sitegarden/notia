@@ -62,10 +62,23 @@
           ></textarea>
 
           <div class="editor-actions">
-            <p id="saveStatus">未保存</p>
-            <button id="deleteMemoBtn" class="danger-btn">削除</button>
-            <button id="saveMemoBtn">保存</button>
-          </div>
+  <p id="saveStatus">未保存</p>
+
+  <button id="shareMemoBtn" class="sub-btn hidden">共有</button>
+  <button id="unshareMemoBtn" class="danger-btn hidden">共有解除</button>
+
+  <button id="deleteMemoBtn" class="danger-btn">削除</button>
+  <button id="saveMemoBtn">保存</button>
+</div>
+
+<div id="shareBox" class="share-box hidden">
+  <p>共有URL</p>
+  <div class="share-url-row">
+    <input type="text" id="shareUrlInput" readonly />
+    <button id="copyShareUrlBtn">コピー</button>
+  </div>
+  <small>共有したメモはコピーとして公開されます。元メモ本体は公開されません。</small>
+</div>
         </div>
       </div>
     </section>
