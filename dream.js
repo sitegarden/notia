@@ -13,6 +13,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 import {
+  blockIfNotAdmin
+} from "./admin.js";
+
+import {
   collection,
   addDoc,
   getDocs,
