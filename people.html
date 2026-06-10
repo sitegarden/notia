@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>人物帳 | Zero Notes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="people-page">
+  <header class="site-header people-header">
+    <div>
+      <p class="label">PEOPLE NOTE</p>
+      <h1>人物帳</h1>
+      <p class="lead">リアル・キャラ問わず、人物情報や謎プロパティをまとめて保管する帳簿。</p>
+    </div>
+
+    <div class="auth-area">
+      <a href="index.html" class="back-link">トップへ戻る</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container people-layout">
+    <section class="people-list-panel">
+      <div class="people-toolbar">
+        <input
+          type="text"
+          id="peopleSearchInput"
+          placeholder="名前・MBTI・タグ・メモで検索"
+        />
+
+        <select id="peopleTypeFilter">
+          <option value="all">すべて</option>
+          <option value="real">リアル</option>
+          <option value="character">キャラ</option>
+          <option value="original">創作</option>
+          <option value="other">その他</option>
+        </select>
+      </div>
+
+      <div id="peopleList" class="people-list"></div>
+    </section>
+
+    <section class="people-editor-panel">
+      <div class="people-editor-head">
+        <div>
+          <p class="label">PERSON EDITOR</p>
+          <h2 id="peopleFormTitle">人物を追加</h2>
+        </div>
+      </div>
+
+      <div class="people-form-grid">
+        <input type="text" id="personNameInput" placeholder="名前" />
+        <input type="text" id="personNicknameInput" placeholder="読み / あだ名" />
+
+        <select id="personTypeInput">
+          <option value="real">リアル</option>
+          <option value="character">キャラ</option>
+          <option value="original">創作</option>
+          <option value="other">その他</option>
+        </select>
+
+        <input type="text" id="personRelationInput" placeholder="関係性" />
+
+        <input type="text" id="personMbtiInput" placeholder="MBTI 例：ESTP" />
+        <input type="text" id="personEnneagramInput" placeholder="エニアグラム 例：7w8" />
+
+        <input type="text" id="personTagsInput" placeholder="タグ 例：明るい, 猫好き, 強い" />
+      </div>
+
+      <textarea
+        id="personTraitsInput"
+        placeholder="特徴"
+      ></textarea>
+
+      <textarea
+        id="personMemoInput"
+        placeholder="メモ"
+      ></textarea>
+
+      <textarea
+        id="personPropsInput"
+        placeholder="自由プロパティ&#10;例：&#10;身長：170cm&#10;好きなもの：コーヒー&#10;口癖：まあいいか"
+      ></textarea>
+
+      <div class="editor-actions">
+        <p id="peopleStatus">ログインしてください</p>
+        <button id="newPersonBtn" type="button">新規</button>
+        <button id="deletePersonBtn" class="danger-btn" type="button">削除</button>
+        <button id="savePersonBtn" type="button">保存</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="people.js"></script>
+</body>
+</html>
