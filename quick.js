@@ -7,6 +7,10 @@ import {
 } from "./firebase.js";
 
 import {
+  isAdmin
+} from "./admin.js";
+
+import {
   signInWithPopup,
   signOut,
   onAuthStateChanged
@@ -46,6 +50,10 @@ let folders = [];
 let memos = [];
 let selectedFolderId = "all";
 let selectedMemoId = null;
+
+
+const QUICK_MEMO_LIMIT = 100;
+const QUICK_MEMO_BODY_LIMIT = 5000;
 
 /* ---------- auth ---------- */
 
@@ -245,6 +253,16 @@ async function saveMemo() {
     alert("メモが空です");
     return;
   }
+
+  if (!isAdmin(currentUser) && body.length > QUICK_MEMO_BODY_LIMIT) {
+  alert(`クイックメモは${QUICK_MEMO_BODY_LIMIT}文字までです`);
+  return;
+}
+
+if (!isAdmin(currentUser) && !selectedMemoId && memos.length >= QUICK_MEMO_LIMIT) {
+  alert(`クイックメモは${QUICK_MEMO_LIMIT}件まで保存できます`);
+  return;
+}
 
   const title = getTitleFromBody(body);
   const folderId = folderSelect.value;
