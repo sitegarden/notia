@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>シンプル日記 | Zero Notes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="label">DIARY</p>
+      <h1>シンプル日記</h1>
+      <p class="lead">日付を選んで、今日のことを軽く残すかわいい日記。</p>
+    </div>
+
+    <div class="auth-area">
+      <a href="index.html" class="back-link">トップへ戻る</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container diary-layout">
+    <section class="diary-calendar-panel">
+      <div class="diary-month-head">
+        <button id="prevMonthBtn">‹</button>
+        <h2 id="monthTitle">----</h2>
+        <button id="nextMonthBtn">›</button>
+      </div>
+
+      <div class="week-row">
+        <span>日</span>
+        <span>月</span>
+        <span>火</span>
+        <span>水</span>
+        <span>木</span>
+        <span>金</span>
+        <span>土</span>
+      </div>
+
+      <div id="calendarGrid" class="calendar-grid"></div>
+    </section>
+
+    <section class="diary-editor-panel">
+      <div class="diary-editor-head">
+        <div>
+          <p class="label">SELECTED DAY</p>
+          <h2 id="selectedDateTitle">日付を選択</h2>
+        </div>
+
+        <select id="moodSelect">
+          <option value="normal">🌿 普通</option>
+          <option value="happy">☀️ 元気</option>
+          <option value="fun">🌈 楽しい</option>
+          <option value="tired">☕ 疲れた</option>
+          <option value="sad">🌧️ 落ち込み</option>
+          <option value="angry">🔥 もやもや</option>
+        </select>
+      </div>
+
+      <textarea
+        id="diaryBody"
+        placeholder="今日のことを書く"
+      ></textarea>
+
+      <div class="editor-actions">
+        <p id="diaryStatus">ログインしてください</p>
+        <button id="deleteDiaryBtn" class="danger-btn">削除</button>
+        <button id="saveDiaryBtn">保存</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="diary.js"></script>
+</body>
+</html>
