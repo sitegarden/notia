@@ -43,11 +43,17 @@ const messageSpeakerSelect = document.getElementById("messageSpeakerSelect");
 const messageInput = document.getElementById("messageInput");
 const sendMessageBtn = document.getElementById("sendMessageBtn");
 
+const addChatFolderBtn = document.getElementById("addChatFolderBtn");
+const chatFolderList = document.getElementById("chatFolderList");
+const roomFolderSelect = document.getElementById("roomFolderSelect");
+
 let currentUser = null;
 let rooms = [];
 let speakers = [];
 let messages = [];
 let selectedRoomId = null;
+let chatFolders = [];
+let selectedChatFolderId = "all";
 
 const defaultIcons = [
   "🐱", "🐰", "🐻", "🦊", "🐺", "🐼",
@@ -83,7 +89,9 @@ onAuthStateChanged(auth, async (user) => {
     logoutBtn.classList.remove("hidden");
     userInfo.textContent = user.displayName || user.email || "ログイン中";
 
+    await loadChatFolders();
     await loadRooms();
+    
   } else {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
@@ -93,6 +101,9 @@ onAuthStateChanged(auth, async (user) => {
     speakers = [];
     messages = [];
     selectedRoomId = null;
+    chatFolders = [];
+    selectedChatFolderId = "all";
+    chatFolderList.innerHTML = "";
 
     renderRooms();
     renderRoomEmpty();
@@ -113,12 +124,13 @@ addRoomBtn.addEventListener("click", async () => {
 
   try {
     const docRef = await addDoc(collection(db, "chatRooms"), {
-      uid: currentUser.uid,
-      title: title.trim(),
-      mainSpeakerId: "",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
+  uid: currentUser.uid,
+  title: title.trim(),
+  folderId: roomFolderSelect.value || "",
+  mainSpeakerId: "",
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp()
+});
 
     selectedRoomId = docRef.id;
     await loadRooms();
@@ -165,7 +177,13 @@ async function loadRooms() {
 function renderRooms() {
   chatRoomList.innerHTML = "";
 
-  if (rooms.length === 0) {
+  let filteredRooms = rooms;
+
+  if (selectedChatFolderId !== "all") {
+    filteredRooms = rooms.filter((room) => (room.folderId || "") === selectedChatFolderId);
+  }
+
+  if (filteredRooms.length === 0) {
     const empty = document.createElement("p");
     empty.className = "empty-text";
     empty.textContent = "チャット部屋がありません";
@@ -173,7 +191,7 @@ function renderRooms() {
     return;
   }
 
-  rooms.forEach((room) => {
+  filteredRooms.forEach((room) => {
     const btn = document.createElement("button");
     btn.className = selectedRoomId === room.id ? "chat-room-item active" : "chat-room-item";
     btn.textContent = room.title || "無題の部屋";
@@ -708,4 +726,98 @@ async function deleteMessage(messageId) {
     console.error(error);
     alert("吹き出しの削除に失敗しました");
   }
+}
+
+addChatFolderBtn.addEventListener("click", async () => {
+  if (!currentUser) {
+    alert("先にログインしてください");
+    return;
+  }
+
+  const name = prompt("フォルダ名を入力してね");
+
+  if (!name || !name.trim()) return;
+
+  try {
+    await addDoc(collection(db, "chatFolders"), {
+      uid: currentUser.uid,
+      name: name.trim(),
+      createdAt: serverTimestamp()
+    });
+
+    await loadChatFolders();
+  } catch (error) {
+    console.error(error);
+    alert("フォルダ作成に失敗しました");
+  }
+});
+
+async function loadChatFolders() {
+  if (!currentUser) return;
+
+  const q = query(
+    collection(db, "chatFolders"),
+    where("uid", "==", currentUser.uid)
+  );
+
+  const snapshot = await getDocs(q);
+
+  chatFolders = snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
+
+  chatFolders.sort((a, b) => {
+    const aTime = a.createdAt?.seconds || 0;
+    const bTime = b.createdAt?.seconds || 0;
+    return aTime - bTime;
+  });
+
+  renderChatFolders();
+  renderRoomFolderSelect();
+}
+
+function renderChatFolders() {
+  chatFolderList.innerHTML = "";
+
+  const allBtn = createChatFolderButton("すべて", "all");
+  chatFolderList.appendChild(allBtn);
+
+  const noFolderBtn = createChatFolderButton("フォルダなし", "");
+  chatFolderList.appendChild(noFolderBtn);
+
+  chatFolders.forEach((folder) => {
+    const btn = createChatFolderButton(folder.name, folder.id);
+    chatFolderList.appendChild(btn);
+  });
+}
+
+function createChatFolderButton(label, folderId) {
+  const btn = document.createElement("button");
+  btn.className = selectedChatFolderId === folderId
+    ? "chat-room-item active"
+    : "chat-room-item";
+
+  btn.textContent = label;
+
+  btn.addEventListener("click", () => {
+    selectedChatFolderId = folderId;
+    selectedRoomId = null;
+    renderChatFolders();
+    renderRooms();
+    renderRoomEmpty();
+  });
+
+  return btn;
+}
+
+function renderRoomFolderSelect() {
+  roomFolderSelect.innerHTML = `<option value="">フォルダなし</option>`;
+
+  chatFolders.forEach((folder) => {
+    const option = document.createElement("option");
+    option.value = folder.id;
+    option.textContent = folder.name;
+    roomFolderSelect.appendChild(option);
+  });
 }
