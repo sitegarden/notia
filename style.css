@@ -1507,3 +1507,196 @@ button {
 .diary-month-head h2 {
   text-align: center;
 }
+
+/* music memo */
+
+.music-page {
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 145, 0.22), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(88, 72, 56, 0.16), transparent 34%),
+    #f4efe6;
+  color: #29231f;
+}
+
+.music-header {
+  background:
+    radial-gradient(circle at top right, rgba(255, 214, 145, 0.18), transparent 32%),
+    #211c18;
+  color: #fffaf3;
+}
+
+.music-header .lead,
+.music-header .user-info {
+  color: #e7d7c3;
+}
+
+.music-header .auth-area button,
+.music-header .back-link {
+  background: #fffaf3;
+  color: #211c18;
+}
+
+.music-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.music-form-panel,
+.music-list-panel {
+  background: rgba(255, 250, 243, 0.92);
+  border: 1px solid #e0d0bc;
+  border-radius: 24px;
+  box-shadow: 0 14px 34px rgba(45, 34, 24, 0.1);
+}
+
+.music-form-panel {
+  padding: 18px;
+}
+
+.music-form-head {
+  margin-bottom: 14px;
+}
+
+.music-form-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.music-form-panel input,
+.music-form-panel textarea,
+.music-toolbar input,
+.music-toolbar select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d9c7b0;
+  border-radius: 14px;
+  background: #fff;
+  color: #29231f;
+}
+
+.music-form-panel input + input,
+.music-form-panel input + textarea,
+.music-form-panel textarea + textarea {
+  margin-top: 10px;
+}
+
+#musicLyricsInput,
+#musicTranslationInput {
+  min-height: 160px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.music-list-panel {
+  padding: 18px;
+  min-width: 0;
+}
+
+.music-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.music-list {
+  display: grid;
+  gap: 12px;
+}
+
+.music-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 20px;
+  background:
+    linear-gradient(135deg, #fffaf3, #f1e6d7);
+  border: 1px solid #e0d0bc;
+  text-align: left;
+  box-shadow: 0 8px 22px rgba(45, 34, 24, 0.07);
+}
+
+.music-card.active {
+  outline: 2px solid #2f2924;
+}
+
+.music-disc {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #f8e1a8 0 13%, #2f2924 14% 42%, #5a4b3d 43% 56%, #2f2924 57%);
+  color: #fffaf3;
+  font-size: 16px;
+}
+
+.music-card-main {
+  min-width: 0;
+}
+
+.music-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.music-meta {
+  margin: 5px 0 0;
+  color: #6f6255;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.music-preview {
+  margin: 8px 0 0;
+  color: #8a7d70;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-link {
+  display: inline-block;
+  margin-top: 9px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #2f2924;
+  color: #fffaf3;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.music-page .editor-actions button:last-child {
+  background: #211c18;
+  color: #fffaf3;
+}
+
+.music-page .danger-btn {
+  background: #8b3a35 !important;
+}
+
+@media (max-width: 900px) {
+  .music-layout,
+  .music-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .music-card {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .music-disc {
+    width: 46px;
+    height: 46px;
+  }
+}
