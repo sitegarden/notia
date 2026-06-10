@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>チャット風メモ | Zero Notes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="label">CHAT MEMO</p>
+      <h1>チャット風メモ</h1>
+      <p class="lead">話者を作って、会話ログみたいに残せるメモ。</p>
+    </div>
+
+    <div class="auth-area">
+      <a href="index.html" class="back-link">トップへ戻る</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container chat-layout">
+    <aside class="chat-side-panel">
+      <div class="panel-head">
+        <h2>チャット部屋</h2>
+        <button id="addRoomBtn" class="small-btn">＋</button>
+      </div>
+
+      <div id="chatRoomList" class="chat-room-list"></div>
+    </aside>
+
+    <section class="chat-main-panel">
+      <div class="chat-room-head">
+        <div>
+          <p class="label">ROOM</p>
+          <h2 id="currentRoomTitle">部屋を選択</h2>
+        </div>
+
+        <div class="chat-room-actions">
+          <select id="mainSpeakerSelect">
+            <option value="">主役を選択</option>
+          </select>
+          <button id="saveMainSpeakerBtn">主役保存</button>
+        </div>
+      </div>
+
+      <div class="speaker-box">
+        <div class="panel-head">
+          <h3>話す人</h3>
+          <button id="addSpeakerBtn" class="small-btn">＋</button>
+        </div>
+
+        <div id="speakerList" class="speaker-list"></div>
+      </div>
+
+      <div id="chatMessages" class="chat-messages">
+        <p class="empty-text">チャット部屋を選んでください</p>
+      </div>
+
+      <div class="chat-input-area">
+        <select id="messageSpeakerSelect">
+          <option value="">話者</option>
+        </select>
+
+        <textarea
+          id="messageInput"
+          placeholder="メッセージを書く"
+        ></textarea>
+
+        <button id="sendMessageBtn">追加</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="chat.js"></script>
+</body>
+</html>
