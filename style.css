@@ -1193,3 +1193,19 @@ button {
   color: #fffaf3;
   border-color: #2f2924;
 }
+
+/* chat folders */
+
+.chat-room-title-row {
+  margin-top: 22px;
+}
+
+.room-folder-select {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #d8c8b6;
+  border-radius: 14px;
+  background: #fff;
+  color: #2c2823;
+}
