@@ -18,14 +18,14 @@ import {
 
 import {
   collection,
-  addDoc,
-  getDocs,
   doc,
+  addDoc,
+  getDoc,
+  getDocs,
   updateDoc,
   deleteDoc,
   query,
   where,
-  orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -44,6 +44,12 @@ const memoEditor = document.getElementById("memoEditor");
 const saveMemoBtn = document.getElementById("saveMemoBtn");
 const deleteMemoBtn = document.getElementById("deleteMemoBtn");
 const saveStatus = document.getElementById("saveStatus");
+
+const shareMemoBtn = document.getElementById("shareMemoBtn");
+const unshareMemoBtn = document.getElementById("unshareMemoBtn");
+const shareBox = document.getElementById("shareBox");
+const shareUrlInput = document.getElementById("shareUrlInput");
+const copyShareUrlBtn = document.getElementById("copyShareUrlBtn");
 
 let currentUser = null;
 let folders = [];
@@ -207,6 +213,8 @@ newMemoBtn.addEventListener("click", () => {
   memoEditor.value = "";
   folderSelect.value = selectedFolderId !== "all" ? selectedFolderId : "";
   saveStatus.textContent = "新規メモ";
+
+  hideShareView();
   renderMemos();
   memoEditor.focus();
 });
@@ -370,6 +378,9 @@ function renderMemos() {
       memoEditor.value = memo.body || "";
       folderSelect.value = memo.folderId || "";
       saveStatus.textContent = "編集中";
+
+      updateShareView(memo);
+      
       renderMemos();
     });
 
@@ -405,4 +416,174 @@ function makePreview(body = "") {
   if (lines.length <= 1) return "本文なし";
 
   return lines.slice(1).join(" ").slice(0, 60);
+}
+
+
+shareMemoBtn.addEventListener("click", async () => {
+  await shareCurrentMemo();
+});
+
+unshareMemoBtn.addEventListener("click", async () => {
+  await unshareCurrentMemo();
+});
+
+copyShareUrlBtn.addEventListener("click", async () => {
+  const url = shareUrlInput.value;
+
+  if (!url) return;
+
+  try {
+    await navigator.clipboard.writeText(url);
+    alert("共有URLをコピーしました");
+  } catch (error) {
+    console.error(error);
+    shareUrlInput.select();
+    document.execCommand("copy");
+    alert("共有URLをコピーしました");
+  }
+});
+
+async function shareCurrentMemo() {
+  if (!currentUser || !selectedMemoId) {
+    alert("共有するメモを選んでください");
+    return;
+  }
+
+  const currentMemo = memos.find((memo) => memo.id === selectedMemoId);
+
+  if (!currentMemo) {
+    alert("メモが見つかりません");
+    return;
+  }
+
+  const body = memoEditor.value.trim();
+
+  if (!body) {
+    alert("空のメモは共有できません");
+    return;
+  }
+
+  const title = getMemoTitle(body);
+
+  try {
+    let shareId = currentMemo.shareId || "";
+
+    if (shareId) {
+      await updateDoc(doc(db, "sharedMemos", shareId), {
+        title,
+        body,
+        isPublic: true,
+        updatedAt: serverTimestamp()
+      });
+    } else {
+      const shareRef = await addDoc(collection(db, "sharedMemos"), {
+        ownerUid: currentUser.uid,
+        sourceType: "quickMemo",
+        sourceId: selectedMemoId,
+        title,
+        body,
+        isPublic: true,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      shareId = shareRef.id;
+
+      await updateDoc(doc(db, "quickMemos", selectedMemoId), {
+        shareId,
+        sharedAt: serverTimestamp()
+      });
+    }
+
+    await loadMemos();
+
+    const updatedMemo = memos.find((memo) => memo.id === selectedMemoId);
+
+    if (updatedMemo) {
+      updateShareView(updatedMemo);
+    }
+
+    alert("共有URLを作成しました");
+  } catch (error) {
+    console.error(error);
+    alert("共有に失敗しました");
+  }
+}
+
+async function unshareCurrentMemo() {
+  if (!currentUser || !selectedMemoId) return;
+
+  const currentMemo = memos.find((memo) => memo.id === selectedMemoId);
+
+  if (!currentMemo || !currentMemo.shareId) {
+    alert("共有されていません");
+    return;
+  }
+
+  const ok = confirm("このメモの共有を解除しますか？");
+  if (!ok) return;
+
+  try {
+    await deleteDoc(doc(db, "sharedMemos", currentMemo.shareId));
+
+    await updateDoc(doc(db, "quickMemos", selectedMemoId), {
+      shareId: "",
+      sharedAt: null
+    });
+
+    await loadMemos();
+
+    const updatedMemo = memos.find((memo) => memo.id === selectedMemoId);
+
+    if (updatedMemo) {
+      updateShareView(updatedMemo);
+    } else {
+      hideShareView();
+    }
+
+    alert("共有を解除しました");
+  } catch (error) {
+    console.error(error);
+    alert("共有解除に失敗しました");
+  }
+}
+
+function updateShareView(memo) {
+  if (!memo || !selectedMemoId) {
+    hideShareView();
+    return;
+  }
+
+  shareMemoBtn.classList.remove("hidden");
+
+  if (memo.shareId) {
+    unshareMemoBtn.classList.remove("hidden");
+    shareBox.classList.remove("hidden");
+    shareUrlInput.value = makeShareUrl(memo.shareId);
+  } else {
+    unshareMemoBtn.classList.add("hidden");
+    shareBox.classList.add("hidden");
+    shareUrlInput.value = "";
+  }
+}
+
+function hideShareView() {
+  shareMemoBtn.classList.add("hidden");
+  unshareMemoBtn.classList.add("hidden");
+  shareBox.classList.add("hidden");
+  shareUrlInput.value = "";
+}
+
+function makeShareUrl(shareId) {
+  const url = new URL("share.html", location.href);
+  url.searchParams.set("id", shareId);
+  return url.toString();
+}
+
+function getMemoTitle(body) {
+  const firstLine = body
+    .split("\n")
+    .find((line) => line.trim());
+
+  return firstLine ? firstLine.trim().slice(0, 80) : "無題のメモ";
 }
