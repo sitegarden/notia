@@ -15,6 +15,7 @@ import {
   doc,
   getDocs,
   deleteDoc,
+  updateDoc,
   query,
   where
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -198,11 +199,21 @@ async function copyShareUrl(shareId) {
 }
 
 async function deleteSharedMemo(shareId) {
+  const memo = sharedMemos.find((item) => item.id === shareId);
+
   const ok = confirm("この共有メモを解除しますか？\n共有URLから見られなくなります。");
   if (!ok) return;
 
   try {
     await deleteDoc(doc(db, "sharedMemos", shareId));
+
+    if (memo && memo.sourceType === "quickMemo" && memo.sourceId) {
+      await updateDoc(doc(db, "quickMemos", memo.sourceId), {
+        shareId: "",
+        sharedAt: null
+      });
+    }
+
     await loadSharedMemos();
     alert("共有を解除しました");
   } catch (error) {
@@ -210,7 +221,6 @@ async function deleteSharedMemo(shareId) {
     alert("共有解除に失敗しました");
   }
 }
-
 function makeShareUrl(shareId) {
   const url = new URL("share.html", location.href);
   url.searchParams.set("id", shareId);
