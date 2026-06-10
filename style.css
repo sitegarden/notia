@@ -1387,3 +1387,112 @@ button {
     min-height: 340px;
   }
 }
+
+/* dream diary */
+
+.dream-page {
+  background:
+    radial-gradient(circle at top left, rgba(190, 165, 255, 0.28), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(120, 95, 180, 0.22), transparent 34%),
+    #f4f0ff;
+  color: #29233a;
+}
+
+.dream-header {
+  background:
+    radial-gradient(circle at top right, rgba(190, 165, 255, 0.22), transparent 30%),
+    #272038;
+  color: #fffaff;
+}
+
+.dream-header .lead,
+.dream-header .user-info {
+  color: #d8cdec;
+}
+
+.dream-header .auth-area button,
+.dream-header .back-link {
+  background: #fffaff;
+  color: #272038;
+}
+
+.dream-panel {
+  background: rgba(255, 250, 255, 0.88);
+  border-color: #dacff0;
+  box-shadow: 0 14px 34px rgba(61, 45, 96, 0.12);
+}
+
+.dream-page .diary-month-head button {
+  background: #3b2f58;
+  color: #fffaff;
+}
+
+.dream-page .week-row {
+  color: #84749f;
+}
+
+.dream-calendar .calendar-day {
+  background: #eee7fb;
+  color: #3b3154;
+}
+
+.dream-calendar .calendar-day.empty {
+  background: transparent;
+}
+
+.dream-calendar .calendar-day.today {
+  outline: 2px solid #a98df0;
+}
+
+.dream-calendar .calendar-day.selected {
+  background: #3b2f58;
+  color: #fffaff;
+}
+
+.dream-calendar .calendar-day.has-diary::after {
+  background: #9f7cff;
+}
+
+.dream-calendar .calendar-day.selected.has-diary::after {
+  background: #f5e8ff;
+}
+
+#dreamMoodSelect {
+  min-width: 160px;
+  padding: 10px 12px;
+  border: 1px solid #d8c8e8;
+  border-radius: 14px;
+  background: #fff;
+  color: #29233a;
+}
+
+#dreamBody {
+  width: 100%;
+  min-height: 440px;
+  resize: vertical;
+  padding: 16px;
+  border: 1px solid #d8c8e8;
+  border-radius: 18px;
+  background: #fff;
+  color: #29233a;
+  line-height: 1.8;
+}
+
+.dream-page .editor-actions button:last-child {
+  background: #3b2f58;
+  color: #fffaff;
+}
+
+.dream-page .danger-btn {
+  background: #7d3f68 !important;
+}
+
+@media (max-width: 800px) {
+  #dreamMoodSelect {
+    width: 100%;
+  }
+
+  #dreamBody {
+    min-height: 340px;
+  }
+}
