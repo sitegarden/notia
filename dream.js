@@ -40,6 +40,9 @@ const dreamStatus = document.getElementById("dreamStatus");
 const saveDreamBtn = document.getElementById("saveDreamBtn");
 const deleteDreamBtn = document.getElementById("deleteDreamBtn");
 
+const prevYearBtn = document.getElementById("prevYearBtn");
+const nextYearBtn = document.getElementById("nextYearBtn");
+
 let currentUser = null;
 let dreams = [];
 let selectedDate = toDateText(new Date());
@@ -115,6 +118,16 @@ nextMonthBtn.addEventListener("click", () => {
     viewYear++;
   }
 
+  renderCalendar();
+});
+
+prevYearBtn.addEventListener("click", () => {
+  viewYear--;
+  renderCalendar();
+});
+
+nextYearBtn.addEventListener("click", () => {
+  viewYear++;
   renderCalendar();
 });
 
