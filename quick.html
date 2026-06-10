@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>クイックメモ | Zero Notes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="label">QUICK MEMO</p>
+      <h1>クイックメモ</h1>
+      <p class="lead">タイトルなし。1行目をタイトルとして扱う、文字だけのメモ。</p>
+    </div>
 
+    <div class="auth-area">
+      <a href="index.html" class="back-link">トップへ戻る</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container quick-layout">
+    <aside class="folder-panel">
+      <div class="panel-head">
+        <h2>フォルダ</h2>
+        <button id="addFolderBtn" class="small-btn">＋</button>
+      </div>
+
+      <div id="folderList" class="folder-list">
+        <button class="folder-item active" data-folder="all">すべて</button>
+      </div>
+    </aside>
+
+    <section class="memo-panel">
+      <div class="memo-toolbar">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="メモを検索"
+        />
+
+        <select id="folderSelect">
+          <option value="">フォルダなし</option>
+        </select>
+
+        <button id="newMemoBtn">新規メモ</button>
+      </div>
+
+      <div class="memo-body">
+        <div class="memo-list-wrap">
+          <h2>メモ一覧</h2>
+          <div id="memoList" class="memo-list"></div>
+        </div>
+
+        <div class="editor-wrap">
+          <textarea
+            id="memoEditor"
+            placeholder="ここにメモを書く&#10;1行目がタイトルになります"
+          ></textarea>
+
+          <div class="editor-actions">
+            <p id="saveStatus">未保存</p>
+            <button id="deleteMemoBtn" class="danger-btn">削除</button>
+            <button id="saveMemoBtn">保存</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="quick.js"></script>
+</body>
+</html>
