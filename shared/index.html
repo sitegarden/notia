@@ -4,23 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>共有メモ一覧 - Zero Notes</title>
+  <title>共有メモ一覧 | notia</title>
 
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" type="image/png" href="favicon.png" />
-  <link rel="apple-touch-icon" href="favicon.png" />
+  <meta
+    name="description"
+    content="自分が共有したクイックメモを確認・コピー・解除できるnotiaの共有メモ管理ページです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
+
 <body>
   <header class="site-header">
     <div>
-      <p class="label">ZERO NOTES</p>
+      <p class="label">SHARED MEMOS</p>
       <h1>共有メモ一覧</h1>
       <p class="lead">自分が共有したクイックメモを管理できます。</p>
     </div>
 
     <div class="auth-area">
-      <a href="index.html" class="back-link">一覧へ戻る</a>
-      <button id="loginBtn">ログイン</button>
+      <a href="/home/" class="back-link">Homeへ</a>
+      <button id="loginBtn">Googleでログイン</button>
       <button id="logoutBtn" class="hidden">ログアウト</button>
       <p id="userInfo" class="user-info">未ログイン</p>
     </div>
@@ -33,6 +39,7 @@
           <h2>共有中のメモ</h2>
           <p id="sharedStatus" class="empty-text">ログインすると共有メモを表示します。</p>
         </div>
+
         <button id="reloadSharedBtn" class="small-btn">↻</button>
       </div>
 
@@ -42,8 +49,9 @@
 
   <footer class="site-footer">
     <p>Created by Lane / Presented by ゆるおり</p>
+    <p>notia.jp</p>
   </footer>
 
-  <script type="module" src="shared.js"></script>
+  <script type="module" src="/shared.js"></script>
 </body>
 </html>
