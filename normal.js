@@ -47,6 +47,7 @@ const normalPreview = document.getElementById("normalPreview");
 
 const editModeBtn = document.getElementById("editModeBtn");
 const previewModeBtn = document.getElementById("previewModeBtn");
+const insertImageBtn = document.getElementById("insertImageBtn");
 const exportMdBtn = document.getElementById("exportMdBtn");
 
 const saveNormalMemoBtn = document.getElementById("saveNormalMemoBtn");
@@ -503,6 +504,123 @@ function updatePreview() {
 
 /* ---------- export ---------- */
 
+insertImageBtn.addEventListener("click", async () => {
+  await insertImageMarkdown();
+});
+
+async function insertImageMarkdown() {
+  const url = prompt("画像URLを入力してね\n例：https://example.com/image.png");
+
+  if (!url || !url.trim()) return;
+
+  const checkedUrl = normalizeImageUrl(url.trim());
+
+  if (!checkedUrl) {
+    alert("使える画像URLではありません。\nhttps:// か http:// の画像URL、または /images/sample.png のようなサイト内パスを使ってください。");
+    return;
+  }
+
+  const canLoad = await checkImageCanLoad(checkedUrl);
+
+  if (!canLoad) {
+    const ok = confirm(
+      "画像として読み込めませんでした。\nURLが正しくても、外部サイト側で表示を拒否している場合があります。\nそれでも差し込みますか？"
+    );
+
+    if (!ok) return;
+  }
+
+  const alt = prompt("画像の説明を入力してね", "画像") || "画像";
+  const markdown = `![${alt.replaceAll("[", "").replaceAll("]", "")}](${checkedUrl})`;
+
+  insertTextAtCursor(normalBodyEditor, markdown);
+
+  normalSaveStatus.textContent = selectedMemoId
+    ? "未保存の変更あり"
+    : "新規メモ";
+
+  updatePreview();
+  normalBodyEditor.focus();
+}
+
+function insertTextAtCursor(textarea, text) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  const before = textarea.value.slice(0, start);
+  const selected = textarea.value.slice(start, end);
+  const after = textarea.value.slice(end);
+
+  const prefix = before && !before.endsWith("\n") ? "\n\n" : "";
+  const suffix = after && !after.startsWith("\n") ? "\n\n" : "\n";
+
+  textarea.value = before + prefix + text + suffix + after;
+
+  const nextPosition = (before + prefix + text).length;
+  textarea.selectionStart = nextPosition;
+  textarea.selectionEnd = nextPosition;
+}
+
+function normalizeImageUrl(input) {
+  if (!input) return "";
+
+  try {
+    if (input.startsWith("/")) {
+      const url = new URL(input, location.origin);
+      return isSafeImageUrl(url) ? url.pathname + url.search : "";
+    }
+
+    const url = new URL(input);
+
+    return isSafeImageUrl(url) ? url.toString() : "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function isSafeImageUrl(url) {
+  const allowedProtocols = ["https:", "http:"];
+
+  if (!allowedProtocols.includes(url.protocol)) {
+    return false;
+  }
+
+  const path = url.pathname.toLowerCase();
+
+  const allowedExtensions = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".avif"
+  ];
+
+  const hasExtension = path.includes(".");
+
+  if (!hasExtension) {
+    return true;
+  }
+
+  return allowedExtensions.some((ext) => path.endsWith(ext));
+}
+
+function checkImageCanLoad(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+
+    img.referrerPolicy = "no-referrer";
+    img.src = src;
+
+    setTimeout(() => {
+      resolve(false);
+    }, 5000);
+  });
+}
+
 exportMdBtn.addEventListener("click", () => {
   exportCurrentMemoAsMarkdown();
 });
@@ -643,6 +761,29 @@ if (imageMatch) {
   closeList();
 
   const alt = imageMatch[1] || "画像";
+  const src = normalizeImageUrl(imageMatch[2] || "");
+
+  if (!src) {
+    html += `<p class="image-error">画像URLが無効です</p>`;
+    return;
+  }
+
+  html += `
+    <figure class="memo-image-block">
+      <img src="${escapeAttribute(src)}" alt="${escapeAttribute(alt)}">
+      ${alt ? `<figcaption>${formatInline(alt)}</figcaption>` : ""}
+    </figure>
+  `;
+
+  return;
+}
+
+    const imageMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+
+if (imageMatch) {
+  closeList();
+
+  const alt = imageMatch[1] || "画像";
   const src = imageMatch[2] || "";
 
   html += `
@@ -692,11 +833,6 @@ if (imageMatch) {
 
 function formatInline(text) {
   return text
-    .replace(/!\[(.*?)\]\((.*?)\)/g, `
-      <span class="memo-inline-image">
-        <img src="$2" alt="$1">
-      </span>
-    `)
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/`(.*?)`/g, "<code>$1</code>");
 }
@@ -706,4 +842,12 @@ function sanitizeFileName(name) {
     .replace(/[\\/:*?"<>|]/g, "_")
     .replace(/\s+/g, "_")
     .slice(0, 50) || "memo";
+}
+
+function escapeAttribute(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
