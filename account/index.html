@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>アカウント設定 | notia</title>
+
+  <meta
+    name="description"
+    content="notiaのアカウント情報や使用状況を確認できるページです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+</head>
+
+<body>
+  <header class="site-header">
+    <div>
+      <p class="label">ACCOUNT</p>
+      <h1>アカウント設定</h1>
+      <p class="lead">ログイン情報と、notiaの使用状況を確認できます。</p>
+    </div>
+
+    <div class="auth-area">
+      <a href="/home/" class="back-link">Homeへ</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info">未ログイン</p>
+    </div>
+  </header>
+
+  <main class="container account-layout">
+    <section class="account-card">
+      <p class="label">PROFILE</p>
+      <h2 id="accountName">ログイン確認中...</h2>
+      <p id="accountEmail" class="account-subtext"></p>
+
+      <div class="account-status-row">
+        <span id="accountRoleBadge" class="account-role-badge">確認中</span>
+        <span id="accountUidText" class="account-uid-text"></span>
+      </div>
+    </section>
+
+    <section class="account-card">
+      <div class="account-section-head">
+        <div>
+          <p class="label">USAGE</p>
+          <h2>使用状況</h2>
+          <p id="usageStatus" class="account-subtext">
+            ログインすると使用状況を表示します。
+          </p>
+        </div>
+
+        <button id="reloadUsageBtn" class="small-btn">↻</button>
+      </div>
+
+      <div id="usageGrid" class="usage-grid"></div>
+    </section>
+
+    <section class="account-card">
+      <p class="label">LIMIT</p>
+      <h2>一般ユーザーの目安</h2>
+
+      <div class="limit-list">
+        <div>
+          <strong>クイックメモ</strong>
+          <span>100件まで / 1件5000文字まで</span>
+        </div>
+
+        <div>
+          <strong>タスク</strong>
+          <span>100件まで</span>
+        </div>
+
+        <div>
+          <strong>共有メモ</strong>
+          <span>自分が共有したメモを確認できます</span>
+        </div>
+      </div>
+
+      <p class="account-note">
+        管理者アカウントでは、管理人専用メモも使用状況に表示されます。
+      </p>
+    </section>
+  </main>
+
+  <script type="module" src="/account.js"></script>
+</body>
+</html>
