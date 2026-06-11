@@ -8,12 +8,12 @@
 
   <meta
     name="description"
-    content="notiaは、メモ・日記・タスク・創作ログなどをまとめて保管できるメモサイトです。"
+    content="notiaは、メモ・タスク・共有メモ・創作ログなどをまとめて保管できるメモサイトです。"
   />
 
   <!-- OGP -->
   <meta property="og:title" content="notia" />
-  <meta property="og:description" content="メモ・日記・タスク・創作ログなどをまとめて保管できるメモサイト。" />
+  <meta property="og:description" content="メモ・タスク・共有メモ・創作ログなどをまとめて保管できるメモサイト。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://notia.jp/" />
   <meta property="og:image" content="https://notia.jp/ogp.png" />
@@ -21,7 +21,7 @@
   <!-- X / Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="notia" />
-  <meta name="twitter:description" content="メモ・日記・タスク・創作ログなどをまとめて保管できるメモサイト。" />
+  <meta name="twitter:description" content="メモ・タスク・共有メモ・創作ログなどをまとめて保管できるメモサイト。" />
   <meta name="twitter:image" content="https://notia.jp/ogp.png" />
 
   <link rel="stylesheet" href="/style.css" />
@@ -30,19 +30,7 @@
 </head>
 
 <body class="landing-page">
-
-<div id="commonHeader"></div>
-
-  
-  <header class="landing-header">
-    <a href="/" class="landing-logo">notia</a>
-
-    <nav class="landing-nav">
-      <a href="#features">できること</a>
-      <a href="#private">使い方</a>
-      <a href="/home/" class="nav-button">Homeへ</a>
-    </nav>
-  </header>
+  <div id="commonHeader"></div>
 
   <main>
     <section class="landing-hero">
@@ -55,7 +43,7 @@
         </h1>
 
         <p class="hero-lead">
-          notiaは、思いつき・日記・タスク・創作ログ・人物メモなどを、
+          notiaは、思いつき・タスク・共有メモ・創作ログなどを、
           自分の使いやすい形でまとめて残せるメモサイトです。
         </p>
 
@@ -65,7 +53,7 @@
         </div>
 
         <p class="hero-note">
-          ※ 一部機能は管理人専用です。
+          ※ 使える機能から少しずつ公開・調整しています。
         </p>
       </div>
 
@@ -92,8 +80,8 @@
             </div>
 
             <div>
-              <strong>Creative Log</strong>
-              <span>作品や設定を保管</span>
+              <strong>Share</strong>
+              <span>必要なメモだけ共有</span>
             </div>
           </div>
         </div>
@@ -104,7 +92,9 @@
       <div class="section-title">
         <p class="label">FEATURES</p>
         <h2>notiaでできること</h2>
-        <p>用途ごとに分けて、いろんな記録をまとめて保管できます。</p>
+        <p>
+          まずは軽く使える機能から。今後、記録や創作向けの機能も少しずつ整えていきます。
+        </p>
       </div>
 
       <div class="feature-grid">
@@ -112,66 +102,70 @@
           <span>🏠</span>
           <h3>Home</h3>
           <p>最近書いたメモや記録をまとめて確認できます。</p>
+          <small>利用できます</small>
+        </a>
+
+        <a href="/quick/" class="feature-card">
+          <span>📝</span>
+          <h3>クイックメモ</h3>
+          <p>タイトルなしでも、すぐに書けるシンプルなメモ。</p>
+          <small>利用できます</small>
+        </a>
+
+        <a href="/task/" class="feature-card">
+          <span>✅</span>
+          <h3>タスク</h3>
+          <p>やることを軽く置いて、完了したらチェックできます。</p>
+          <small>利用できます</small>
         </a>
 
         <a href="/shared/" class="feature-card accent-share">
           <span>🔗</span>
           <h3>共有メモ</h3>
           <p>自分が共有したクイックメモを確認・管理できます。</p>
+          <small>利用できます</small>
         </a>
 
-        <a href="/quick/" class="feature-card">
-          <span>📝</span>
-          <h3>クイックメモ</h3>
-          <p>タイトルなしで、すぐに書けるシンプルなメモ。</p>
-        </a>
-
-        <a href="/task/" class="feature-card">
-          <span>✅</span>
-          <h3>タスク</h3>
-          <p>やることを軽く置いて、完了したらチェック。</p>
-        </a>
-
-        <div class="feature-card admin-feature locked-feature">
+        <div class="feature-card planned-feature">
           <span>📄</span>
           <h3>通常メモ</h3>
-          <p>Markdown風に書ける、しっかりめのメモ。</p>
-          <small>管理人専用</small>
+          <p>Markdown風に書ける、しっかりめの長文メモ。</p>
+          <small>調整中</small>
         </div>
 
-        <div class="feature-card admin-feature locked-feature">
+        <div class="feature-card planned-feature">
           <span>📅</span>
           <h3>日記</h3>
-          <p>カレンダーから日付を選んで記録できます。</p>
-          <small>管理人専用</small>
+          <p>カレンダーから日付を選んで、日々の記録を残せます。</p>
+          <small>実装予定</small>
         </div>
 
-        <div class="feature-card admin-feature locked-feature">
+        <div class="feature-card planned-feature">
           <span>🌙</span>
           <h3>夢日記</h3>
-          <p>見た夢や印象的だった内容を残せます。</p>
-          <small>管理人専用</small>
+          <p>見た夢や、印象に残った内容を残せる記録機能。</p>
+          <small>実装予定</small>
         </div>
 
-        <div class="feature-card admin-feature locked-feature">
+        <div class="feature-card planned-feature">
           <span>🎧</span>
           <h3>曲メモ</h3>
           <p>曲名・歌詞・和訳・URLなどをまとめて保存。</p>
-          <small>管理人専用</small>
+          <small>実装予定</small>
         </div>
 
-        <div class="feature-card admin-feature locked-feature">
+        <div class="feature-card planned-feature">
           <span>📚</span>
           <h3>ストーリー</h3>
-          <p>作品ごとに話や設定メモを整理できます。</p>
-          <small>管理人専用</small>
+          <p>作品ごとに話や設定メモを整理できる創作用機能。</p>
+          <small>実装予定</small>
         </div>
 
-        <div class="feature-card admin-feature locked-feature">
+        <div class="feature-card planned-feature">
           <span>👥</span>
           <h3>人物帳</h3>
-          <p>リアル・キャラ問わず、人物情報を保管できます。</p>
-          <small>管理人専用</small>
+          <p>人物やキャラクターの情報を整理できるメモ機能。</p>
+          <small>実装予定</small>
         </div>
       </div>
     </section>
@@ -179,10 +173,10 @@
     <section id="private" class="landing-section split-section">
       <div>
         <p class="label">PRIVATE FIRST</p>
-        <h2>基本は、自分用。</h2>
+        <h2>基本は、自分のための保管場所。</h2>
         <p>
-          notiaは、まず自分が使いやすいことを大切にしたメモサイトです。
-          一部の機能は共有できますが、元のメモ本体はそのまま公開されない設計にしています。
+          notiaは、まず「自分が使いやすいこと」を大切にしたメモサイトです。
+          必要なものを必要な形で残せるように、少しずつ機能を整えています。
         </p>
       </div>
 
@@ -192,6 +186,30 @@
           共有したいメモだけを共有用データとしてコピーします。
           元のメモ本体は、自分だけの場所に残ります。
         </p>
+      </div>
+    </section>
+
+    <section class="landing-section split-section">
+      <div>
+        <p class="label">SAFETY</p>
+        <h2>安心して使うために。</h2>
+        <p>
+          大事なデータは各自でバックアップをお願いします。
+          また、住所・電話番号・パスワード・他人の個人情報など、
+          外に出ると困る情報は書かないようにしてください。
+        </p>
+      </div>
+
+      <div class="private-box">
+        <h3>ルールも用意しています</h3>
+        <p>
+          notiaを安全に使うため、利用規約とプライバシーポリシーを用意しています。
+        </p>
+
+        <div class="hero-actions small-actions">
+          <a href="/terms/" class="hero-secondary">利用規約</a>
+          <a href="/privacy/" class="hero-secondary">プライバシー</a>
+        </div>
       </div>
     </section>
   </main>
