@@ -3680,3 +3680,72 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* image folders */
+
+.image-folder-panel {
+  margin-top: 14px;
+  padding: 12px;
+  background: #f7efe5;
+  border: 1px solid #e6d9c9;
+  border-radius: 18px;
+}
+
+.panel-head.mini {
+  margin-bottom: 10px;
+}
+
+.panel-head.mini h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.image-folder-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.image-folder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 8px 11px;
+  background: #fffaf3;
+  color: #3b3128;
+  border: 1px solid #e6d9c9;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.image-folder-btn span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.image-folder-btn small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  background: #e6d9c9;
+  color: #5f5145;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.image-folder-btn.active {
+  background: #2f2924;
+  color: #fffaf3;
+  border-color: #2f2924;
+}
+
+.image-folder-btn.active small {
+  background: rgba(255, 250, 243, 0.22);
+  color: #fffaf3;
+}
