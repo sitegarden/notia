@@ -70,8 +70,10 @@ const reloadImageMemosBtn = document.getElementById("reloadImageMemosBtn");
 const imageSearchInput = document.getElementById("imageSearchInput");
 const imageCategoryFilter = document.getElementById("imageCategoryFilter");
 const favoriteOnlyInput = document.getElementById("favoriteOnlyInput");
+
 const addImageFolderBtn = document.getElementById("addImageFolderBtn");
 const imageFolderList = document.getElementById("imageFolderList");
+
 const imageMemoList = document.getElementById("imageMemoList");
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -88,6 +90,7 @@ let imageMemos = [];
 let selectedImageMemoId = null;
 let selectedFile = null;
 let inputMode = "upload";
+let previewObjectUrl = "";
 
 /* ---------- auth ---------- */
 
@@ -122,6 +125,7 @@ onAuthStateChanged(auth, async (user) => {
     selectedFile = null;
 
     clearForm();
+    renderImageFolders();
     renderImageMemos();
 
     imageStatus.textContent = "ログインしてください";
@@ -147,8 +151,10 @@ onAuthStateChanged(auth, async (user) => {
 newImageMemoBtn.addEventListener("click", () => {
   selectedImageMemoId = null;
   selectedFile = null;
+
   clearForm();
   renderImageMemos();
+
   imageStatus.textContent = "新規画像メモ";
 });
 
@@ -174,10 +180,12 @@ imageFileInput.addEventListener("change", () => {
 
   if (errorMessage) {
     alert(errorMessage);
+
     imageFileInput.value = "";
     selectedFile = null;
     selectedFileText.textContent = "まだ画像は選択されていません。";
     updatePreview("");
+
     return;
   }
 
@@ -185,14 +193,14 @@ imageFileInput.addEventListener("change", () => {
   selectedFileText.textContent = `${file.name} / ${formatFileSize(file.size)}`;
 
   const objectUrl = URL.createObjectURL(file);
-  updatePreview(objectUrl);
+  updatePreview(objectUrl, true);
 
   imageStatus.textContent = selectedImageMemoId
     ? "未保存の変更あり"
     : "新規画像メモ";
 });
 
-imageUrlInput.addEventListener("input", async () => {
+imageUrlInput.addEventListener("input", () => {
   const url = imageUrlInput.value.trim();
   const safeUrl = normalizeImageUrl(url);
 
@@ -252,6 +260,23 @@ favoriteOnlyInput.addEventListener("change", () => {
   renderImageMemos();
 });
 
+if (addImageFolderBtn) {
+  addImageFolderBtn.addEventListener("click", () => {
+    const folderName = prompt("フォルダ名を入力してね");
+
+    if (!folderName || !folderName.trim()) return;
+
+    imageCategoryInput.value = folderName.trim();
+    imageCategoryFilter.value = "all";
+
+    imageStatus.textContent = selectedImageMemoId
+      ? "未保存の変更あり"
+      : "新規画像メモ";
+
+    alert("この画像メモを保存すると、フォルダに追加されます");
+  });
+}
+
 /* ---------- mode ---------- */
 
 function setInputMode(mode) {
@@ -277,29 +302,35 @@ async function loadImageMemos() {
 
   imageStatus.textContent = "読み込み中...";
 
-  const q = query(
-    collection(db, "imageMemos"),
-    where("uid", "==", currentUser.uid)
-  );
+  try {
+    const q = query(
+      collection(db, "imageMemos"),
+      where("uid", "==", currentUser.uid)
+    );
 
-  const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
 
-  imageMemos = snapshot.docs.map((docSnap) => ({
-    id: docSnap.id,
-    ...docSnap.data()
-  }));
+    imageMemos = snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
 
-  imageMemos.sort((a, b) => {
-    const aTime = a.updatedAt?.seconds || 0;
-    const bTime = b.updatedAt?.seconds || 0;
-    return bTime - aTime;
-  });
+    imageMemos.sort((a, b) => {
+      const aTime = a.updatedAt?.seconds || 0;
+      const bTime = b.updatedAt?.seconds || 0;
+      return bTime - aTime;
+    });
 
-  updateCategoryFilter();
-renderImageFolders();
-renderImageMemos();
+    updateCategoryFilter();
+    renderImageFolders();
+    renderImageMemos();
 
-  imageStatus.textContent = "画像メモを保存できます";
+    imageStatus.textContent = "画像メモを保存できます";
+  } catch (error) {
+    console.error(error);
+    imageStatus.textContent = "読み込みに失敗しました";
+    alert("画像メモの読み込みに失敗しました。Firestoreルールを確認してください。");
+  }
 }
 
 /* ---------- save ---------- */
@@ -335,10 +366,11 @@ async function saveImageMemo() {
     if (inputMode === "upload" && selectedFile) {
       const uploaded = await uploadImageFile(selectedFile);
 
-imageUrl = uploaded.imageUrl;
-storagePath = uploaded.storagePath;
-uploadedStoragePath = uploaded.storagePath;
-sourceType = "upload";
+      imageUrl = uploaded.imageUrl;
+      storagePath = uploaded.storagePath;
+      uploadedStoragePath = uploaded.storagePath;
+      sourceType = "upload";
+
       if (
         selectedMemo &&
         selectedMemo.storagePath &&
@@ -424,16 +456,16 @@ sourceType = "upload";
     if (selected) {
       selectImageMemo(selected);
     }
-} catch (error) {
-  console.error(error);
+  } catch (error) {
+    console.error(error);
 
-  if (uploadedStoragePath) {
-    await deleteStorageImage(uploadedStoragePath);
+    if (uploadedStoragePath) {
+      await deleteStorageImage(uploadedStoragePath);
+    }
+
+    alert("画像メモの保存に失敗しました");
+    imageStatus.textContent = "保存に失敗しました";
   }
-
-  alert("画像メモの保存に失敗しました");
-  imageStatus.textContent = "保存に失敗しました";
-}
 }
 
 async function uploadImageFile(file) {
@@ -480,7 +512,6 @@ async function deleteImageMemo() {
   }
 
   const selectedMemo = getSelectedMemo();
-
   const ok = confirm("この画像メモを削除しますか？");
 
   if (!ok) return;
@@ -494,6 +525,7 @@ async function deleteImageMemo() {
 
     selectedImageMemoId = null;
     selectedFile = null;
+
     clearForm();
 
     imageStatus.textContent = "削除しました";
@@ -562,7 +594,10 @@ function renderImageMemos() {
   let filtered = [...imageMemos];
 
   if (categoryFilter !== "all") {
-    filtered = filtered.filter((item) => item.category === categoryFilter);
+    filtered = filtered.filter((item) => {
+      const itemCategory = item.category || "未分類";
+      return itemCategory === categoryFilter;
+    });
   }
 
   if (favoriteOnly) {
@@ -597,6 +632,7 @@ function renderImageMemos() {
     card.className = selectedImageMemoId === item.id
       ? "image-memo-card active"
       : "image-memo-card";
+    card.type = "button";
 
     const thumb = document.createElement("div");
     thumb.className = "image-memo-thumb";
@@ -604,6 +640,7 @@ function renderImageMemos() {
     const img = document.createElement("img");
     img.src = item.imageUrl;
     img.alt = item.title || "画像";
+    img.loading = "lazy";
 
     thumb.appendChild(img);
 
@@ -677,9 +714,7 @@ function updateCategoryFilter() {
   const currentValue = imageCategoryFilter.value || "all";
 
   const categories = [...new Set(
-    imageMemos
-      .map((item) => item.category)
-      .filter(Boolean)
+    imageMemos.map((item) => item.category || "未分類")
   )].sort((a, b) => a.localeCompare(b, "ja"));
 
   imageCategoryFilter.innerHTML = `<option value="all">すべて</option>`;
@@ -697,6 +732,8 @@ function updateCategoryFilter() {
 }
 
 function renderImageFolders() {
+  if (!imageFolderList) return;
+
   imageFolderList.innerHTML = "";
 
   const folders = getImageFolders();
@@ -705,9 +742,10 @@ function renderImageFolders() {
   const allBtn = createFolderButton({
     label: "すべて",
     count: imageMemos.length,
-    active: currentFilter === "all",
+    active: currentFilter === "all" && !favoriteOnlyInput.checked,
     onClick: () => {
       imageCategoryFilter.value = "all";
+      favoriteOnlyInput.checked = false;
       renderImageFolders();
       renderImageMemos();
     }
@@ -723,6 +761,11 @@ function renderImageFolders() {
     active: favoriteOnlyInput.checked,
     onClick: () => {
       favoriteOnlyInput.checked = !favoriteOnlyInput.checked;
+
+      if (favoriteOnlyInput.checked) {
+        imageCategoryFilter.value = "all";
+      }
+
       renderImageFolders();
       renderImageMemos();
     }
@@ -734,7 +777,7 @@ function renderImageFolders() {
     const btn = createFolderButton({
       label: folder.name,
       count: folder.count,
-      active: currentFilter === folder.name,
+      active: currentFilter === folder.name && !favoriteOnlyInput.checked,
       onClick: () => {
         imageCategoryFilter.value = folder.name;
         favoriteOnlyInput.checked = false;
@@ -803,7 +846,16 @@ function clearForm() {
   updatePreview("");
 }
 
-function updatePreview(src) {
+function updatePreview(src, isObjectUrl = false) {
+  if (previewObjectUrl && previewObjectUrl !== src) {
+    URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = "";
+  }
+
+  if (isObjectUrl) {
+    previewObjectUrl = src;
+  }
+
   if (!src) {
     imagePreview.classList.add("hidden");
     imagePreview.removeAttribute("src");
@@ -920,7 +972,12 @@ function splitTags(tags = "") {
 function makeSubText(item) {
   const parts = [];
 
-  if (item.category) parts.push(item.category);
+  if (item.category) {
+    parts.push(item.category);
+  } else {
+    parts.push("未分類");
+  }
+
   if (item.sourceType === "upload") parts.push("アップロード");
   if (item.sourceType === "url") parts.push("URL");
 
@@ -934,18 +991,3 @@ function escapeMarkdownText(text) {
     .replaceAll("(", "")
     .replaceAll(")", "");
 }
-
-addImageFolderBtn.addEventListener("click", () => {
-  const folderName = prompt("フォルダ名を入力してね");
-
-  if (!folderName || !folderName.trim()) return;
-
-  imageCategoryInput.value = folderName.trim();
-  imageCategoryFilter.value = "all";
-
-  imageStatus.textContent = selectedImageMemoId
-    ? "未保存の変更あり"
-    : "新規画像メモ";
-
-  alert("この画像メモを保存すると、フォルダに追加されます");
-});
