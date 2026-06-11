@@ -20,7 +20,6 @@ import {
   collection,
   doc,
   addDoc,
-  getDoc,
   getDocs,
   updateDoc,
   deleteDoc,
@@ -57,7 +56,6 @@ let memos = [];
 let selectedFolderId = "all";
 let selectedMemoId = null;
 
-
 const QUICK_MEMO_LIMIT = 100;
 const QUICK_MEMO_BODY_LIMIT = 5000;
 
@@ -91,6 +89,8 @@ onAuthStateChanged(auth, async (user) => {
 
     await loadFolders();
     await loadMemos();
+
+    saveStatus.textContent = "メモを選択してください";
   } else {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
@@ -98,11 +98,16 @@ onAuthStateChanged(auth, async (user) => {
 
     folders = [];
     memos = [];
+    selectedFolderId = "all";
     selectedMemoId = null;
+
     memoEditor.value = "";
     memoList.innerHTML = "";
+
     renderFolders();
     renderFolderSelect();
+    hideShareView();
+
     saveStatus.textContent = "ログインしてください";
   }
 });
@@ -157,27 +162,32 @@ async function loadFolders() {
   renderFolders();
   renderFolderSelect();
 }
+
 function renderFolders() {
   folderList.innerHTML = "";
 
   const allBtn = document.createElement("button");
   allBtn.className = selectedFolderId === "all" ? "folder-item active" : "folder-item";
   allBtn.textContent = "すべて";
+
   allBtn.addEventListener("click", () => {
     selectedFolderId = "all";
     renderFolders();
     renderMemos();
   });
+
   folderList.appendChild(allBtn);
 
   const noFolderBtn = document.createElement("button");
   noFolderBtn.className = selectedFolderId === "" ? "folder-item active" : "folder-item";
   noFolderBtn.textContent = "フォルダなし";
+
   noFolderBtn.addEventListener("click", () => {
     selectedFolderId = "";
     renderFolders();
     renderMemos();
   });
+
   folderList.appendChild(noFolderBtn);
 
   folders.forEach((folder) => {
@@ -235,13 +245,20 @@ deleteMemoBtn.addEventListener("click", async () => {
 
   if (!ok) return;
 
+  const currentMemo = memos.find((memo) => memo.id === selectedMemoId);
+
   try {
+    if (currentMemo && currentMemo.shareId) {
+      await deleteDoc(doc(db, "sharedMemos", currentMemo.shareId));
+    }
+
     await deleteDoc(doc(db, "quickMemos", selectedMemoId));
 
     selectedMemoId = null;
     memoEditor.value = "";
     saveStatus.textContent = "削除しました";
 
+    hideShareView();
     await loadMemos();
   } catch (error) {
     console.error(error);
@@ -263,14 +280,14 @@ async function saveMemo() {
   }
 
   if (!isAdmin(currentUser) && body.length > QUICK_MEMO_BODY_LIMIT) {
-  alert(`クイックメモは${QUICK_MEMO_BODY_LIMIT}文字までです`);
-  return;
-}
+    alert(`クイックメモは${QUICK_MEMO_BODY_LIMIT}文字までです`);
+    return;
+  }
 
-if (!isAdmin(currentUser) && !selectedMemoId && memos.length >= QUICK_MEMO_LIMIT) {
-  alert(`クイックメモは${QUICK_MEMO_LIMIT}件まで保存できます`);
-  return;
-}
+  if (!isAdmin(currentUser) && !selectedMemoId && memos.length >= QUICK_MEMO_LIMIT) {
+    alert(`クイックメモは${QUICK_MEMO_LIMIT}件まで保存できます`);
+    return;
+  }
 
   const title = getTitleFromBody(body);
   const folderId = folderSelect.value;
@@ -292,6 +309,8 @@ if (!isAdmin(currentUser) && !selectedMemoId && memos.length >= QUICK_MEMO_LIMIT
         body,
         title,
         folderId,
+        shareId: "",
+        sharedAt: null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
@@ -301,6 +320,12 @@ if (!isAdmin(currentUser) && !selectedMemoId && memos.length >= QUICK_MEMO_LIMIT
     }
 
     await loadMemos();
+
+    const updatedMemo = memos.find((memo) => memo.id === selectedMemoId);
+
+    if (updatedMemo) {
+      updateShareView(updatedMemo);
+    }
   } catch (error) {
     console.error(error);
     alert("保存に失敗しました");
@@ -380,7 +405,6 @@ function renderMemos() {
       saveStatus.textContent = "編集中";
 
       updateShareView(memo);
-      
       renderMemos();
     });
 
@@ -396,28 +420,7 @@ memoEditor.addEventListener("input", () => {
   saveStatus.textContent = selectedMemoId ? "未保存の変更あり" : "新規メモ";
 });
 
-/* ---------- helpers ---------- */
-
-function getTitleFromBody(body) {
-  const firstLine = body
-    .split("\n")
-    .map((line) => line.trim())
-    .find((line) => line.length > 0);
-
-  return firstLine || "無題";
-}
-
-function makePreview(body = "") {
-  const lines = body
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  if (lines.length <= 1) return "本文なし";
-
-  return lines.slice(1).join(" ").slice(0, 60);
-}
-
+/* ---------- share ---------- */
 
 shareMemoBtn.addEventListener("click", async () => {
   await shareCurrentMemo();
@@ -575,9 +578,20 @@ function hideShareView() {
 }
 
 function makeShareUrl(shareId) {
-  const url = new URL("share.html", location.href);
+  const url = new URL("/share/", location.origin);
   url.searchParams.set("id", shareId);
   return url.toString();
+}
+
+/* ---------- helpers ---------- */
+
+function getTitleFromBody(body) {
+  const firstLine = body
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+
+  return firstLine || "無題";
 }
 
 function getMemoTitle(body) {
@@ -586,4 +600,15 @@ function getMemoTitle(body) {
     .find((line) => line.trim());
 
   return firstLine ? firstLine.trim().slice(0, 80) : "無題のメモ";
+}
+
+function makePreview(body = "") {
+  const lines = body
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length <= 1) return "本文なし";
+
+  return lines.slice(1).join(" ").slice(0, 60);
 }
