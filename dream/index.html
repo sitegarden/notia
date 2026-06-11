@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>夢日記 | Zero Notes</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <title>夢日記 | notia</title>
+
+  <meta
+    name="description"
+    content="見た夢を、夜っぽいカレンダーでそっと残せるnotiaの夢日記ページです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
+
 <body class="dream-page">
   <header class="site-header dream-header">
     <div>
@@ -15,7 +25,7 @@
     </div>
 
     <div class="auth-area">
-      <a href="index.html" class="back-link">トップへ戻る</a>
+      <a href="/home/" class="back-link">Homeへ</a>
       <button id="loginBtn">Googleでログイン</button>
       <button id="logoutBtn" class="hidden">ログアウト</button>
       <p id="userInfo" class="user-info"></p>
@@ -24,13 +34,13 @@
 
   <main class="container diary-layout">
     <section class="diary-calendar-panel dream-panel">
-     <div class="diary-month-head">
-  <button id="prevYearBtn">«</button>
-  <button id="prevMonthBtn">‹</button>
-  <h2 id="monthTitle">----</h2>
-  <button id="nextMonthBtn">›</button>
-  <button id="nextYearBtn">»</button>
-</div>
+      <div class="diary-month-head">
+        <button id="prevYearBtn">«</button>
+        <button id="prevMonthBtn">‹</button>
+        <h2 id="monthTitle">----</h2>
+        <button id="nextMonthBtn">›</button>
+        <button id="nextYearBtn">»</button>
+      </div>
 
       <div class="week-row">
         <span>日</span>
@@ -75,6 +85,6 @@
     </section>
   </main>
 
-  <script type="module" src="dream.js"></script>
+  <script type="module" src="/dream.js"></script>
 </body>
 </html>
