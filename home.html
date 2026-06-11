@@ -4,25 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Home - Zero Notes</title>
+  <title>Home | notia</title>
 
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" type="image/png" href="favicon.png" />
-  <link rel="apple-touch-icon" href="favicon.png" />
+  <meta
+    name="description"
+    content="最近書いたメモや記録をまとめて確認できるnotiaのホームページです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
+
 <body class="home-page">
   <header class="home-header">
-  <div>
-    <p class="label">ZERO NOTES</p>
-    <h1>Home</h1>
-    <p class="lead">最近書いたメモや記録をまとめて表示します。</p>
-  </div>
+    <div>
+      <p class="label">NOTIA</p>
+      <h1>Home</h1>
+      <p class="lead">最近書いたメモや記録をまとめて表示します。</p>
+    </div>
 
-  <div class="home-header-actions">
-    <a href="index.html" class="ghost-link">一覧へ戻る</a>
-    <button id="logoutBtn" class="small-btn">ログアウト</button>
-  </div>
-</header>
+    <div class="home-header-actions">
+      <a href="/" class="ghost-link">トップへ</a>
+      <button id="logoutBtn" class="small-btn hidden">ログアウト</button>
+    </div>
+  </header>
 
   <main class="home-main">
     <section class="home-user-card">
@@ -31,6 +37,7 @@
         <h2 id="userName">ログイン確認中...</h2>
         <p id="userStatus">データを読み込んでいます。</p>
       </div>
+
       <button id="loginBtn" class="primary-btn">Googleでログイン</button>
     </section>
 
@@ -41,6 +48,7 @@
             <p class="section-label">RECENT</p>
             <h2>最近の記録</h2>
           </div>
+
           <button id="reloadBtn" class="small-btn">再読み込み</button>
         </div>
 
@@ -53,68 +61,85 @@
             <h2>クイックメモ</h2>
             <a href="/quick/">開く</a>
           </div>
+
           <div id="quickMemoList" class="home-list"></div>
         </article>
 
         <article class="home-section-card">
           <div class="home-section-head mini">
             <h2>タスク</h2>
-            <a href="task.html">開く</a>
+            <a href="/task/">開く</a>
           </div>
+
           <div id="taskList" class="home-list"></div>
+        </article>
+
+        <article class="home-section-card">
+          <div class="home-section-head mini">
+            <h2>共有メモ</h2>
+            <a href="/shared/">開く</a>
+          </div>
+
+          <div id="sharedMemoList" class="home-list"></div>
         </article>
 
         <article class="home-section-card admin-only hidden">
           <div class="home-section-head mini">
             <h2>通常メモ</h2>
-            <a href="normal.html">開く</a>
+            <a href="/normal/">開く</a>
           </div>
+
           <div id="normalMemoList" class="home-list"></div>
         </article>
 
         <article class="home-section-card admin-only hidden">
           <div class="home-section-head mini">
             <h2>日記</h2>
-            <a href="diary.html">開く</a>
+            <a href="/diary/">開く</a>
           </div>
+
           <div id="diaryList" class="home-list"></div>
         </article>
 
         <article class="home-section-card admin-only hidden">
           <div class="home-section-head mini">
             <h2>夢日記</h2>
-            <a href="dream.html">開く</a>
+            <a href="/dream/">開く</a>
           </div>
+
           <div id="dreamList" class="home-list"></div>
         </article>
 
         <article class="home-section-card admin-only hidden">
           <div class="home-section-head mini">
             <h2>曲メモ</h2>
-            <a href="music.html">開く</a>
+            <a href="/music/">開く</a>
           </div>
+
           <div id="musicList" class="home-list"></div>
         </article>
 
         <article class="home-section-card admin-only hidden">
           <div class="home-section-head mini">
             <h2>ストーリー</h2>
-            <a href="story.html">開く</a>
+            <a href="/story/">開く</a>
           </div>
+
           <div id="storyList" class="home-list"></div>
         </article>
 
         <article class="home-section-card admin-only hidden">
           <div class="home-section-head mini">
             <h2>人物帳</h2>
-            <a href="people.html">開く</a>
+            <a href="/people/">開く</a>
           </div>
+
           <div id="peopleList" class="home-list"></div>
         </article>
       </section>
     </section>
   </main>
 
-  <script type="module" src="home.js"></script>
+  <script type="module" src="/home.js"></script>
 </body>
 </html>
