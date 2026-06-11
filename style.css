@@ -2818,3 +2818,24 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+.locked-feature {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.locked-feature:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.locked-feature small {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #efe3d4;
+  color: #5a4b3d;
+  font-size: 12px;
+  font-weight: 800;
+}
