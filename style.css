@@ -3143,3 +3143,44 @@ button {
     flex: 0 0 42px;
   }
 }
+
+.terms-layout {
+  max-width: 900px;
+}
+
+.terms-card {
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+  border-radius: 22px;
+  padding: 28px;
+  line-height: 1.9;
+  box-shadow: 0 14px 30px rgba(47, 41, 36, 0.08);
+}
+
+.terms-card h2 {
+  margin-top: 28px;
+  margin-bottom: 10px;
+  font-size: 1.15rem;
+}
+
+.terms-card h2:first-of-type {
+  margin-top: 10px;
+}
+
+.terms-card p {
+  margin: 0 0 12px;
+}
+
+.terms-card ul {
+  margin: 10px 0 0;
+  padding-left: 1.4em;
+}
+
+.terms-card li {
+  margin-bottom: 6px;
+}
+
+.terms-date {
+  color: #7d7063;
+  font-size: 0.9rem;
+}
