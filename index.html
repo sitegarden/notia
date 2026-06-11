@@ -3,146 +3,181 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zero Notes</title>
+
+  <title>notia - いろいろ保管できるメモサイト</title>
+
+  <meta name="description" content="notiaは、メモ・日記・タスク・創作ログなどをまとめて保管できるメモサイトです。" />
+
+  <!-- OGP -->
+  <meta property="og:title" content="notia" />
+  <meta property="og:description" content="メモ・日記・タスク・創作ログなどをまとめて保管できるメモサイト。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://notia.jp/" />
+  <meta property="og:image" content="https://notia.jp/ogp.png" />
+
+  <!-- X / Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="notia" />
+  <meta name="twitter:description" content="メモ・日記・タスク・創作ログなどをまとめて保管できるメモサイト。" />
+  <meta name="twitter:image" content="https://notia.jp/ogp.png" />
+
   <link rel="stylesheet" href="style.css" />
-
-
-<!-- OGP -->
-<meta property="og:title" content="Zero Notes" />
-<meta property="og:description" content="メモ・日記・タスク・創作ログをまとめて保管できるメモサイト。" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://sitegarden.github.io/notes/" />
-<meta property="og:image" content="https://sitegarden.github.io/notes/ogp.png" />
-
-<!-- X / Twitter -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Zero Notes" />
-<meta name="twitter:description" content="メモ・日記・タスク・創作ログをまとめて保管できるメモサイト。" />
-<meta name="twitter:image" content="https://sitegarden.github.io/notes/ogp.png" />
-
-<!-- favicon -->
-<link rel="icon" type="image/png" href="favicon.png" />
-<link rel="apple-touch-icon" href="favicon.png" />
-
-  
-
-
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
 </head>
-<body>
-  <header class="site-header">
-    <div>
-      <p class="label">PRIVATE MEMO ARCHIVE</p>
-      <h1>Zero Notes</h1>
-      <p class="lead">思いついたことを、すぐ残しておく自分用メモ保管庫。</p>
-    </div>
+<body class="landing-page">
+  <header class="landing-header">
+    <a href="index.html" class="landing-logo">notia</a>
 
-    <div class="auth-area">
-      <button id="loginBtn">Googleでログイン</button>
-      <button id="logoutBtn" class="hidden">ログアウト</button>
-      <p id="userInfo" class="user-info"></p>
-    </div>
+    <nav class="landing-nav">
+      <a href="#features">できること</a>
+      <a href="#private">使い方</a>
+      <a href="home.html" class="nav-button">Homeへ</a>
+    </nav>
   </header>
 
-  <main class="container">
-    <section class="memo-grid">
+  <main>
+    <section class="landing-hero">
+      <div class="hero-copy">
+        <p class="label">PERSONAL NOTE STORAGE</p>
+        <h1>いろいろ保管できる、<br>自分用メモサイト。</h1>
+        <p class="hero-lead">
+          notiaは、思いつき・日記・タスク・創作ログ・人物メモなどを、
+          自分の使いやすい形でまとめて残せるメモサイトです。
+        </p>
 
-      <a href="home.html" class="memo-card active home-card">
-  <span class="card-icon">🏠</span>
-  <h2>Home</h2>
-  <p>最近書いたメモや記録をまとめて確認するページ。</p>
-  <span class="status">最近の記録</span>
-</a>
+        <div class="hero-actions">
+          <a href="home.html" class="hero-primary">Homeを開く</a>
+          <a href="quick.html" class="hero-secondary">クイックメモを書く</a>
+        </div>
 
-      <a href="shared.html" class="memo-card active share-card">
-  <span class="card-icon">🔗</span>
-  <h2>共有メモ</h2>
-  <p>自分が共有したクイックメモを確認・コピー・解除できます。</p>
-  <span class="status">共有管理</span>
-</a>
-      
+        <p class="hero-note">
+          ※ 一部機能は管理人専用です。
+        </p>
+      </div>
 
-<a href="quick.html" class="memo-card active public-card">
-  <span class="card-icon">✍️</span>
-  <h2>クイックメモ</h2>
-  <p>1行目をタイトルとして扱う、文字だけの即書きメモ。</p>
-  <span class="status">使用可能</span>
-</a>
+      <div class="hero-card">
+        <div class="notebook-card">
+          <div class="notebook-top">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
 
-<a href="task.html" class="memo-card active public-card">
-  <span class="card-icon">✅</span>
-  <h2>タスク</h2>
-  <p>やることを軽く置いて、未完了・完了で管理するタスク置き場。</p>
-  <span class="status">使用可能</span>
-</a>
+          <h2>notia</h2>
+          <p>メモも、記録も、創作も。</p>
 
+          <div class="mini-note-list">
+            <div>
+              <strong>Quick Memo</strong>
+              <span>思いつきをすぐ保存</span>
+            </div>
+            <div>
+              <strong>Diary</strong>
+              <span>日々の記録を残す</span>
+            </div>
+            <div>
+              <strong>Creative Log</strong>
+              <span>作品や設定を保管</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <a href="normal.html" class="memo-card active admin-card hidden">
-  <span class="card-icon">📝</span>
-  <h2>通常メモ</h2>
-  <p>Markdown風に書いて、階層フォルダで整理できるメモ。</p>
-  <span class="status">ゼロ専用</span>
-</a>
+    <section id="features" class="landing-section">
+      <div class="section-title">
+        <p class="label">FEATURES</p>
+        <h2>notiaでできること</h2>
+        <p>用途ごとに分けて、いろんな記録をまとめて保管できます。</p>
+      </div>
 
-<a href="chat.html" class="memo-card active admin-card hidden">
-  <span class="card-icon">💬</span>
-  <h2>チャット風メモ</h2>
-  <p>話者を作って、主役を右側に表示できる会話ログ型メモ。</p>
-  <span class="status">ゼロ専用</span>
-</a>
+      <div class="feature-grid">
+        <a href="quick.html" class="feature-card">
+          <span>📝</span>
+          <h3>クイックメモ</h3>
+          <p>タイトルなしで、すぐに書けるシンプルなメモ。</p>
+        </a>
 
-<a href="diary.html" class="memo-card active admin-card hidden">
-  <span class="card-icon">📅</span>
-  <h2>シンプル日記</h2>
-  <p>かわいいカレンダーで日付を選んで、その日の記録を残す日記。</p>
-  <span class="status">ゼロ専用</span>
-</a>
+        <a href="task.html" class="feature-card">
+          <span>✅</span>
+          <h3>タスク</h3>
+          <p>やることを軽く置いて、完了したらチェック。</p>
+        </a>
 
-<a href="dream.html" class="memo-card active admin-card hidden">
-  <span class="card-icon">🌙</span>
-  <h2>夢日記</h2>
-  <p>見た夢を、紫のカレンダーで日付ごとに残す記録帳。</p>
-  <span class="status">ゼロ専用</span>
-</a>
+        <a href="home.html" class="feature-card accent-home">
+          <span>🏠</span>
+          <h3>Home</h3>
+          <p>最近書いたメモや記録をまとめて確認できます。</p>
+        </a>
 
-<a href="music.html" class="memo-card active admin-card hidden">
-  <span class="card-icon">🎧</span>
-  <h2>プレイリスト</h2>
-  <p>曲名、歌詞、和訳、URLをまとめて保管する曲メモ。</p>
-  <span class="status">ゼロ専用</span>
-</a>
+        <a href="shared.html" class="feature-card accent-share">
+          <span>🔗</span>
+          <h3>共有メモ</h3>
+          <p>自分が共有したクイックメモを確認・管理できます。</p>
+        </a>
 
-<a href="story.html" class="memo-card active admin-card hidden">
-  <span class="card-icon">📚</span>
-  <h2>ストーリー置き場</h2>
-  <p>作品ごとに話数をまとめて保管する長文置き場。</p>
-  <span class="status">ゼロ専用</span>
-</a>
-      
-<a href="people.html" class="memo-card active admin-card hidden">
-  <span class="card-icon">👤</span>
-  <h2>人物帳</h2>
-  <p>リアル・キャラ問わず、人物情報や特徴をまとめて保管する帳簿。</p>
-  <span class="status">ゼロ専用</span>
-</a>
+        <a href="normal.html" class="feature-card admin-feature">
+          <span>📄</span>
+          <h3>通常メモ</h3>
+          <p>Markdown風に書ける、しっかりめのメモ。</p>
+        </a>
 
-      <div class="memo-card coming-soon admin-card hidden">
-  <span class="card-icon">🖼️</span>
-  <h2>画像メモ</h2>
-  <p>画像と説明をまとめて保管するメモ。あとで追加予定。</p>
-  <span class="status">ゼロ専用・準備中</span>
-</div>
+        <a href="diary.html" class="feature-card admin-feature">
+          <span>📅</span>
+          <h3>日記</h3>
+          <p>カレンダーから日付を選んで記録できます。</p>
+        </a>
 
-      
-      
-      
+        <a href="dream.html" class="feature-card admin-feature">
+          <span>🌙</span>
+          <h3>夢日記</h3>
+          <p>見た夢や印象的だった内容を残せます。</p>
+        </a>
+
+        <a href="music.html" class="feature-card admin-feature">
+          <span>🎧</span>
+          <h3>曲メモ</h3>
+          <p>曲名・歌詞・和訳・URLなどをまとめて保存。</p>
+        </a>
+
+        <a href="story.html" class="feature-card admin-feature">
+          <span>📚</span>
+          <h3>ストーリー</h3>
+          <p>作品ごとに話や設定メモを整理できます。</p>
+        </a>
+
+        <a href="people.html" class="feature-card admin-feature">
+          <span>👥</span>
+          <h3>人物帳</h3>
+          <p>リアル・キャラ問わず、人物情報を保管できます。</p>
+        </a>
+      </div>
+    </section>
+
+    <section id="private" class="landing-section split-section">
+      <div>
+        <p class="label">PRIVATE FIRST</p>
+        <h2>基本は、自分用。</h2>
+        <p>
+          notiaは、まず自分が使いやすいことを大切にしたメモサイトです。
+          一部の機能は共有できますが、元のメモ本体はそのまま公開されない設計にしています。
+        </p>
+      </div>
+
+      <div class="private-box">
+        <h3>共有はコピー方式</h3>
+        <p>
+          共有したいメモだけを共有用データとしてコピーします。
+          元のメモ本体は、自分だけの場所に残ります。
+        </p>
+      </div>
     </section>
   </main>
 
-  
-  <footer class="site-footer">
-    <p>Zero Notes / private memo archive</p>
+  <footer class="landing-footer">
+    <p>Created by Lane / Presented by ゆるおり</p>
+    <p>notia.jp</p>
   </footer>
-
-  <script type="module" src="app.js"></script>
 </body>
 </html>
