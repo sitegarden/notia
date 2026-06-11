@@ -322,6 +322,7 @@ async function saveImageMemo() {
   let imageUrl = selectedMemo?.imageUrl || "";
   let storagePath = selectedMemo?.storagePath || "";
   let sourceType = selectedMemo?.sourceType || "url";
+  let uploadedStoragePath = "";
 
   try {
     imageStatus.textContent = "保存中...";
@@ -329,10 +330,10 @@ async function saveImageMemo() {
     if (inputMode === "upload" && selectedFile) {
       const uploaded = await uploadImageFile(selectedFile);
 
-      imageUrl = uploaded.imageUrl;
-      storagePath = uploaded.storagePath;
-      sourceType = "upload";
-
+imageUrl = uploaded.imageUrl;
+storagePath = uploaded.storagePath;
+uploadedStoragePath = uploaded.storagePath;
+sourceType = "upload";
       if (
         selectedMemo &&
         selectedMemo.storagePath &&
@@ -418,11 +419,16 @@ async function saveImageMemo() {
     if (selected) {
       selectImageMemo(selected);
     }
-  } catch (error) {
-    console.error(error);
-    alert("画像メモの保存に失敗しました");
-    imageStatus.textContent = "保存に失敗しました";
+} catch (error) {
+  console.error(error);
+
+  if (uploadedStoragePath) {
+    await deleteStorageImage(uploadedStoragePath);
   }
+
+  alert("画像メモの保存に失敗しました");
+  imageStatus.textContent = "保存に失敗しました";
+}
 }
 
 async function uploadImageFile(file) {
