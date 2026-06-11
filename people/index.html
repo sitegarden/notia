@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>人物帳 | Zero Notes</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <title>人物帳 | notia</title>
+
+  <meta
+    name="description"
+    content="リアル・キャラ問わず、人物情報や自由プロパティをまとめて保管できるnotiaの人物帳ページです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
+
 <body class="people-page">
   <header class="site-header people-header">
     <div>
@@ -15,7 +25,7 @@
     </div>
 
     <div class="auth-area">
-      <a href="index.html" class="back-link">トップへ戻る</a>
+      <a href="/home/" class="back-link">Homeへ</a>
       <button id="loginBtn">Googleでログイン</button>
       <button id="logoutBtn" class="hidden">ログアウト</button>
       <p id="userInfo" class="user-info"></p>
@@ -52,24 +62,54 @@
       </div>
 
       <div class="people-form-grid">
-        <input type="text" id="personNameInput" placeholder="名前" />
-        <input type="text" id="personNicknameInput" placeholder="読み / あだ名" />
+        <input
+          type="text"
+          id="personNameInput"
+          placeholder="名前"
+        />
+
+        <input
+          type="text"
+          id="personNicknameInput"
+          placeholder="読み / あだ名"
+        />
 
         <select id="personTypeInput">
-  <option value="real">リアル</option>
-  <option value="character">キャラ</option>
-  <option value="original">創作</option>
-  <option value="other">その他</option>
-</select>
+          <option value="real">リアル</option>
+          <option value="character">キャラ</option>
+          <option value="original">創作</option>
+          <option value="other">その他</option>
+        </select>
 
-<input type="text" id="personSubTypeInput" placeholder="サブジャンル 例：自立支援 / 家族 / OCFA" />
+        <input
+          type="text"
+          id="personSubTypeInput"
+          placeholder="サブジャンル 例：自立支援 / 家族 / OCFA"
+        />
 
-<input type="text" id="personRelationInput" placeholder="関係性" />
+        <input
+          type="text"
+          id="personRelationInput"
+          placeholder="関係性"
+        />
 
-        <input type="text" id="personMbtiInput" placeholder="MBTI 例：ESTP" />
-        <input type="text" id="personEnneagramInput" placeholder="エニアグラム 例：7w8" />
+        <input
+          type="text"
+          id="personMbtiInput"
+          placeholder="MBTI 例：ESTP"
+        />
 
-        <input type="text" id="personTagsInput" placeholder="タグ 例：明るい, 猫好き, 強い" />
+        <input
+          type="text"
+          id="personEnneagramInput"
+          placeholder="エニアグラム 例：7w8"
+        />
+
+        <input
+          type="text"
+          id="personTagsInput"
+          placeholder="タグ 例：明るい, 猫好き, 強い"
+        />
       </div>
 
       <textarea
@@ -96,6 +136,6 @@
     </section>
   </main>
 
-  <script type="module" src="people.js"></script>
+  <script type="module" src="/people.js"></script>
 </body>
 </html>
