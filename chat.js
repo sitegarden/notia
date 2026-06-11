@@ -7,14 +7,14 @@ import {
 } from "./firebase.js";
 
 import {
+  isAdmin
+} from "./admin.js";
+
+import {
   signInWithPopup,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-import {
-  blockIfNotAdmin
-} from "./admin.js";
 
 import {
   collection,
@@ -67,7 +67,7 @@ const defaultIcons = [
   "📝", "💬", "🌸", "🦋"
 ];
 
-/* auth */
+/* ---------- auth ---------- */
 
 loginBtn.addEventListener("click", async () => {
   try {
@@ -90,16 +90,7 @@ logoutBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
-  if (user) {
-  blockIfNotAdmin(user);
-
-  loginBtn.classList.add("hidden");
-  logoutBtn.classList.remove("hidden");
-  userInfo.textContent = user.displayName || user.email || "ログイン中";
-
-  await loadChatFolders();
-  await loadRooms();
-} else {
+  if (!user) {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     userInfo.textContent = "";
@@ -110,14 +101,125 @@ onAuthStateChanged(auth, async (user) => {
     selectedRoomId = null;
     chatFolders = [];
     selectedChatFolderId = "all";
-    chatFolderList.innerHTML = "";
 
+    chatFolderList.innerHTML = "";
     renderRooms();
     renderRoomEmpty();
+
+    return;
+  }
+
+  if (!isAdmin(user)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
+    return;
+  }
+
+  loginBtn.classList.add("hidden");
+  logoutBtn.classList.remove("hidden");
+  userInfo.textContent = user.displayName || user.email || "ログイン中";
+
+  await loadChatFolders();
+  await loadRooms();
+});
+
+/* ---------- folders ---------- */
+
+addChatFolderBtn.addEventListener("click", async () => {
+  if (!currentUser) {
+    alert("先にログインしてください");
+    return;
+  }
+
+  const name = prompt("フォルダ名を入力してね");
+
+  if (!name || !name.trim()) return;
+
+  try {
+    await addDoc(collection(db, "chatFolders"), {
+      uid: currentUser.uid,
+      name: name.trim(),
+      createdAt: serverTimestamp()
+    });
+
+    await loadChatFolders();
+  } catch (error) {
+    console.error(error);
+    alert("フォルダ作成に失敗しました");
   }
 });
 
-/* rooms */
+async function loadChatFolders() {
+  if (!currentUser) return;
+
+  const q = query(
+    collection(db, "chatFolders"),
+    where("uid", "==", currentUser.uid)
+  );
+
+  const snapshot = await getDocs(q);
+
+  chatFolders = snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
+
+  chatFolders.sort((a, b) => {
+    const aTime = a.createdAt?.seconds || 0;
+    const bTime = b.createdAt?.seconds || 0;
+    return aTime - bTime;
+  });
+
+  renderChatFolders();
+  renderRoomFolderSelect();
+}
+
+function renderChatFolders() {
+  chatFolderList.innerHTML = "";
+
+  const allBtn = createChatFolderButton("すべて", "all");
+  chatFolderList.appendChild(allBtn);
+
+  const noFolderBtn = createChatFolderButton("フォルダなし", "");
+  chatFolderList.appendChild(noFolderBtn);
+
+  chatFolders.forEach((folder) => {
+    const btn = createChatFolderButton(folder.name, folder.id);
+    chatFolderList.appendChild(btn);
+  });
+}
+
+function createChatFolderButton(label, folderId) {
+  const btn = document.createElement("button");
+  btn.className = selectedChatFolderId === folderId
+    ? "chat-room-item active"
+    : "chat-room-item";
+
+  btn.textContent = label;
+
+  btn.addEventListener("click", () => {
+    selectedChatFolderId = folderId;
+    selectedRoomId = null;
+    renderChatFolders();
+    renderRooms();
+    renderRoomEmpty();
+  });
+
+  return btn;
+}
+
+function renderRoomFolderSelect() {
+  roomFolderSelect.innerHTML = `<option value="">フォルダなし</option>`;
+
+  chatFolders.forEach((folder) => {
+    const option = document.createElement("option");
+    option.value = folder.id;
+    option.textContent = folder.name;
+    roomFolderSelect.appendChild(option);
+  });
+}
+
+/* ---------- rooms ---------- */
 
 addRoomBtn.addEventListener("click", async () => {
   if (!currentUser) {
@@ -131,15 +233,16 @@ addRoomBtn.addEventListener("click", async () => {
 
   try {
     const docRef = await addDoc(collection(db, "chatRooms"), {
-  uid: currentUser.uid,
-  title: title.trim(),
-  folderId: roomFolderSelect.value || "",
-  mainSpeakerId: "",
-  createdAt: serverTimestamp(),
-  updatedAt: serverTimestamp()
-});
+      uid: currentUser.uid,
+      title: title.trim(),
+      folderId: roomFolderSelect.value || "",
+      mainSpeakerId: "",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
 
     selectedRoomId = docRef.id;
+
     await loadRooms();
     await loadRoomData();
   } catch (error) {
@@ -187,7 +290,9 @@ function renderRooms() {
   let filteredRooms = rooms;
 
   if (selectedChatFolderId !== "all") {
-    filteredRooms = rooms.filter((room) => (room.folderId || "") === selectedChatFolderId);
+    filteredRooms = rooms.filter((room) => {
+      return (room.folderId || "") === selectedChatFolderId;
+    });
   }
 
   if (filteredRooms.length === 0) {
@@ -200,7 +305,10 @@ function renderRooms() {
 
   filteredRooms.forEach((room) => {
     const btn = document.createElement("button");
-    btn.className = selectedRoomId === room.id ? "chat-room-item active" : "chat-room-item";
+    btn.className = selectedRoomId === room.id
+      ? "chat-room-item active"
+      : "chat-room-item";
+
     btn.textContent = room.title || "無題の部屋";
 
     btn.addEventListener("click", async () => {
@@ -217,7 +325,6 @@ async function loadRoomData() {
   if (!currentUser || !selectedRoomId) return;
 
   const room = getCurrentRoom();
-
   currentRoomTitle.textContent = room?.title || "無題の部屋";
 
   await loadSpeakers();
@@ -228,7 +335,101 @@ editRoomBtn.addEventListener("click", async () => {
   await editCurrentRoom();
 });
 
-/* speakers */
+async function editCurrentRoom() {
+  if (!currentUser) return;
+
+  if (!selectedRoomId) {
+    alert("編集するチャット部屋を選んでください");
+    return;
+  }
+
+  const room = getCurrentRoom();
+
+  const overlay = document.createElement("div");
+  overlay.className = "edit-overlay";
+
+  const box = document.createElement("div");
+  box.className = "edit-box";
+
+  const title = document.createElement("h3");
+  title.textContent = "チャット部屋を編集";
+
+  const titleInput = document.createElement("input");
+  titleInput.className = "speaker-edit-input";
+  titleInput.value = room?.title || "";
+  titleInput.placeholder = "チャット部屋名";
+
+  const folderSelect = document.createElement("select");
+  folderSelect.className = "speaker-edit-input";
+
+  const noFolderOption = document.createElement("option");
+  noFolderOption.value = "";
+  noFolderOption.textContent = "フォルダなし";
+  folderSelect.appendChild(noFolderOption);
+
+  chatFolders.forEach((folder) => {
+    const option = document.createElement("option");
+    option.value = folder.id;
+    option.textContent = folder.name;
+    folderSelect.appendChild(option);
+  });
+
+  folderSelect.value = room?.folderId || "";
+
+  const actions = document.createElement("div");
+  actions.className = "edit-box-actions";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "キャンセル";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "保存";
+
+  cancelBtn.addEventListener("click", () => {
+    overlay.remove();
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const newTitle = titleInput.value.trim();
+
+    if (!newTitle) {
+      alert("部屋名を入力してください");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "chatRooms", selectedRoomId), {
+        title: newTitle,
+        folderId: folderSelect.value,
+        updatedAt: serverTimestamp()
+      });
+
+      overlay.remove();
+
+      await loadRooms();
+      renderRooms();
+      await loadRoomData();
+    } catch (error) {
+      console.error(error);
+      alert("チャット部屋の編集に失敗しました");
+    }
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+
+  box.appendChild(title);
+  box.appendChild(titleInput);
+  box.appendChild(folderSelect);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  titleInput.focus();
+}
+
+/* ---------- speakers ---------- */
 
 addSpeakerBtn.addEventListener("click", async () => {
   if (!currentUser) {
@@ -305,27 +506,27 @@ function renderSpeakers() {
   }
 
   speakers.forEach((speaker) => {
-  const chip = document.createElement("button");
-  chip.className = room?.mainSpeakerId === speaker.id
-    ? "speaker-chip main"
-    : "speaker-chip";
+    const chip = document.createElement("button");
+    chip.className = room?.mainSpeakerId === speaker.id
+      ? "speaker-chip main"
+      : "speaker-chip";
 
-  const icon = document.createElement("span");
-  icon.className = "speaker-icon";
-  icon.textContent = speaker.icon || "💬";
+    const icon = document.createElement("span");
+    icon.className = "speaker-icon";
+    icon.textContent = speaker.icon || "💬";
 
-  const name = document.createElement("span");
-  name.textContent = speaker.name || "名前なし";
+    const name = document.createElement("span");
+    name.textContent = speaker.name || "名前なし";
 
-  chip.appendChild(icon);
-  chip.appendChild(name);
+    chip.appendChild(icon);
+    chip.appendChild(name);
 
-  chip.addEventListener("click", async () => {
-    await editSpeaker(speaker);
+    chip.addEventListener("click", async () => {
+      await editSpeaker(speaker);
+    });
+
+    speakerList.appendChild(chip);
   });
-
-  speakerList.appendChild(chip);
-});
 }
 
 function renderSpeakerSelects() {
@@ -366,15 +567,111 @@ saveMainSpeakerBtn.addEventListener("click", async () => {
     });
 
     await loadRooms();
-    renderSpeakers();
-    renderMessages();
+    await loadRoomData();
   } catch (error) {
     console.error(error);
     alert("主役保存に失敗しました");
   }
 });
 
-/* messages */
+async function editSpeaker(speaker) {
+  if (!currentUser) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "edit-overlay";
+
+  const box = document.createElement("div");
+  box.className = "edit-box";
+
+  const title = document.createElement("h3");
+  title.textContent = "話す人を編集";
+
+  const nameInput = document.createElement("input");
+  nameInput.className = "speaker-edit-input";
+  nameInput.value = speaker.name || "";
+  nameInput.placeholder = "名前";
+
+  const iconInput = document.createElement("input");
+  iconInput.className = "speaker-edit-input";
+  iconInput.value = speaker.icon || "💬";
+  iconInput.placeholder = "アイコン";
+
+  const iconChoices = document.createElement("div");
+  iconChoices.className = "icon-choice-list";
+
+  defaultIcons.forEach((iconText) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = iconText === iconInput.value ? "icon-choice active" : "icon-choice";
+    btn.textContent = iconText;
+
+    btn.addEventListener("click", () => {
+      iconInput.value = iconText;
+
+      iconChoices.querySelectorAll(".icon-choice").forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      btn.classList.add("active");
+    });
+
+    iconChoices.appendChild(btn);
+  });
+
+  const actions = document.createElement("div");
+  actions.className = "edit-box-actions";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "キャンセル";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "保存";
+
+  cancelBtn.addEventListener("click", () => {
+    overlay.remove();
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const newName = nameInput.value.trim();
+    const newIcon = iconInput.value.trim();
+
+    if (!newName) {
+      alert("名前を入力してください");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "chatSpeakers", speaker.id), {
+        name: newName,
+        icon: newIcon.slice(0, 4) || "💬"
+      });
+
+      overlay.remove();
+
+      await loadSpeakers();
+      await loadMessages();
+    } catch (error) {
+      console.error(error);
+      alert("話す人の編集に失敗しました");
+    }
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+
+  box.appendChild(title);
+  box.appendChild(nameInput);
+  box.appendChild(iconInput);
+  box.appendChild(iconChoices);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  nameInput.focus();
+}
+
+/* ---------- messages ---------- */
 
 sendMessageBtn.addEventListener("click", async () => {
   await addMessage();
@@ -478,7 +775,6 @@ function renderMessages() {
 
   messages.forEach((message) => {
     const speaker = speakers.find((item) => item.id === message.speakerId);
-
     const isMain = room?.mainSpeakerId && message.speakerId === room.mainSpeakerId;
 
     const messageEl = document.createElement("div");
@@ -496,47 +792,47 @@ function renderMessages() {
     name.textContent = speaker?.name || "不明";
 
     const bubble = document.createElement("div");
-bubble.className = "chat-bubble";
-bubble.textContent = message.text || "";
+    bubble.className = "chat-bubble";
+    bubble.textContent = message.text || "";
 
-wrap.appendChild(name);
-wrap.appendChild(bubble);
+    wrap.appendChild(name);
+    wrap.appendChild(bubble);
 
-const actions = document.createElement("div");
-actions.className = "chat-message-actions";
+    const actions = document.createElement("div");
+    actions.className = "chat-message-actions";
 
-const menuBtn = document.createElement("button");
-menuBtn.className = "chat-menu-btn";
-menuBtn.textContent = "…";
+    const menuBtn = document.createElement("button");
+    menuBtn.className = "chat-menu-btn";
+    menuBtn.textContent = "…";
 
-const menu = document.createElement("div");
-menu.className = "chat-action-menu hidden";
+    const menu = document.createElement("div");
+    menu.className = "chat-action-menu hidden";
 
-const editBtn = document.createElement("button");
-editBtn.textContent = "編集";
-editBtn.addEventListener("click", async () => {
-  menu.classList.add("hidden");
-  await editMessage(message);
-});
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "編集";
+    editBtn.addEventListener("click", async () => {
+      menu.classList.add("hidden");
+      await editMessage(message);
+    });
 
-const deleteBtn = document.createElement("button");
-deleteBtn.textContent = "削除";
-deleteBtn.className = "danger-menu-btn";
-deleteBtn.addEventListener("click", async () => {
-  menu.classList.add("hidden");
-  await deleteMessage(message.id);
-});
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "削除";
+    deleteBtn.className = "danger-menu-btn";
+    deleteBtn.addEventListener("click", async () => {
+      menu.classList.add("hidden");
+      await deleteMessage(message.id);
+    });
 
-menuBtn.addEventListener("click", () => {
-  menu.classList.toggle("hidden");
-});
+    menuBtn.addEventListener("click", () => {
+      menu.classList.toggle("hidden");
+    });
 
-menu.appendChild(editBtn);
-menu.appendChild(deleteBtn);
+    menu.appendChild(editBtn);
+    menu.appendChild(deleteBtn);
 
-actions.appendChild(menuBtn);
-actions.appendChild(menu);
-wrap.appendChild(actions);
+    actions.appendChild(menuBtn);
+    actions.appendChild(menu);
+    wrap.appendChild(actions);
 
     messageEl.appendChild(avatar);
     messageEl.appendChild(wrap);
@@ -545,211 +841,6 @@ wrap.appendChild(actions);
   });
 
   chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-async function editSpeaker(speaker) {
-  if (!currentUser) return;
-
-  const overlay = document.createElement("div");
-  overlay.className = "edit-overlay";
-
-  const box = document.createElement("div");
-  box.className = "edit-box";
-
-  const title = document.createElement("h3");
-  title.textContent = "話す人を編集";
-
-  const nameInput = document.createElement("input");
-  nameInput.className = "speaker-edit-input";
-  nameInput.value = speaker.name || "";
-  nameInput.placeholder = "名前";
-
-  const iconInput = document.createElement("input");
-  iconInput.className = "speaker-edit-input";
-  iconInput.value = speaker.icon || "💬";
-  iconInput.placeholder = "アイコン";
-
-  const iconChoices = document.createElement("div");
-  iconChoices.className = "icon-choice-list";
-
-  defaultIcons.forEach((iconText) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = iconText === iconInput.value ? "icon-choice active" : "icon-choice";
-    btn.textContent = iconText;
-
-    btn.addEventListener("click", () => {
-      iconInput.value = iconText;
-
-      iconChoices.querySelectorAll(".icon-choice").forEach((item) => {
-        item.classList.remove("active");
-      });
-
-      btn.classList.add("active");
-    });
-
-    iconChoices.appendChild(btn);
-  });
-
-  const actions = document.createElement("div");
-  actions.className = "edit-box-actions";
-
-  const cancelBtn = document.createElement("button");
-  cancelBtn.textContent = "キャンセル";
-
-  const saveBtn = document.createElement("button");
-  saveBtn.textContent = "保存";
-
-  cancelBtn.addEventListener("click", () => {
-    overlay.remove();
-  });
-
-  saveBtn.addEventListener("click", async () => {
-    const newName = nameInput.value.trim();
-    const newIcon = iconInput.value.trim();
-
-    if (!newName) {
-      alert("名前を入力してください");
-      return;
-    }
-
-    try {
-      await updateDoc(doc(db, "chatSpeakers", speaker.id), {
-        name: newName,
-        icon: newIcon.slice(0, 4) || "💬"
-      });
-
-      overlay.remove();
-
-      await loadSpeakers();
-      await loadMessages();
-    } catch (error) {
-      console.error(error);
-      alert("話す人の編集に失敗しました");
-    }
-  });
-
-  actions.appendChild(cancelBtn);
-  actions.appendChild(saveBtn);
-
-  box.appendChild(title);
-  box.appendChild(nameInput);
-  box.appendChild(iconInput);
-  box.appendChild(iconChoices);
-  box.appendChild(actions);
-
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  nameInput.focus();
-}
-
-/* helpers */
-
-async function editCurrentRoom() {
-  if (!currentUser) return;
-
-  if (!selectedRoomId) {
-    alert("編集するチャット部屋を選んでください");
-    return;
-  }
-
-  const room = getCurrentRoom();
-
-  const overlay = document.createElement("div");
-  overlay.className = "edit-overlay";
-
-  const box = document.createElement("div");
-  box.className = "edit-box";
-
-  const title = document.createElement("h3");
-  title.textContent = "チャット部屋を編集";
-
-  const titleInput = document.createElement("input");
-  titleInput.className = "speaker-edit-input";
-  titleInput.value = room?.title || "";
-  titleInput.placeholder = "チャット部屋名";
-
-  const folderSelect = document.createElement("select");
-  folderSelect.className = "speaker-edit-input";
-
-  const noFolderOption = document.createElement("option");
-  noFolderOption.value = "";
-  noFolderOption.textContent = "フォルダなし";
-  folderSelect.appendChild(noFolderOption);
-
-  chatFolders.forEach((folder) => {
-    const option = document.createElement("option");
-    option.value = folder.id;
-    option.textContent = folder.name;
-    folderSelect.appendChild(option);
-  });
-
-  folderSelect.value = room?.folderId || "";
-
-  const actions = document.createElement("div");
-  actions.className = "edit-box-actions";
-
-  const cancelBtn = document.createElement("button");
-  cancelBtn.textContent = "キャンセル";
-
-  const saveBtn = document.createElement("button");
-  saveBtn.textContent = "保存";
-
-  cancelBtn.addEventListener("click", () => {
-    overlay.remove();
-  });
-
-  saveBtn.addEventListener("click", async () => {
-    const newTitle = titleInput.value.trim();
-
-    if (!newTitle) {
-      alert("部屋名を入力してください");
-      return;
-    }
-
-    try {
-      await updateDoc(doc(db, "chatRooms", selectedRoomId), {
-        title: newTitle,
-        folderId: folderSelect.value,
-        updatedAt: serverTimestamp()
-      });
-
-      overlay.remove();
-
-      await loadRooms();
-      renderRooms();
-      await loadRoomData();
-    } catch (error) {
-      console.error(error);
-      alert("チャット部屋の編集に失敗しました");
-    }
-  });
-
-  actions.appendChild(cancelBtn);
-  actions.appendChild(saveBtn);
-
-  box.appendChild(title);
-  box.appendChild(titleInput);
-  box.appendChild(folderSelect);
-  box.appendChild(actions);
-
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  titleInput.focus();
-}
-
-function getCurrentRoom() {
-  return rooms.find((room) => room.id === selectedRoomId);
-}
-
-function renderRoomEmpty() {
-  currentRoomTitle.textContent = "部屋を選択";
-  speakerList.innerHTML = "";
-  mainSpeakerSelect.innerHTML = `<option value="">主役を選択</option>`;
-  messageSpeakerSelect.innerHTML = `<option value="">話者</option>`;
-  chatMessages.innerHTML = `<p class="empty-text">チャット部屋を選んでください</p>`;
 }
 
 async function editMessage(message) {
@@ -825,7 +916,6 @@ async function deleteMessage(messageId) {
 
   try {
     await deleteDoc(doc(db, "chatMessages", messageId));
-
     await loadMessages();
   } catch (error) {
     console.error(error);
@@ -833,96 +923,16 @@ async function deleteMessage(messageId) {
   }
 }
 
-addChatFolderBtn.addEventListener("click", async () => {
-  if (!currentUser) {
-    alert("先にログインしてください");
-    return;
-  }
+/* ---------- helpers ---------- */
 
-  const name = prompt("フォルダ名を入力してね");
-
-  if (!name || !name.trim()) return;
-
-  try {
-    await addDoc(collection(db, "chatFolders"), {
-      uid: currentUser.uid,
-      name: name.trim(),
-      createdAt: serverTimestamp()
-    });
-
-    await loadChatFolders();
-  } catch (error) {
-    console.error(error);
-    alert("フォルダ作成に失敗しました");
-  }
-});
-
-async function loadChatFolders() {
-  if (!currentUser) return;
-
-  const q = query(
-    collection(db, "chatFolders"),
-    where("uid", "==", currentUser.uid)
-  );
-
-  const snapshot = await getDocs(q);
-
-  chatFolders = snapshot.docs.map((docSnap) => ({
-    id: docSnap.id,
-    ...docSnap.data()
-  }));
-
-  chatFolders.sort((a, b) => {
-    const aTime = a.createdAt?.seconds || 0;
-    const bTime = b.createdAt?.seconds || 0;
-    return aTime - bTime;
-  });
-
-  renderChatFolders();
-  renderRoomFolderSelect();
+function getCurrentRoom() {
+  return rooms.find((room) => room.id === selectedRoomId);
 }
 
-function renderChatFolders() {
-  chatFolderList.innerHTML = "";
-
-  const allBtn = createChatFolderButton("すべて", "all");
-  chatFolderList.appendChild(allBtn);
-
-  const noFolderBtn = createChatFolderButton("フォルダなし", "");
-  chatFolderList.appendChild(noFolderBtn);
-
-  chatFolders.forEach((folder) => {
-    const btn = createChatFolderButton(folder.name, folder.id);
-    chatFolderList.appendChild(btn);
-  });
-}
-
-function createChatFolderButton(label, folderId) {
-  const btn = document.createElement("button");
-  btn.className = selectedChatFolderId === folderId
-    ? "chat-room-item active"
-    : "chat-room-item";
-
-  btn.textContent = label;
-
-  btn.addEventListener("click", () => {
-    selectedChatFolderId = folderId;
-    selectedRoomId = null;
-    renderChatFolders();
-    renderRooms();
-    renderRoomEmpty();
-  });
-
-  return btn;
-}
-
-function renderRoomFolderSelect() {
-  roomFolderSelect.innerHTML = `<option value="">フォルダなし</option>`;
-
-  chatFolders.forEach((folder) => {
-    const option = document.createElement("option");
-    option.value = folder.id;
-    option.textContent = folder.name;
-    roomFolderSelect.appendChild(option);
-  });
+function renderRoomEmpty() {
+  currentRoomTitle.textContent = "部屋を選択";
+  speakerList.innerHTML = "";
+  mainSpeakerSelect.innerHTML = `<option value="">主役を選択</option>`;
+  messageSpeakerSelect.innerHTML = `<option value="">話者</option>`;
+  chatMessages.innerHTML = `<p class="empty-text">チャット部屋を選んでください</p>`;
 }
