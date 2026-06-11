@@ -70,6 +70,8 @@ const reloadImageMemosBtn = document.getElementById("reloadImageMemosBtn");
 const imageSearchInput = document.getElementById("imageSearchInput");
 const imageCategoryFilter = document.getElementById("imageCategoryFilter");
 const favoriteOnlyInput = document.getElementById("favoriteOnlyInput");
+const addImageFolderBtn = document.getElementById("addImageFolderBtn");
+const imageFolderList = document.getElementById("imageFolderList");
 const imageMemoList = document.getElementById("imageMemoList");
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -241,10 +243,12 @@ imageSearchInput.addEventListener("input", () => {
 });
 
 imageCategoryFilter.addEventListener("change", () => {
+  renderImageFolders();
   renderImageMemos();
 });
 
 favoriteOnlyInput.addEventListener("change", () => {
+  renderImageFolders();
   renderImageMemos();
 });
 
@@ -292,7 +296,8 @@ async function loadImageMemos() {
   });
 
   updateCategoryFilter();
-  renderImageMemos();
+renderImageFolders();
+renderImageMemos();
 
   imageStatus.textContent = "画像メモを保存できます";
 }
@@ -691,6 +696,94 @@ function updateCategoryFilter() {
   imageCategoryFilter.value = exists ? currentValue : "all";
 }
 
+function renderImageFolders() {
+  imageFolderList.innerHTML = "";
+
+  const folders = getImageFolders();
+  const currentFilter = imageCategoryFilter.value;
+
+  const allBtn = createFolderButton({
+    label: "すべて",
+    count: imageMemos.length,
+    active: currentFilter === "all",
+    onClick: () => {
+      imageCategoryFilter.value = "all";
+      renderImageFolders();
+      renderImageMemos();
+    }
+  });
+
+  imageFolderList.appendChild(allBtn);
+
+  const favoriteCount = imageMemos.filter((item) => item.favorite).length;
+
+  const favoriteBtn = createFolderButton({
+    label: "お気に入り",
+    count: favoriteCount,
+    active: favoriteOnlyInput.checked,
+    onClick: () => {
+      favoriteOnlyInput.checked = !favoriteOnlyInput.checked;
+      renderImageFolders();
+      renderImageMemos();
+    }
+  });
+
+  imageFolderList.appendChild(favoriteBtn);
+
+  folders.forEach((folder) => {
+    const btn = createFolderButton({
+      label: folder.name,
+      count: folder.count,
+      active: currentFilter === folder.name,
+      onClick: () => {
+        imageCategoryFilter.value = folder.name;
+        favoriteOnlyInput.checked = false;
+        renderImageFolders();
+        renderImageMemos();
+      }
+    });
+
+    imageFolderList.appendChild(btn);
+  });
+}
+
+function createFolderButton({ label, count, active, onClick }) {
+  const button = document.createElement("button");
+  button.className = active
+    ? "image-folder-btn active"
+    : "image-folder-btn";
+  button.type = "button";
+
+  const name = document.createElement("span");
+  name.textContent = label;
+
+  const badge = document.createElement("small");
+  badge.textContent = count;
+
+  button.appendChild(name);
+  button.appendChild(badge);
+
+  button.addEventListener("click", onClick);
+
+  return button;
+}
+
+function getImageFolders() {
+  const map = new Map();
+
+  imageMemos.forEach((item) => {
+    const folderName = item.category || "未分類";
+    map.set(folderName, (map.get(folderName) || 0) + 1);
+  });
+
+  return [...map.entries()]
+    .map(([name, count]) => ({
+      name,
+      count
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+}
+
 /* ---------- helpers ---------- */
 
 function clearForm() {
@@ -841,3 +934,18 @@ function escapeMarkdownText(text) {
     .replaceAll("(", "")
     .replaceAll(")", "");
 }
+
+addImageFolderBtn.addEventListener("click", () => {
+  const folderName = prompt("フォルダ名を入力してね");
+
+  if (!folderName || !folderName.trim()) return;
+
+  imageCategoryInput.value = folderName.trim();
+  imageCategoryFilter.value = "all";
+
+  imageStatus.textContent = selectedImageMemoId
+    ? "未保存の変更あり"
+    : "新規画像メモ";
+
+  alert("この画像メモを保存すると、フォルダに追加されます");
+});
