@@ -63,6 +63,7 @@ onAuthStateChanged(auth, async (user) => {
     logoutBtn.classList.add("hidden");
     sharedStatus.textContent = "ログインすると共有メモを表示します。";
     sharedMemoList.innerHTML = "";
+    sharedMemos = [];
     return;
   }
 
@@ -87,9 +88,9 @@ async function loadSharedMemos() {
 
     const snapshot = await getDocs(q);
 
-    sharedMemos = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
+    sharedMemos = snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
     }));
 
     sharedMemos.sort((a, b) => {
@@ -221,8 +222,9 @@ async function deleteSharedMemo(shareId) {
     alert("共有解除に失敗しました");
   }
 }
+
 function makeShareUrl(shareId) {
-  const url = new URL("share.html", location.href);
+  const url = new URL("/share/", location.origin);
   url.searchParams.set("id", shareId);
   return url.toString();
 }
