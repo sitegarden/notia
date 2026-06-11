@@ -2382,3 +2382,37 @@ button {
     justify-content: flex-start;
   }
 }
+
+.memo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.memo-card.home-card {
+  background: #fff4df;
+  border-color: #e4c991;
+}
+
+.memo-card.home-card .status {
+  background: #e6c982;
+  color: #3f3425;
+}
+
+.memo-card.share-card {
+  background: #eef4ff;
+  border-color: #b9cbe8;
+}
+
+.memo-card.share-card .status {
+  background: #cad9f0;
+  color: #253142;
+}
+
+.memo-card.home-card.active:hover {
+  box-shadow: 0 16px 34px rgba(150, 112, 48, 0.16);
+}
+
+.memo-card.share-card.active:hover {
+  box-shadow: 0 16px 34px rgba(65, 92, 135, 0.16);
+}
