@@ -7,14 +7,14 @@ import {
 } from "./firebase.js";
 
 import {
+  isAdmin
+} from "./admin.js";
+
+import {
   signInWithPopup,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-import {
-  blockIfNotAdmin
-} from "./admin.js";
 
 import {
   collection,
@@ -55,7 +55,10 @@ const today = new Date();
 let viewYear = today.getFullYear();
 let viewMonth = today.getMonth();
 
-/* auth */
+renderCalendar();
+updateSelectedDateTitle();
+
+/* ---------- auth ---------- */
 
 loginBtn.addEventListener("click", async () => {
   try {
@@ -78,17 +81,7 @@ logoutBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
-  if (user) {
-    blockIfNotAdmin(user);
-
-    loginBtn.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
-    userInfo.textContent = user.displayName || user.email || "ログイン中";
-    diaryStatus.textContent = "日記を書けます";
-
-    await loadDiaries();
-    selectDate(selectedDate);
-  } else {
+  if (!user) {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     userInfo.textContent = "";
@@ -100,10 +93,25 @@ onAuthStateChanged(auth, async (user) => {
 
     renderCalendar();
     updateSelectedDateTitle();
+    return;
   }
+
+  if (!isAdmin(user)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
+    return;
+  }
+
+  loginBtn.classList.add("hidden");
+  logoutBtn.classList.remove("hidden");
+  userInfo.textContent = user.displayName || user.email || "ログイン中";
+  diaryStatus.textContent = "日記を書けます";
+
+  await loadDiaries();
+  selectDate(selectedDate);
 });
 
-/* calendar */
+/* ---------- calendar ---------- */
 
 prevMonthBtn.addEventListener("click", () => {
   viewMonth--;
@@ -198,7 +206,7 @@ function updateSelectedDateTitle() {
   selectedDateTitle.textContent = formatDateTitle(selectedDate);
 }
 
-/* diary */
+/* ---------- diary ---------- */
 
 saveDiaryBtn.addEventListener("click", async () => {
   await saveDiary();
@@ -254,6 +262,12 @@ async function saveDiary() {
     return;
   }
 
+  if (!isAdmin(currentUser)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
+    return;
+  }
+
   const body = diaryBody.value.trim();
   const mood = moodSelect.value;
 
@@ -300,6 +314,12 @@ async function deleteDiary() {
     return;
   }
 
+  if (!isAdmin(currentUser)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
+    return;
+  }
+
   const diary = getDiaryByDate(selectedDate);
 
   if (!diary) {
@@ -326,7 +346,7 @@ async function deleteDiary() {
   }
 }
 
-/* helpers */
+/* ---------- helpers ---------- */
 
 function getDiaryByDate(dateText) {
   return diaries.find((diary) => diary.date === dateText);
