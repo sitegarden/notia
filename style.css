@@ -3285,3 +3285,36 @@ button {
     border-radius: 14px;
   }
 }
+
+.planned-feature {
+  opacity: 0.9;
+  background: #f7efe5;
+  border-style: dashed;
+}
+
+.planned-feature small,
+.feature-card small {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: auto;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e6d9c9;
+  color: #5f5145;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.feature-card.accent-home small {
+  background: #ecd39a;
+  color: #4a3515;
+}
+
+.feature-card.accent-share small {
+  background: #cddbf2;
+  color: #30405b;
+}
+
+.small-actions {
+  margin-top: 14px;
+}
