@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>シンプル日記 | Zero Notes</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <title>シンプル日記 | notia</title>
+
+  <meta
+    name="description"
+    content="日付を選んで、今日のことを軽く残せるnotiaのシンプル日記ページです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
+
 <body>
   <header class="site-header">
     <div>
@@ -15,7 +25,7 @@
     </div>
 
     <div class="auth-area">
-      <a href="index.html" class="back-link">トップへ戻る</a>
+      <a href="/home/" class="back-link">Homeへ</a>
       <button id="loginBtn">Googleでログイン</button>
       <button id="logoutBtn" class="hidden">ログアウト</button>
       <p id="userInfo" class="user-info"></p>
@@ -25,12 +35,12 @@
   <main class="container diary-layout">
     <section class="diary-calendar-panel">
       <div class="diary-month-head">
-  <button id="prevYearBtn">«</button>
-  <button id="prevMonthBtn">‹</button>
-  <h2 id="monthTitle">----</h2>
-  <button id="nextMonthBtn">›</button>
-  <button id="nextYearBtn">»</button>
-</div>
+        <button id="prevYearBtn">«</button>
+        <button id="prevMonthBtn">‹</button>
+        <h2 id="monthTitle">----</h2>
+        <button id="nextMonthBtn">›</button>
+        <button id="nextYearBtn">»</button>
+      </div>
 
       <div class="week-row">
         <span>日</span>
@@ -75,6 +85,6 @@
     </section>
   </main>
 
-  <script type="module" src="diary.js"></script>
+  <script type="module" src="/diary.js"></script>
 </body>
 </html>
