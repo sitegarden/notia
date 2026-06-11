@@ -7,14 +7,14 @@ import {
 } from "./firebase.js";
 
 import {
+  isAdmin
+} from "./admin.js";
+
+import {
   signInWithPopup,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-import {
-  blockIfNotAdmin
-} from "./admin.js";
 
 import {
   collection,
@@ -60,7 +60,7 @@ let selectedFolderId = "all";
 let selectedMemoId = null;
 let currentMode = "edit";
 
-/* auth */
+/* ---------- auth ---------- */
 
 loginBtn.addEventListener("click", async () => {
   try {
@@ -83,16 +83,7 @@ logoutBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
-  if (user) {
-  blockIfNotAdmin(user);
-
-  loginBtn.classList.add("hidden");
-  logoutBtn.classList.remove("hidden");
-  userInfo.textContent = user.displayName || user.email || "ログイン中";
-
-  await loadNormalFolders();
-  await loadNormalMemos();
-} else {
+  if (!user) {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     userInfo.textContent = "";
@@ -109,10 +100,27 @@ onAuthStateChanged(auth, async (user) => {
 
     renderNormalFolders();
     renderNormalFolderSelect();
+    setMode("edit");
+
+    return;
   }
+
+  if (!isAdmin(user)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
+    return;
+  }
+
+  loginBtn.classList.add("hidden");
+  logoutBtn.classList.remove("hidden");
+  userInfo.textContent = user.displayName || user.email || "ログイン中";
+  normalSaveStatus.textContent = "メモを使えます";
+
+  await loadNormalFolders();
+  await loadNormalMemos();
 });
 
-/* folders */
+/* ---------- folders ---------- */
 
 addFolderBtn.addEventListener("click", async () => {
   await createFolder("");
@@ -130,6 +138,12 @@ addChildFolderBtn.addEventListener("click", async () => {
 async function createFolder(parentId) {
   if (!currentUser) {
     alert("先にログインしてください");
+    return;
+  }
+
+  if (!isAdmin(currentUser)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
     return;
   }
 
@@ -251,7 +265,7 @@ function renderNormalFolderSelect() {
   });
 }
 
-/* memos */
+/* ---------- memos ---------- */
 
 newNormalMemoBtn.addEventListener("click", () => {
   selectedMemoId = null;
@@ -269,35 +283,18 @@ saveNormalMemoBtn.addEventListener("click", async () => {
 });
 
 deleteNormalMemoBtn.addEventListener("click", async () => {
-  if (!currentUser) return;
-
-  if (!selectedMemoId) {
-    alert("削除するメモを選んでください");
-    return;
-  }
-
-  const ok = confirm("このメモを削除しますか？");
-
-  if (!ok) return;
-
-  try {
-    await deleteDoc(doc(db, "normalMemos", selectedMemoId));
-
-    selectedMemoId = null;
-    normalTitleInput.value = "";
-    normalBodyEditor.value = "";
-    normalSaveStatus.textContent = "削除しました";
-
-    await loadNormalMemos();
-  } catch (error) {
-    console.error(error);
-    alert("削除に失敗しました");
-  }
+  await deleteNormalMemo();
 });
 
 async function saveNormalMemo() {
   if (!currentUser) {
     alert("先にログインしてください");
+    return;
+  }
+
+  if (!isAdmin(currentUser)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
     return;
   }
 
@@ -341,6 +338,42 @@ async function saveNormalMemo() {
   } catch (error) {
     console.error(error);
     alert("保存に失敗しました");
+  }
+}
+
+async function deleteNormalMemo() {
+  if (!currentUser) {
+    alert("先にログインしてください");
+    return;
+  }
+
+  if (!isAdmin(currentUser)) {
+    alert("このページは管理人専用です");
+    location.href = "/";
+    return;
+  }
+
+  if (!selectedMemoId) {
+    alert("削除するメモを選んでください");
+    return;
+  }
+
+  const ok = confirm("このメモを削除しますか？");
+
+  if (!ok) return;
+
+  try {
+    await deleteDoc(doc(db, "normalMemos", selectedMemoId));
+
+    selectedMemoId = null;
+    normalTitleInput.value = "";
+    normalBodyEditor.value = "";
+    normalSaveStatus.textContent = "削除しました";
+
+    await loadNormalMemos();
+  } catch (error) {
+    console.error(error);
+    alert("削除に失敗しました");
   }
 }
 
@@ -437,7 +470,7 @@ normalBodyEditor.addEventListener("input", () => {
   updatePreview();
 });
 
-/* preview */
+/* ---------- preview ---------- */
 
 editModeBtn.addEventListener("click", () => {
   setMode("edit");
@@ -468,7 +501,43 @@ function updatePreview() {
   normalPreview.innerHTML = markdownToHtml(normalBodyEditor.value);
 }
 
-/* helpers */
+/* ---------- export ---------- */
+
+exportMdBtn.addEventListener("click", () => {
+  exportCurrentMemoAsMarkdown();
+});
+
+function exportCurrentMemoAsMarkdown() {
+  const title = normalTitleInput.value.trim() || "無題";
+  const body = normalBodyEditor.value.trim();
+
+  if (!title && !body) {
+    alert("書き出す内容がありません");
+    return;
+  }
+
+  const markdown = body
+    ? `# ${title}\n\n${body}`
+    : `# ${title}\n`;
+
+  const blob = new Blob([markdown], {
+    type: "text/markdown;charset=utf-8"
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${sanitizeFileName(title)}.md`;
+
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- helpers ---------- */
 
 function getTitleFromBody(body) {
   const firstLine = body
@@ -529,6 +598,7 @@ function markdownToHtml(markdown = "") {
         inCode = false;
         codeLines = [];
       }
+
       return;
     }
 
@@ -606,40 +676,6 @@ function formatInline(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/`(.*?)`/g, "<code>$1</code>");
-}
-
-
-exportMdBtn.addEventListener("click", () => {
-  exportCurrentMemoAsMarkdown();
-});
-
-function exportCurrentMemoAsMarkdown() {
-  const title = normalTitleInput.value.trim() || "無題";
-  const body = normalBodyEditor.value.trim();
-
-  if (!title && !body) {
-    alert("書き出す内容がありません");
-    return;
-  }
-
-  const markdown = body
-    ? `# ${title}\n\n${body}`
-    : `# ${title}\n`;
-
-  const blob = new Blob([markdown], {
-    type: "text/markdown;charset=utf-8"
-  });
-
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${sanitizeFileName(title)}.md`;
-  document.body.appendChild(a);
-  a.click();
-
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
 
 function sanitizeFileName(name) {
