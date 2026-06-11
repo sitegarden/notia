@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>プレイリスト | Zero Notes</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <title>プレイリスト | notia</title>
+
+  <meta
+    name="description"
+    content="曲名、歌詞、和訳、URLをまとめて保管できるnotiaの曲メモページです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
+
 <body class="music-page">
   <header class="site-header music-header">
     <div>
@@ -15,7 +25,7 @@
     </div>
 
     <div class="auth-area">
-      <a href="index.html" class="back-link">トップへ戻る</a>
+      <a href="/home/" class="back-link">Homeへ</a>
       <button id="loginBtn">Googleでログイン</button>
       <button id="logoutBtn" class="hidden">ログアウト</button>
       <p id="userInfo" class="user-info"></p>
@@ -29,13 +39,39 @@
         <h2 id="musicFormTitle">曲メモを追加</h2>
       </div>
 
-      <input type="text" id="musicTitleInput" placeholder="曲名" />
-      <input type="text" id="musicArtistInput" placeholder="アーティスト" />
-      <input type="text" id="musicGenreInput" placeholder="ジャンル" />
-      <input type="url" id="musicUrlInput" placeholder="URL" />
+      <input
+        type="text"
+        id="musicTitleInput"
+        placeholder="曲名"
+      />
 
-      <textarea id="musicLyricsInput" placeholder="歌詞"></textarea>
-      <textarea id="musicTranslationInput" placeholder="和訳"></textarea>
+      <input
+        type="text"
+        id="musicArtistInput"
+        placeholder="アーティスト"
+      />
+
+      <input
+        type="text"
+        id="musicGenreInput"
+        placeholder="ジャンル"
+      />
+
+      <input
+        type="url"
+        id="musicUrlInput"
+        placeholder="URL"
+      />
+
+      <textarea
+        id="musicLyricsInput"
+        placeholder="歌詞"
+      ></textarea>
+
+      <textarea
+        id="musicTranslationInput"
+        placeholder="和訳"
+      ></textarea>
 
       <div class="editor-actions">
         <p id="musicStatus">ログインしてください</p>
@@ -62,6 +98,6 @@
     </section>
   </main>
 
-  <script type="module" src="music.js"></script>
+  <script type="module" src="/music.js"></script>
 </body>
 </html>
