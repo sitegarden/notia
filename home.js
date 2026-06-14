@@ -34,19 +34,20 @@ const recentTimeline = document.getElementById("recentTimeline");
 const quickMemoList = document.getElementById("quickMemoList");
 const taskList = document.getElementById("taskList");
 const sharedMemoList = document.getElementById("sharedMemoList");
-
 const normalMemoList = document.getElementById("normalMemoList");
 const diaryList = document.getElementById("diaryList");
 const dreamList = document.getElementById("dreamList");
 const musicList = document.getElementById("musicList");
 const storyList = document.getElementById("storyList");
 const peopleList = document.getElementById("peopleList");
+const chatMemoList = document.getElementById("chatMemoList");
+const imageMemoList = document.getElementById("imageMemoList");
 
 let currentUser = null;
 let isCurrentAdmin = false;
 
-const DISPLAY_LIMIT = 5;
-const TIMELINE_LIMIT = 12;
+const DISPLAY_LIMIT = 2;
+const TIMELINE_LIMIT = 6;
 
 loginBtn.addEventListener("click", async () => {
   try {
@@ -243,6 +244,33 @@ async function loadHome() {
           displayDate: getDisplayDate(item)
         }))
       });
+
+const chatRooms = await fetchUserCollection("chatRooms", "uid");
+sections.push({
+  type: "chat",
+  label: "チャットメモ",
+  url: "/chat/",
+  items: chatRooms.map((item) => ({
+    ...item,
+    displayTitle: item.title || "無題のチャット",
+    displayText: "チャット部屋",
+    displayDate: getDisplayDate(item)
+  }))
+});
+
+const imageMemos = await fetchUserCollection("imageMemos", "uid");
+sections.push({
+  type: "image",
+  label: "画像メモ",
+  url: "/image/",
+  items: imageMemos.map((item) => ({
+    ...item,
+    displayTitle: item.title || "無題の画像",
+    displayText: item.category || item.memo || "",
+    displayDate: getDisplayDate(item)
+  }))
+});
+      
     }
 
     sections.forEach((section) => {
@@ -294,6 +322,16 @@ async function loadHome() {
         peopleList,
         sections.find((section) => section.type === "people")
       );
+
+      renderSection(
+  chatMemoList,
+  sections.find((section) => section.type === "chat")
+);
+
+renderSection(
+  imageMemoList,
+  sections.find((section) => section.type === "image")
+);
     }
 
     renderTimeline(sections);
@@ -324,17 +362,17 @@ async function fetchUserCollection(collectionName, ownerField) {
 
 function clearAllLists() {
   recentTimeline.innerHTML = "";
-
   quickMemoList.innerHTML = "";
   taskList.innerHTML = "";
   sharedMemoList.innerHTML = "";
-
   normalMemoList.innerHTML = "";
   diaryList.innerHTML = "";
   dreamList.innerHTML = "";
   musicList.innerHTML = "";
   storyList.innerHTML = "";
   peopleList.innerHTML = "";
+  chatMemoList.innerHTML = "";
+  imageMemoList.innerHTML = "";
 }
 
 function renderTimeline(sections) {
