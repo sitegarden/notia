@@ -20,6 +20,14 @@ const eraserBtn = document.getElementById("eraserBtn");
 const drawList = document.getElementById("drawList");
 const canvasStatus = document.getElementById("canvasStatus");
 
+const fingerDrawToggle = document.getElementById("fingerDrawToggle");
+const zoomRange = document.getElementById("zoomRange");
+const zoomOutBtn = document.getElementById("zoomOutBtn");
+const zoomResetBtn = document.getElementById("zoomResetBtn");
+const zoomInBtn = document.getElementById("zoomInBtn");
+
+let zoom = 1;
+
 let currentId = null;
 let currentTool = "pen";
 let drawing = false;
@@ -132,6 +140,10 @@ function drawLine(from, to) {
 }
 
 function startDrawing(event) {
+  if (!canDrawWithPointer(event)) {
+    return;
+  }
+
   event.preventDefault();
 
   drawing = true;
@@ -149,6 +161,7 @@ function startDrawing(event) {
 
 function moveDrawing(event) {
   if (!drawing || !lastPoint) return;
+  if (!canDrawWithPointer(event)) return;
 
   event.preventDefault();
 
@@ -407,6 +420,49 @@ drawList.addEventListener("click", (event) => {
   }
 });
 
+function canDrawWithPointer(event) {
+  if (event.pointerType === "mouse") {
+    return true;
+  }
+
+  if (event.pointerType === "pen") {
+    return true;
+  }
+
+  if (event.pointerType === "touch") {
+    return fingerDrawToggle.checked;
+  }
+
+  return true;
+}
+
+function applyZoom() {
+  zoom = Number(zoomRange.value) / 100;
+  canvas.style.transform = `scale(${zoom})`;
+  zoomResetBtn.textContent = `${Math.round(zoom * 100)}%`;
+}
+
+function setZoom(value) {
+  const next = Math.min(300, Math.max(25, value));
+  zoomRange.value = String(next);
+  applyZoom();
+}
+
+zoomRange.addEventListener("input", applyZoom);
+
+zoomOutBtn.addEventListener("click", () => {
+  setZoom(Number(zoomRange.value) - 25);
+});
+
+zoomInBtn.addEventListener("click", () => {
+  setZoom(Number(zoomRange.value) + 25);
+});
+
+zoomResetBtn.addEventListener("click", () => {
+  setZoom(100);
+});
+
 resetCanvas();
 renderList();
+applyZoom();
 setTool("pen");
