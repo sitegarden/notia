@@ -1,14 +1,6 @@
 // people.js
-
-import {
-  auth,
-  googleProvider,
-  db
-} from "./firebase.js";
-
-import {
-  isAdmin
-} from "./admin.js";
+import { auth, googleProvider, db } from "./firebase.js";
+import { isAdmin } from "./admin.js";
 
 import {
   signInWithPopup,
@@ -37,6 +29,7 @@ const peopleTypeFilter = document.getElementById("peopleTypeFilter");
 const peopleList = document.getElementById("peopleList");
 
 const peopleFormTitle = document.getElementById("peopleFormTitle");
+
 const personNameInput = document.getElementById("personNameInput");
 const personNicknameInput = document.getElementById("personNicknameInput");
 const personTypeInput = document.getElementById("personTypeInput");
@@ -54,9 +47,18 @@ const newPersonBtn = document.getElementById("newPersonBtn");
 const deletePersonBtn = document.getElementById("deletePersonBtn");
 const savePersonBtn = document.getElementById("savePersonBtn");
 
+let personIconInput = null;
+let peopleViewMode = localStorage.getItem("notiaPeopleViewMode") || "list";
+
 let currentUser = null;
 let people = [];
+let imageMemos = [];
 let selectedPersonId = null;
+
+/* ---------- init ui ---------- */
+
+createPeopleViewSwitcher();
+createPersonIconInput();
 
 /* ---------- auth ---------- */
 
@@ -84,11 +86,15 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
+
     userInfo.textContent = "";
 
     people = [];
+    imageMemos = [];
     selectedPersonId = null;
+
     clearPersonForm();
+    updatePersonIconOptions();
     peopleList.innerHTML = "";
     peopleStatus.textContent = "ログインしてください";
 
@@ -103,9 +109,11 @@ onAuthStateChanged(auth, async (user) => {
 
   loginBtn.classList.add("hidden");
   logoutBtn.classList.remove("hidden");
+
   userInfo.textContent = user.displayName || user.email || "ログイン中";
   peopleStatus.textContent = "人物を保存できます";
 
+  await loadImageMemosForPeople();
   await loadPeople();
 });
 
@@ -148,9 +156,7 @@ peopleTypeFilter.addEventListener("change", () => {
   personPropsInput
 ].forEach((input) => {
   input.addEventListener("input", () => {
-    peopleStatus.textContent = selectedPersonId
-      ? "未保存の変更あり"
-      : "新規人物";
+    peopleStatus.textContent = selectedPersonId ? "未保存の変更あり" : "新規人物";
   });
 });
 
@@ -180,6 +186,38 @@ async function loadPeople() {
   renderPeople();
 }
 
+async function loadImageMemosForPeople() {
+  if (!currentUser) return;
+
+  try {
+    const q = query(
+      collection(db, "imageMemos"),
+      where("uid", "==", currentUser.uid)
+    );
+
+    const snapshot = await getDocs(q);
+
+    imageMemos = snapshot.docs
+      .map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      }))
+      .filter((item) => item.imageUrl);
+
+    imageMemos.sort((a, b) => {
+      const aTime = a.updatedAt?.seconds || 0;
+      const bTime = b.updatedAt?.seconds || 0;
+      return bTime - aTime;
+    });
+
+    updatePersonIconOptions();
+  } catch (error) {
+    console.error(error);
+    imageMemos = [];
+    updatePersonIconOptions();
+  }
+}
+
 /* ---------- save ---------- */
 
 async function savePerson() {
@@ -206,6 +244,11 @@ async function savePerson() {
   const memo = personMemoInput.value.trim();
   const props = personPropsInput.value.trim();
 
+  const iconImageMemoId = personIconInput?.value || "";
+  const selectedIconMemo = imageMemos.find((item) => item.id === iconImageMemoId);
+  const iconImageUrl = selectedIconMemo?.imageUrl || "";
+  const iconImageTitle = selectedIconMemo?.title || "";
+
   if (!name) {
     alert("名前を入力してください");
     return;
@@ -223,6 +266,9 @@ async function savePerson() {
     traits,
     memo,
     props,
+    iconImageMemoId,
+    iconImageUrl,
+    iconImageTitle,
     updatedAt: serverTimestamp()
   };
 
@@ -268,7 +314,6 @@ async function deletePerson() {
   }
 
   const ok = confirm("この人物を削除しますか？");
-
   if (!ok) return;
 
   try {
@@ -276,6 +321,7 @@ async function deletePerson() {
 
     selectedPersonId = null;
     clearPersonForm();
+
     peopleStatus.textContent = "削除しました";
 
     await loadPeople();
@@ -289,6 +335,8 @@ async function deletePerson() {
 
 function renderPeople() {
   peopleList.innerHTML = "";
+  peopleList.classList.toggle("people-grid", peopleViewMode === "grid");
+  peopleList.classList.toggle("people-list", peopleViewMode === "list");
 
   const keyword = peopleSearchInput.value.trim().toLowerCase();
   const typeFilter = peopleTypeFilter.value;
@@ -312,7 +360,8 @@ function renderPeople() {
         person.tags,
         person.traits,
         person.memo,
-        person.props
+        person.props,
+        person.iconImageTitle
       ]
         .join(" ")
         .toLowerCase();
@@ -331,9 +380,24 @@ function renderPeople() {
 
   filtered.forEach((person) => {
     const card = document.createElement("button");
-    card.className = selectedPersonId === person.id
-      ? "person-card active"
-      : "person-card";
+    card.type = "button";
+    card.className = selectedPersonId === person.id ? "person-card active" : "person-card";
+
+    const icon = document.createElement("div");
+    icon.className = "person-icon";
+
+    if (person.iconImageUrl) {
+      const img = document.createElement("img");
+      img.src = person.iconImageUrl;
+      img.alt = person.name || "人物アイコン";
+      img.loading = "lazy";
+      icon.appendChild(img);
+    } else {
+      icon.textContent = getInitial(person.name);
+    }
+
+    const info = document.createElement("div");
+    info.className = "person-card-info";
 
     const name = document.createElement("p");
     name.className = "person-name";
@@ -364,9 +428,12 @@ function renderPeople() {
       badges.appendChild(createBadge(tag));
     });
 
-    card.appendChild(name);
-    card.appendChild(sub);
-    card.appendChild(badges);
+    info.appendChild(name);
+    info.appendChild(sub);
+    info.appendChild(badges);
+
+    card.appendChild(icon);
+    card.appendChild(info);
 
     card.addEventListener("click", () => {
       selectPerson(person);
@@ -382,6 +449,7 @@ function selectPerson(person) {
   selectedPersonId = person.id;
 
   peopleFormTitle.textContent = "人物を編集";
+
   personNameInput.value = person.name || "";
   personNicknameInput.value = person.nickname || "";
   personTypeInput.value = person.type || "real";
@@ -394,15 +462,107 @@ function selectPerson(person) {
   personMemoInput.value = person.memo || "";
   personPropsInput.value = person.props || "";
 
+  if (personIconInput) {
+    personIconInput.value = person.iconImageMemoId || "";
+  }
+
   peopleStatus.textContent = "編集中";
 
   renderPeople();
+}
+
+/* ---------- auto ui ---------- */
+
+function createPeopleViewSwitcher() {
+  if (!peopleList) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "people-view-switcher";
+
+  const listBtn = document.createElement("button");
+  listBtn.type = "button";
+  listBtn.className = peopleViewMode === "list" ? "people-view-btn active" : "people-view-btn";
+  listBtn.textContent = "リスト";
+
+  const gridBtn = document.createElement("button");
+  gridBtn.type = "button";
+  gridBtn.className = peopleViewMode === "grid" ? "people-view-btn active" : "people-view-btn";
+  gridBtn.textContent = "グリッド";
+
+  listBtn.addEventListener("click", () => {
+    peopleViewMode = "list";
+    localStorage.setItem("notiaPeopleViewMode", peopleViewMode);
+    listBtn.classList.add("active");
+    gridBtn.classList.remove("active");
+    renderPeople();
+  });
+
+  gridBtn.addEventListener("click", () => {
+    peopleViewMode = "grid";
+    localStorage.setItem("notiaPeopleViewMode", peopleViewMode);
+    gridBtn.classList.add("active");
+    listBtn.classList.remove("active");
+    renderPeople();
+  });
+
+  wrapper.appendChild(listBtn);
+  wrapper.appendChild(gridBtn);
+
+  peopleList.parentNode.insertBefore(wrapper, peopleList);
+}
+
+function createPersonIconInput() {
+  if (!peopleFormTitle) return;
+
+  const field = document.createElement("label");
+  field.className = "person-icon-field";
+
+  const labelText = document.createElement("span");
+  labelText.textContent = "アイコン画像";
+
+  personIconInput = document.createElement("select");
+  personIconInput.id = "personIconInput";
+
+  field.appendChild(labelText);
+  field.appendChild(personIconInput);
+
+  peopleFormTitle.insertAdjacentElement("afterend", field);
+
+  personIconInput.addEventListener("change", () => {
+    peopleStatus.textContent = selectedPersonId ? "未保存の変更あり" : "新規人物";
+  });
+
+  updatePersonIconOptions();
+}
+
+function updatePersonIconOptions() {
+  if (!personIconInput) return;
+
+  const currentValue = personIconInput.value;
+
+  personIconInput.innerHTML = "";
+
+  const noneOption = document.createElement("option");
+  noneOption.value = "";
+  noneOption.textContent = "アイコンなし";
+  personIconInput.appendChild(noneOption);
+
+  imageMemos.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent = item.title || "無題の画像";
+    personIconInput.appendChild(option);
+  });
+
+  const exists = imageMemos.some((item) => item.id === currentValue);
+  personIconInput.value = exists ? currentValue : "";
 }
 
 /* ---------- helpers ---------- */
 
 function clearPersonForm() {
   peopleFormTitle.textContent = "人物を追加";
+
   personNameInput.value = "";
   personNicknameInput.value = "";
   personTypeInput.value = "real";
@@ -414,6 +574,10 @@ function clearPersonForm() {
   personTraitsInput.value = "";
   personMemoInput.value = "";
   personPropsInput.value = "";
+
+  if (personIconInput) {
+    personIconInput.value = "";
+  }
 }
 
 function createBadge(text) {
@@ -449,4 +613,9 @@ function splitTags(tags = "") {
     .split(/[,\s、，]+/)
     .map((tag) => tag.trim())
     .filter(Boolean);
+}
+
+function getInitial(name = "") {
+  const trimmed = String(name).trim();
+  return trimmed ? trimmed.slice(0, 1) : "?";
 }
