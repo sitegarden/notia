@@ -377,3 +377,38 @@
     grid-template-columns: 76px 1fr;
   }
 }
+
+.draw-zoom-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 8px;
+  margin: -4px 0 14px;
+}
+
+.draw-zoom-buttons button {
+  padding: 9px 10px;
+  border: 1px solid rgba(98, 68, 96, 0.14);
+  border-radius: 999px;
+  background: #fff;
+  color: #35283c;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.draw-canvas-wrap {
+  overflow: auto;
+}
+
+.draw-canvas-inner {
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+#drawCanvas {
+  transform-origin: center center;
+}
