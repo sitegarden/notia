@@ -8,6 +8,60 @@
   padding: 42px 0 72px;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.draw-auth-gate,
+.draw-hero,
+.draw-panel,
+.draw-canvas-card,
+.draw-list-section {
+  border: 1px solid rgba(98, 68, 96, 0.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255, 175, 214, 0.36), transparent 36%),
+    radial-gradient(circle at 90% 16%, rgba(179, 205, 255, 0.42), transparent 34%),
+    rgba(255, 255, 255, 0.82);
+  box-shadow: 0 22px 60px rgba(74, 48, 92, 0.14);
+  backdrop-filter: blur(14px);
+}
+
+.draw-auth-gate {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 34px;
+  text-align: center;
+}
+
+.draw-auth-gate h1 {
+  margin: 8px 0 10px;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.draw-auth-gate p {
+  color: #736177;
+  line-height: 1.9;
+}
+
+.draw-auth-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.draw-user-info,
+.draw-status {
+  margin: 12px 0 0;
+  font-weight: 800;
+}
+
+.draw-app {
+  display: block;
+}
+
 .draw-hero {
   display: flex;
   justify-content: space-between;
@@ -15,14 +69,6 @@
   align-items: flex-end;
   margin-bottom: 26px;
   padding: 28px;
-  border: 1px solid rgba(98, 68, 96, 0.12);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(255, 175, 214, 0.42), transparent 36%),
-    radial-gradient(circle at 90% 16%, rgba(179, 205, 255, 0.48), transparent 34%),
-    rgba(255, 255, 255, 0.78);
-  box-shadow: 0 22px 60px rgba(74, 48, 92, 0.14);
-  backdrop-filter: blur(14px);
 }
 
 .draw-hero h1 {
@@ -85,16 +131,6 @@
 .draw-tools {
   position: sticky;
   top: 18px;
-}
-
-.draw-panel,
-.draw-canvas-card,
-.draw-list-section {
-  border: 1px solid rgba(98, 68, 96, 0.12);
-  border-radius: 26px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 18px 48px rgba(74, 48, 92, 0.12);
-  backdrop-filter: blur(12px);
 }
 
 .draw-panel {
@@ -167,6 +203,24 @@
   accent-color: #8c7bff;
 }
 
+.draw-zoom-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 8px;
+  margin: -4px 0 14px;
+}
+
+.draw-zoom-buttons button {
+  padding: 9px 10px;
+  border: 1px solid rgba(98, 68, 96, 0.14);
+  border-radius: 999px;
+  background: #fff;
+  color: #35283c;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .draw-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -201,6 +255,7 @@
 
 .draw-canvas-card {
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .draw-canvas-head {
@@ -229,6 +284,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
+  overflow: auto;
   background:
     linear-gradient(45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
@@ -237,8 +293,16 @@
     #fff;
   background-size: 24px 24px;
   background-position: 0 0, 0 12px, 12px -12px, -12px 0;
-  touch-action: none;
   user-select: none;
+}
+
+.draw-canvas-inner {
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 18px;
 }
 
 #drawCanvas {
@@ -247,6 +311,9 @@
   height: 100%;
   cursor: crosshair;
   touch-action: none;
+  transform-origin: center center;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(74, 48, 92, 0.12);
 }
 
 .draw-list-section {
@@ -327,6 +394,7 @@
 }
 
 .draw-card-actions button.danger {
+  grid-column: 1 / -1;
   color: #d94a72;
 }
 
@@ -361,7 +429,8 @@
 
   .draw-hero,
   .draw-panel,
-  .draw-list-section {
+  .draw-list-section,
+  .draw-auth-gate {
     border-radius: 22px;
   }
 
@@ -376,39 +445,4 @@
   .draw-tool-row {
     grid-template-columns: 76px 1fr;
   }
-}
-
-.draw-zoom-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
-  gap: 8px;
-  margin: -4px 0 14px;
-}
-
-.draw-zoom-buttons button {
-  padding: 9px 10px;
-  border: 1px solid rgba(98, 68, 96, 0.14);
-  border-radius: 999px;
-  background: #fff;
-  color: #35283c;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.draw-canvas-wrap {
-  overflow: auto;
-}
-
-.draw-canvas-inner {
-  width: max-content;
-  min-width: 100%;
-  min-height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-}
-
-#drawCanvas {
-  transform-origin: center center;
 }
