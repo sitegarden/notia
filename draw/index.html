@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>らくがきメモ | notia</title>
+
+  <meta
+    name="description"
+    content="notiaのらくがきメモ。思いついた絵や図をその場で描いて保存できます。"
+  />
+
+  <meta property="og:title" content="らくがきメモ | notia" />
+  <meta property="og:description" content="思いついた絵や図をその場で描いて保存できる、notiaのお絵描きメモ。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://notia.jp/draw/" />
+  <meta property="og:image" content="https://notia.jp/ogp.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="らくがきメモ | notia" />
+  <meta name="twitter:description" content="思いついた絵や図をその場で描いて保存できる、notiaのお絵描きメモ。" />
+  <meta name="twitter:image" content="https://notia.jp/ogp.png" />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+</head>
+
+<body class="draw-page">
+  <div id="commonHeader"></div>
+
+  <main class="draw-main">
+    <section class="draw-hero">
+      <div>
+        <p class="label">DRAW MEMO</p>
+        <h1>らくがきメモ</h1>
+        <p>
+          思いついた絵、図、ラフ、メモ書きをその場で描いて保存できます。
+          まずはシンプルに。あとからレイヤーや筆圧も強化できます。
+        </p>
+      </div>
+
+      <div class="draw-hero-actions">
+        <button type="button" id="newDrawBtn" class="draw-primary">新しく描く</button>
+        <button type="button" id="exportBtn" class="draw-secondary">PNG保存</button>
+      </div>
+    </section>
+
+    <section class="draw-layout">
+      <aside class="draw-tools" aria-label="お絵描きツール">
+        <div class="draw-panel">
+          <label class="draw-field">
+            <span>タイトル</span>
+            <input id="drawTitle" type="text" placeholder="無題のらくがき" maxlength="40" />
+          </label>
+
+          <div class="draw-tool-row">
+            <label class="draw-field compact">
+              <span>色</span>
+              <input id="penColor" type="color" value="#35283c" />
+            </label>
+
+            <label class="draw-field compact">
+              <span>太さ</span>
+              <input id="penSize" type="range" min="1" max="40" value="8" />
+            </label>
+          </div>
+
+          <label class="draw-check">
+            <input id="pressureToggle" type="checkbox" checked />
+            <span>筆圧を使う</span>
+          </label>
+
+          <div class="draw-buttons">
+            <button type="button" id="penBtn" class="active">ペン</button>
+            <button type="button" id="eraserBtn">消しゴム</button>
+            <button type="button" id="undoBtn">戻る</button>
+            <button type="button" id="redoBtn">進む</button>
+            <button type="button" id="clearBtn">全消し</button>
+            <button type="button" id="saveBtn" class="save">保存</button>
+          </div>
+
+          <p class="draw-note">
+            ※ 保存先はこの端末のブラウザ内です。大事な絵はPNG保存しておくのがおすすめです。
+          </p>
+        </div>
+      </aside>
+
+      <section class="draw-canvas-card">
+        <div class="draw-canvas-head">
+          <div>
+            <strong id="canvasStatus">新規作成中</strong>
+            <span>指・ペン・マウスで描けます</span>
+          </div>
+        </div>
+
+        <div class="draw-canvas-wrap">
+          <canvas id="drawCanvas" width="1200" height="900"></canvas>
+        </div>
+      </section>
+    </section>
+
+    <section class="draw-list-section">
+      <div class="section-title draw-section-title">
+        <p class="label">SAVED DRAWINGS</p>
+        <h2>保存したらくがき</h2>
+        <p>保存した絵はグリッドで並びます。</p>
+      </div>
+
+      <div id="drawList" class="draw-grid"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/header.js"></script>
+  <script src="./draw.js"></script>
+</body>
+</html>
