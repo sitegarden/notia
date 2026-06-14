@@ -1,0 +1,379 @@
+.draw-page {
+  min-height: 100vh;
+}
+
+.draw-main {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 42px 0 72px;
+}
+
+.draw-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-end;
+  margin-bottom: 26px;
+  padding: 28px;
+  border: 1px solid rgba(98, 68, 96, 0.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255, 175, 214, 0.42), transparent 36%),
+    radial-gradient(circle at 90% 16%, rgba(179, 205, 255, 0.48), transparent 34%),
+    rgba(255, 255, 255, 0.78);
+  box-shadow: 0 22px 60px rgba(74, 48, 92, 0.14);
+  backdrop-filter: blur(14px);
+}
+
+.draw-hero h1 {
+  margin: 8px 0 10px;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  letter-spacing: 0.04em;
+}
+
+.draw-hero p {
+  max-width: 680px;
+  margin: 0;
+  color: #736177;
+  line-height: 1.9;
+}
+
+.draw-hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.draw-primary,
+.draw-secondary,
+.draw-buttons button {
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.draw-primary {
+  padding: 13px 20px;
+  color: #fff;
+  background: linear-gradient(135deg, #ff7cab, #8c7bff);
+  box-shadow: 0 14px 30px rgba(140, 123, 255, 0.26);
+}
+
+.draw-secondary {
+  padding: 13px 20px;
+  color: #35283c;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(98, 68, 96, 0.14);
+}
+
+.draw-primary:hover,
+.draw-secondary:hover,
+.draw-buttons button:hover {
+  transform: translateY(-2px);
+}
+
+.draw-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.draw-tools {
+  position: sticky;
+  top: 18px;
+}
+
+.draw-panel,
+.draw-canvas-card,
+.draw-list-section {
+  border: 1px solid rgba(98, 68, 96, 0.12);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 18px 48px rgba(74, 48, 92, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.draw-panel {
+  padding: 18px;
+}
+
+.draw-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #736177;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.draw-field input[type="text"] {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(98, 68, 96, 0.14);
+  border-radius: 16px;
+  color: #35283c;
+  background: #fff;
+  font: inherit;
+  outline: none;
+}
+
+.draw-field input[type="text"]:focus {
+  border-color: rgba(140, 123, 255, 0.55);
+  box-shadow: 0 0 0 4px rgba(140, 123, 255, 0.12);
+}
+
+.draw-tool-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.draw-field.compact {
+  margin-bottom: 12px;
+}
+
+.draw-field input[type="color"] {
+  width: 100%;
+  height: 44px;
+  padding: 4px;
+  border: 1px solid rgba(98, 68, 96, 0.14);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.draw-field input[type="range"] {
+  width: 100%;
+  accent-color: #ff7cab;
+}
+
+.draw-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 14px;
+  color: #736177;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.draw-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #8c7bff;
+}
+
+.draw-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.draw-buttons button {
+  padding: 11px 12px;
+  color: #35283c;
+  background: #fff;
+  border: 1px solid rgba(98, 68, 96, 0.14);
+}
+
+.draw-buttons button.active {
+  color: #fff;
+  background: linear-gradient(135deg, #35283c, #8c7bff);
+}
+
+.draw-buttons button.save {
+  grid-column: 1 / -1;
+  color: #fff;
+  background: linear-gradient(135deg, #ff7cab, #e8b85f);
+  box-shadow: 0 14px 28px rgba(255, 124, 171, 0.22);
+}
+
+.draw-note {
+  margin: 14px 0 0;
+  color: #8a7a8f;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.draw-canvas-card {
+  overflow: hidden;
+}
+
+.draw-canvas-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(98, 68, 96, 0.1);
+}
+
+.draw-canvas-head div {
+  display: grid;
+  gap: 4px;
+}
+
+.draw-canvas-head strong {
+  color: #35283c;
+}
+
+.draw-canvas-head span {
+  color: #8a7a8f;
+  font-size: 0.84rem;
+}
+
+.draw-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background:
+    linear-gradient(45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(98, 68, 96, 0.035) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(98, 68, 96, 0.035) 75%),
+    #fff;
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+  touch-action: none;
+  user-select: none;
+}
+
+#drawCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.draw-list-section {
+  margin-top: 22px;
+  padding: 24px;
+}
+
+.draw-section-title {
+  margin-bottom: 18px;
+}
+
+.draw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+}
+
+.draw-empty {
+  grid-column: 1 / -1;
+  padding: 22px;
+  border: 1px dashed rgba(98, 68, 96, 0.22);
+  border-radius: 20px;
+  color: #8a7a8f;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.draw-card {
+  overflow: hidden;
+  border: 1px solid rgba(98, 68, 96, 0.12);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 32px rgba(74, 48, 92, 0.1);
+}
+
+.draw-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #fff;
+  border-bottom: 1px solid rgba(98, 68, 96, 0.1);
+}
+
+.draw-card-body {
+  padding: 12px;
+}
+
+.draw-card h3 {
+  margin: 0 0 4px;
+  color: #35283c;
+  font-size: 0.98rem;
+}
+
+.draw-card time {
+  display: block;
+  margin-bottom: 10px;
+  color: #8a7a8f;
+  font-size: 0.76rem;
+}
+
+.draw-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.draw-card-actions button {
+  padding: 9px 10px;
+  border: 1px solid rgba(98, 68, 96, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: #35283c;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.draw-card-actions button.danger {
+  color: #d94a72;
+}
+
+@media (max-width: 860px) {
+  .draw-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .draw-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .draw-tools {
+    position: static;
+  }
+
+  .draw-buttons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .draw-buttons button.save {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .draw-main {
+    width: min(100% - 20px, 1180px);
+    padding-top: 24px;
+  }
+
+  .draw-hero,
+  .draw-panel,
+  .draw-list-section {
+    border-radius: 22px;
+  }
+
+  .draw-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .draw-buttons button.save {
+    grid-column: 1 / -1;
+  }
+
+  .draw-tool-row {
+    grid-template-columns: 76px 1fr;
+  }
+}
