@@ -73,6 +73,22 @@
             <span>筆圧を使う</span>
           </label>
 
+          <label class="draw-check">
+  <input id="fingerDrawToggle" type="checkbox" />
+  <span>指でも描く</span>
+</label>
+
+<label class="draw-field">
+  <span>拡大</span>
+  <input id="zoomRange" type="range" min="25" max="300" value="100" />
+</label>
+
+<div class="draw-zoom-buttons">
+  <button type="button" id="zoomOutBtn">−</button>
+  <button type="button" id="zoomResetBtn">100%</button>
+  <button type="button" id="zoomInBtn">＋</button>
+</div>
+
           <div class="draw-buttons">
             <button type="button" id="penBtn" class="active">ペン</button>
             <button type="button" id="eraserBtn">消しゴム</button>
