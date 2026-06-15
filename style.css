@@ -4186,3 +4186,69 @@ button {
     transform: translateY(0) scale(1);
   }
 }
+/* =========================
+   image memo / mobile 3 columns
+========================= */
+
+@media (max-width: 800px) {
+  .image-page .image-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .image-page .image-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .image-page .image-memo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .image-page .image-memo-card {
+    padding: 6px;
+    border-radius: 14px;
+    display: block;
+    text-align: left;
+  }
+
+  .image-page .image-memo-thumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .image-page .image-memo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .image-page .image-memo-info {
+    margin-top: 6px;
+  }
+
+  .image-page .image-memo-title {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
+    font-weight: 800;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .image-page .image-memo-sub,
+  .image-page .image-memo-tags {
+    display: none;
+  }
+
+  .image-page .empty-text {
+    grid-column: 1 / -1;
+  }
+}
+
