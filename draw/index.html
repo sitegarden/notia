@@ -8,7 +8,7 @@
 
   <meta
     name="description"
-    content="notiaの管理人専用らくがきメモ。思いついた絵や図をその場で描いて保存できます。"
+    content="notiaの管理人専用らくがきメモ。レイヤー付きで絵や図を保存できます。"
   />
 
   <meta property="og:title" content="らくがきメモ | notia" />
@@ -52,7 +52,7 @@
           <h1>らくがきメモ</h1>
           <p>
             思いついた絵、図、ラフ、メモ書きをその場で描いてFirebaseに保存できます。
-            今は完成画像1枚保存。レイヤーは後で追加しやすい形にしています。
+            レイヤー付きで、Notiaの中に小さなお絵描き机を置く感じです。
           </p>
         </div>
 
@@ -112,9 +112,27 @@
               <button type="button" id="clearBtn">全消し</button>
               <button type="button" id="saveBtn" class="save">Firebaseに保存</button>
             </div>
+          </div>
+
+          <div class="draw-panel layer-panel">
+            <div class="layer-head">
+              <div>
+                <p class="label">LAYERS</p>
+                <h2>レイヤー</h2>
+              </div>
+              <button type="button" id="addLayerBtn">＋</button>
+            </div>
+
+            <div id="layerList" class="layer-list"></div>
+
+            <div class="layer-actions">
+              <button type="button" id="moveLayerUpBtn">上へ</button>
+              <button type="button" id="moveLayerDownBtn">下へ</button>
+              <button type="button" id="deleteLayerBtn" class="danger">削除</button>
+            </div>
 
             <p class="draw-note">
-              ※ 管理人専用ページです。画像はFirebase Storage、メモ情報はFirestoreに保存します。
+              上にあるレイヤーほど前面に表示されます。
             </p>
           </div>
         </aside>
@@ -129,7 +147,7 @@
 
           <div class="draw-canvas-wrap">
             <div class="draw-canvas-inner">
-              <canvas id="drawCanvas" width="1200" height="900"></canvas>
+              <div id="canvasStack" class="canvas-stack"></div>
             </div>
           </div>
         </section>
