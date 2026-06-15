@@ -1,4 +1,3 @@
-// draw.js
 import { auth, googleProvider, db, storage } from "../firebase.js";
 import { isAdmin } from "../admin.js";
 
@@ -27,6 +26,10 @@ import {
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
+const CANVAS_WIDTH = 1200;
+const CANVAS_HEIGHT = 900;
+const MAX_DRAW_SIZE = 5 * 1024 * 1024;
+
 const authGate = document.getElementById("authGate");
 const drawApp = document.getElementById("drawApp");
 
@@ -35,9 +38,6 @@ const logoutBtn = document.getElementById("logoutBtn");
 const appLogoutBtn = document.getElementById("appLogoutBtn");
 const userInfo = document.getElementById("userInfo");
 const drawStatus = document.getElementById("drawStatus");
-
-const canvas = document.getElementById("drawCanvas");
-const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
 const titleInput = document.getElementById("drawTitle");
 const penColorInput = document.getElementById("penColor");
@@ -59,14 +59,22 @@ const redoBtn = document.getElementById("redoBtn");
 const penBtn = document.getElementById("penBtn");
 const eraserBtn = document.getElementById("eraserBtn");
 
-const drawList = document.getElementById("drawList");
 const canvasStatus = document.getElementById("canvasStatus");
+const canvasStack = document.getElementById("canvasStack");
+const drawList = document.getElementById("drawList");
 
-const MAX_DRAW_SIZE = 5 * 1024 * 1024;
+const layerList = document.getElementById("layerList");
+const addLayerBtn = document.getElementById("addLayerBtn");
+const moveLayerUpBtn = document.getElementById("moveLayerUpBtn");
+const moveLayerDownBtn = document.getElementById("moveLayerDownBtn");
+const deleteLayerBtn = document.getElementById("deleteLayerBtn");
 
 let currentUser = null;
 let drawMemos = [];
 let selectedDrawMemoId = null;
+
+let layers = [];
+let activeLayerId = null;
 
 let currentTool = "pen";
 let drawing = false;
@@ -88,13 +96,8 @@ loginBtn.addEventListener("click", async () => {
   }
 });
 
-logoutBtn.addEventListener("click", async () => {
-  await logout();
-});
-
-appLogoutBtn.addEventListener("click", async () => {
-  await logout();
-});
+logoutBtn.addEventListener("click", logout);
+appLogoutBtn.addEventListener("click", logout);
 
 async function logout() {
   try {
@@ -151,7 +154,7 @@ function showApp(user) {
   canvasStatus.textContent = "保存できます";
 }
 
-/* ---------- canvas base ---------- */
+/* ---------- ids ---------- */
 
 function createId() {
   if (crypto.randomUUID) {
@@ -161,20 +164,230 @@ function createId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function setCanvasWhite() {
-  ctx.save();
-  ctx.globalCompositeOperation = "source-over";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.restore();
+/* ---------- layers ---------- */
+
+function createLayer(name = "") {
+  const id = createId();
+
+  const canvas = document.createElement("canvas");
+  canvas.width = CANVAS_WIDTH;
+  canvas.height = CANVAS_HEIGHT;
+  canvas.className = "layer-canvas";
+  canvas.dataset.layerId = id;
+
+  canvas.addEventListener("pointerdown", startDrawing);
+  canvas.addEventListener("pointermove", moveDrawing);
+  canvas.addEventListener("pointerup", endDrawing);
+  canvas.addEventListener("pointercancel", endDrawing);
+  canvas.addEventListener("pointerleave", endDrawing);
+
+  const layer = {
+    id,
+    name: name || `Layer ${layers.length + 1}`,
+    visible: true,
+    canvas
+  };
+
+  layers.unshift(layer);
+  activeLayerId = id;
+
+  renderLayers();
+  renderCanvasStack();
+  pushUndo();
+
+  return layer;
 }
+
+function getActiveLayer() {
+  return layers.find((layer) => layer.id === activeLayerId) || null;
+}
+
+function getActiveCanvas() {
+  return getActiveLayer()?.canvas || null;
+}
+
+function getActiveContext() {
+  const canvas = getActiveCanvas();
+  return canvas?.getContext("2d", { willReadFrequently: true }) || null;
+}
+
+function renderCanvasStack() {
+  canvasStack.innerHTML = "";
+
+  [...layers].reverse().forEach((layer) => {
+    layer.canvas.style.display = layer.visible ? "block" : "none";
+    layer.canvas.style.pointerEvents = layer.id === activeLayerId ? "auto" : "none";
+    layer.canvas.style.zIndex = String(layers.indexOf(layer) + 1);
+
+    canvasStack.appendChild(layer.canvas);
+  });
+
+  applyZoom();
+}
+
+function renderLayers() {
+  layerList.innerHTML = "";
+
+  layers.forEach((layer) => {
+    const item = document.createElement("div");
+    item.className = "layer-item";
+    item.classList.toggle("active", layer.id === activeLayerId);
+
+    const eyeBtn = document.createElement("button");
+    eyeBtn.type = "button";
+    eyeBtn.className = "layer-eye";
+    eyeBtn.classList.toggle("off", !layer.visible);
+    eyeBtn.textContent = layer.visible ? "👁" : "—";
+    eyeBtn.addEventListener("click", () => {
+      layer.visible = !layer.visible;
+      markDirty();
+      renderLayers();
+      renderCanvasStack();
+    });
+
+    const selectBtn = document.createElement("button");
+    selectBtn.type = "button";
+    selectBtn.className = "layer-select";
+    selectBtn.textContent = layer.name;
+    selectBtn.addEventListener("click", () => {
+      activeLayerId = layer.id;
+      renderLayers();
+      renderCanvasStack();
+    });
+
+    const renameBtn = document.createElement("button");
+    renameBtn.type = "button";
+    renameBtn.className = "layer-menu";
+    renameBtn.textContent = "…";
+    renameBtn.addEventListener("click", () => {
+      const nextName = prompt("レイヤー名", layer.name);
+      if (!nextName) return;
+
+      layer.name = nextName.trim().slice(0, 24) || layer.name;
+      markDirty();
+      renderLayers();
+    });
+
+    item.appendChild(eyeBtn);
+    item.appendChild(selectBtn);
+    item.appendChild(renameBtn);
+
+    layerList.appendChild(item);
+  });
+}
+
+function addLayer() {
+  createLayer();
+  markDirty();
+}
+
+function deleteActiveLayer() {
+  if (layers.length <= 1) {
+    alert("レイヤーは最低1枚必要です");
+    return;
+  }
+
+  const activeLayer = getActiveLayer();
+  if (!activeLayer) return;
+
+  const ok = confirm(`「${activeLayer.name}」を削除する？`);
+  if (!ok) return;
+
+  pushUndo();
+
+  layers = layers.filter((layer) => layer.id !== activeLayer.id);
+  activeLayerId = layers[0]?.id || null;
+
+  markDirty();
+  renderLayers();
+  renderCanvasStack();
+}
+
+function moveActiveLayer(direction) {
+  const index = layers.findIndex((layer) => layer.id === activeLayerId);
+  if (index < 0) return;
+
+  const nextIndex = index + direction;
+
+  if (nextIndex < 0 || nextIndex >= layers.length) {
+    return;
+  }
+
+  const temp = layers[index];
+  layers[index] = layers[nextIndex];
+  layers[nextIndex] = temp;
+
+  markDirty();
+  renderLayers();
+  renderCanvasStack();
+}
+
+function clearAllLayers() {
+  layers.forEach((layer) => {
+    const ctx = layer.canvas.getContext("2d");
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  });
+}
+
+function resetLayers() {
+  layers = [];
+  activeLayerId = null;
+  canvasStack.innerHTML = "";
+
+  createLayer("Layer 1");
+
+  undoStack = [];
+  redoStack = [];
+  pushUndo();
+}
+
+/* ---------- undo snapshot ---------- */
 
 function snapshot() {
-  return ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return layers.map((layer) => ({
+    id: layer.id,
+    name: layer.name,
+    visible: layer.visible,
+    dataUrl: layer.canvas.toDataURL("image/png")
+  }));
 }
 
-function restoreSnapshot(imageData) {
-  ctx.putImageData(imageData, 0, 0);
+async function restoreSnapshot(snapshotData) {
+  layers = [];
+  activeLayerId = null;
+  canvasStack.innerHTML = "";
+
+  for (const item of snapshotData) {
+    const layer = createLayerFromData(item.id, item.name, item.visible);
+    await loadImageToCanvas(item.dataUrl, layer.canvas);
+    layers.push(layer);
+  }
+
+  activeLayerId = layers[0]?.id || null;
+
+  renderLayers();
+  renderCanvasStack();
+}
+
+function createLayerFromData(id, name, visible = true) {
+  const canvas = document.createElement("canvas");
+  canvas.width = CANVAS_WIDTH;
+  canvas.height = CANVAS_HEIGHT;
+  canvas.className = "layer-canvas";
+  canvas.dataset.layerId = id;
+
+  canvas.addEventListener("pointerdown", startDrawing);
+  canvas.addEventListener("pointermove", moveDrawing);
+  canvas.addEventListener("pointerup", endDrawing);
+  canvas.addEventListener("pointercancel", endDrawing);
+  canvas.addEventListener("pointerleave", endDrawing);
+
+  return {
+    id,
+    name,
+    visible,
+    canvas
+  };
 }
 
 function pushUndo() {
@@ -187,45 +400,42 @@ function pushUndo() {
   redoStack = [];
 }
 
-function resetCanvas() {
-  selectedDrawMemoId = null;
-  titleInput.value = "";
+async function undo() {
+  if (undoStack.length <= 1) return;
 
-  undoStack = [];
-  redoStack = [];
+  redoStack.push(snapshot());
+  undoStack.pop();
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  setCanvasWhite();
-  pushUndo();
-
-  canvasStatus.textContent = "新規作成中";
-  renderDrawMemos();
+  await restoreSnapshot(undoStack[undoStack.length - 1]);
+  markDirty();
 }
 
-/* ---------- pointer ---------- */
+async function redo() {
+  if (redoStack.length === 0) return;
+
+  const data = redoStack.pop();
+  undoStack.push(snapshot());
+
+  await restoreSnapshot(data);
+  markDirty();
+}
+
+/* ---------- drawing ---------- */
 
 function canDrawWithPointer(event) {
-  if (event.pointerType === "mouse") {
-    return true;
-  }
-
-  if (event.pointerType === "pen") {
-    return true;
-  }
-
-  if (event.pointerType === "touch") {
-    return fingerDrawToggle.checked;
-  }
-
+  if (event.pointerType === "mouse") return true;
+  if (event.pointerType === "pen") return true;
+  if (event.pointerType === "touch") return fingerDrawToggle.checked;
   return true;
 }
 
 function getCanvasPoint(event) {
+  const canvas = getActiveCanvas();
   const rect = canvas.getBoundingClientRect();
 
   return {
-    x: ((event.clientX - rect.left) / rect.width) * canvas.width,
-    y: ((event.clientY - rect.top) / rect.height) * canvas.height,
+    x: ((event.clientX - rect.left) / rect.width) * CANVAS_WIDTH,
+    y: ((event.clientY - rect.top) / rect.height) * CANVAS_HEIGHT,
     pressure: event.pressure || 0.5
   };
 }
@@ -242,6 +452,9 @@ function getLineWidth(point) {
 }
 
 function drawLine(from, to) {
+  const ctx = getActiveContext();
+  if (!ctx) return;
+
   ctx.save();
 
   ctx.lineCap = "round";
@@ -265,17 +478,19 @@ function drawLine(from, to) {
 }
 
 function startDrawing(event) {
-  if (!canDrawWithPointer(event)) {
-    return;
-  }
+  if (!canDrawWithPointer(event)) return;
+
+  const activeCanvas = getActiveCanvas();
+  if (!activeCanvas) return;
 
   event.preventDefault();
 
   drawing = true;
   lastPoint = getCanvasPoint(event);
+
   pushUndo();
 
-  canvas.setPointerCapture?.(event.pointerId);
+  activeCanvas.setPointerCapture?.(event.pointerId);
 
   drawLine(lastPoint, {
     ...lastPoint,
@@ -283,7 +498,7 @@ function startDrawing(event) {
     y: lastPoint.y + 0.01
   });
 
-  canvasStatus.textContent = selectedDrawMemoId ? "未保存の変更あり" : "新規作成中";
+  markDirty();
 }
 
 function moveDrawing(event) {
@@ -303,10 +518,8 @@ function endDrawing(event) {
   drawing = false;
   lastPoint = null;
 
-  canvas.releasePointerCapture?.(event.pointerId);
+  getActiveCanvas()?.releasePointerCapture?.(event.pointerId);
 }
-
-/* ---------- tools ---------- */
 
 function setTool(tool) {
   currentTool = tool;
@@ -314,45 +527,25 @@ function setTool(tool) {
   penBtn.classList.toggle("active", tool === "pen");
   eraserBtn.classList.toggle("active", tool === "eraser");
 
-  canvas.style.cursor = tool === "eraser" ? "cell" : "crosshair";
-}
-
-function undo() {
-  if (undoStack.length <= 1) return;
-
-  redoStack.push(snapshot());
-  undoStack.pop();
-  restoreSnapshot(undoStack[undoStack.length - 1]);
-
-  canvasStatus.textContent = selectedDrawMemoId ? "未保存の変更あり" : "新規作成中";
-}
-
-function redo() {
-  if (redoStack.length === 0) return;
-
-  const imageData = redoStack.pop();
-  undoStack.push(snapshot());
-  restoreSnapshot(imageData);
-
-  canvasStatus.textContent = selectedDrawMemoId ? "未保存の変更あり" : "新規作成中";
+  layers.forEach((layer) => {
+    layer.canvas.style.cursor = tool === "eraser" ? "cell" : "crosshair";
+  });
 }
 
 function clearCanvas() {
-  const ok = confirm("キャンバスを全消しする？");
+  const ok = confirm("全レイヤーを消す？");
   if (!ok) return;
 
   pushUndo();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  setCanvasWhite();
-
-  canvasStatus.textContent = selectedDrawMemoId ? "未保存の変更あり" : "新規作成中";
+  clearAllLayers();
+  markDirty();
 }
 
 /* ---------- zoom ---------- */
 
 function applyZoom() {
   zoom = Number(zoomRange.value) / 100;
-  canvas.style.transform = `scale(${zoom})`;
+  canvasStack.style.transform = `scale(${zoom})`;
   zoomResetBtn.textContent = `${Math.round(zoom * 100)}%`;
 }
 
@@ -375,9 +568,9 @@ async function loadDrawMemos() {
       where("uid", "==", currentUser.uid)
     );
 
-    const snapshot = await getDocs(q);
+    const snapshotData = await getDocs(q);
 
-    drawMemos = snapshot.docs.map((docSnap) => ({
+    drawMemos = snapshotData.docs.map((docSnap) => ({
       id: docSnap.id,
       ...docSnap.data()
     }));
@@ -393,7 +586,7 @@ async function loadDrawMemos() {
   } catch (error) {
     console.error(error);
     canvasStatus.textContent = "読み込みに失敗しました";
-    alert("らくがきメモの読み込みに失敗しました。Firestoreルールを確認してください。");
+    alert("らくがきメモの読み込みに失敗しました");
   }
 }
 
@@ -413,74 +606,81 @@ async function saveCurrentDrawing() {
 
   const title = titleInput.value.trim() || "無題のらくがき";
   const selectedMemo = getSelectedMemo();
+  const drawId = selectedDrawMemoId || createId();
 
-  let uploadedStoragePath = "";
+  const uploadedPaths = [];
 
   try {
     canvasStatus.textContent = "保存中...";
 
-    const blob = await canvasToBlob();
+    const mergedBlob = await mergedCanvasToBlob();
 
-    if (!blob) {
+    if (!mergedBlob) {
       alert("画像の作成に失敗しました");
       canvasStatus.textContent = "保存に失敗しました";
       return;
     }
 
-    if (blob.size > MAX_DRAW_SIZE) {
+    if (mergedBlob.size > MAX_DRAW_SIZE) {
       alert("画像サイズが大きすぎます。5MB以内にしてください。");
       canvasStatus.textContent = "画像サイズが大きすぎます";
       return;
     }
 
-    const drawId = selectedDrawMemoId || createId();
-    const storagePath = `drawMemos/${currentUser.uid}/${drawId}/merged.png`;
+    const mergedPath = `drawMemos/${currentUser.uid}/${drawId}/merged.png`;
+    const mergedRef = ref(storage, mergedPath);
 
-    const imageRef = ref(storage, storagePath);
-
-    await uploadBytes(imageRef, blob, {
+    await uploadBytes(mergedRef, mergedBlob, {
       contentType: "image/png"
     });
 
-    uploadedStoragePath = storagePath;
+    uploadedPaths.push(mergedPath);
 
-    const imageUrl = await getDownloadURL(imageRef);
+    const imageUrl = await getDownloadURL(mergedRef);
+
+    const savedLayers = [];
+
+    for (let i = 0; i < layers.length; i++) {
+      const layer = layers[i];
+      const layerBlob = await canvasToBlob(layer.canvas);
+      const layerPath = `drawMemos/${currentUser.uid}/${drawId}/layers/${layer.id}.png`;
+      const layerRef = ref(storage, layerPath);
+
+      await uploadBytes(layerRef, layerBlob, {
+        contentType: "image/png"
+      });
+
+      uploadedPaths.push(layerPath);
+
+      const layerUrl = await getDownloadURL(layerRef);
+
+      savedLayers.push({
+        id: layer.id,
+        name: layer.name,
+        visible: layer.visible,
+        order: i,
+        storagePath: layerPath,
+        imageUrl: layerUrl
+      });
+    }
 
     const data = {
       uid: currentUser.uid,
       title,
       imageUrl,
-      storagePath,
-      sourceType: "canvas",
-      updatedAt: serverTimestamp(),
-
-      /*
-        後でレイヤー機能を入れるための余白。
-        今は統合済み画像だけ保存。
-        将来的には layers を複数にして、
-        drawMemos/{uid}/{drawId}/layers/layer-1.png
-        みたいに増やせる。
-      */
-      layers: [
-        {
-          id: "layer-1",
-          name: "Layer 1",
-          visible: true,
-          storagePath,
-          imageUrl
-        }
-      ]
+      storagePath: mergedPath,
+      sourceType: "canvas-layers",
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+      layers: savedLayers,
+      updatedAt: serverTimestamp()
     };
 
     if (selectedDrawMemoId) {
       await updateDoc(doc(db, "drawMemos", selectedDrawMemoId), data);
 
-      if (
-        selectedMemo &&
-        selectedMemo.storagePath &&
-        selectedMemo.storagePath !== storagePath
-      ) {
-        await deleteStorageImage(selectedMemo.storagePath);
+      if (selectedMemo) {
+        await cleanupOldStorage(selectedMemo, uploadedPaths);
       }
 
       canvasStatus.textContent = "保存しました";
@@ -495,17 +695,11 @@ async function saveCurrentDrawing() {
     }
 
     await loadDrawMemos();
-
-    const selected = drawMemos.find((item) => item.id === selectedDrawMemoId);
-    if (selected) {
-      selectedDrawMemoId = selected.id;
-      titleInput.value = selected.title || "";
-    }
   } catch (error) {
     console.error(error);
 
-    if (uploadedStoragePath) {
-      await deleteStorageImage(uploadedStoragePath);
+    for (const path of uploadedPaths) {
+      await deleteStorageImage(path);
     }
 
     alert("らくがきメモの保存に失敗しました");
@@ -513,22 +707,65 @@ async function saveCurrentDrawing() {
   }
 }
 
-function canvasToBlob() {
+async function cleanupOldStorage(oldMemo, keepPaths = []) {
+  const keepSet = new Set(keepPaths);
+
+  if (oldMemo.storagePath && !keepSet.has(oldMemo.storagePath)) {
+    await deleteStorageImage(oldMemo.storagePath);
+  }
+
+  if (Array.isArray(oldMemo.layers)) {
+    for (const layer of oldMemo.layers) {
+      if (layer.storagePath && !keepSet.has(layer.storagePath)) {
+        await deleteStorageImage(layer.storagePath);
+      }
+    }
+  }
+}
+
+/* ---------- canvas export ---------- */
+
+function createMergedCanvas() {
+  const mergedCanvas = document.createElement("canvas");
+  const mergedCtx = mergedCanvas.getContext("2d");
+
+  mergedCanvas.width = CANVAS_WIDTH;
+  mergedCanvas.height = CANVAS_HEIGHT;
+
+  mergedCtx.fillStyle = "#ffffff";
+  mergedCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  [...layers].reverse().forEach((layer) => {
+    if (!layer.visible) return;
+    mergedCtx.drawImage(layer.canvas, 0, 0);
+  });
+
+  return mergedCanvas;
+}
+
+function mergedCanvasToBlob() {
   return new Promise((resolve) => {
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-
-    tempCtx.fillStyle = "#ffffff";
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    tempCtx.drawImage(canvas, 0, 0);
-
-    tempCanvas.toBlob((blob) => {
+    createMergedCanvas().toBlob((blob) => {
       resolve(blob);
     }, "image/png");
   });
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    }, "image/png");
+  });
+}
+
+function exportCurrent() {
+  const link = document.createElement("a");
+  const title = titleInput.value.trim() || "notia-draw";
+
+  link.href = createMergedCanvas().toDataURL("image/png");
+  link.download = `${sanitizeFileName(title)}.png`;
+  link.click();
 }
 
 /* ---------- open / delete ---------- */
@@ -537,35 +774,59 @@ async function openDrawMemo(id) {
   const item = drawMemos.find((memo) => memo.id === id);
   if (!item) return;
 
-  const image = new Image();
-  image.crossOrigin = "anonymous";
+  try {
+    canvasStatus.textContent = "読み込み中...";
 
-  image.onload = () => {
     selectedDrawMemoId = item.id;
     titleInput.value = item.title || "";
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setCanvasWhite();
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    layers = [];
+    activeLayerId = null;
+    canvasStack.innerHTML = "";
+
+    const sourceLayers = Array.isArray(item.layers) && item.layers.length > 0
+      ? [...item.layers].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      : [
+          {
+            id: createId(),
+            name: "Layer 1",
+            visible: true,
+            imageUrl: item.imageUrl
+          }
+        ];
+
+    for (const sourceLayer of sourceLayers) {
+      const layer = createLayerFromData(
+        sourceLayer.id || createId(),
+        sourceLayer.name || "Layer",
+        sourceLayer.visible !== false
+      );
+
+      await loadImageToCanvas(sourceLayer.imageUrl, layer.canvas);
+      layers.push(layer);
+    }
+
+    activeLayerId = layers[0]?.id || null;
 
     undoStack = [];
     redoStack = [];
     pushUndo();
 
-    canvasStatus.textContent = "編集中";
+    renderLayers();
+    renderCanvasStack();
     renderDrawMemos();
+
+    canvasStatus.textContent = "編集中";
 
     window.scrollTo({
       top: 0,
       behavior: "smooth"
     });
-  };
-
-  image.onerror = () => {
+  } catch (error) {
+    console.error(error);
     alert("画像を読み込めませんでした");
-  };
-
-  image.src = item.imageUrl;
+    canvasStatus.textContent = "読み込みに失敗しました";
+  }
 }
 
 async function deleteDrawMemo(id) {
@@ -595,7 +856,7 @@ async function deleteDrawMemo(id) {
 
     if (Array.isArray(item.layers)) {
       for (const layer of item.layers) {
-        if (layer.storagePath && layer.storagePath !== item.storagePath) {
+        if (layer.storagePath) {
           await deleteStorageImage(layer.storagePath);
         }
       }
@@ -626,7 +887,7 @@ async function deleteStorageImage(storagePath) {
   }
 }
 
-/* ---------- render ---------- */
+/* ---------- render memos ---------- */
 
 function renderDrawMemos() {
   drawList.innerHTML = "";
@@ -650,6 +911,7 @@ function renderDrawMemos() {
   drawMemos.forEach((item) => {
     const card = document.createElement("article");
     card.className = "draw-card";
+    card.classList.toggle("active", selectedDrawMemoId === item.id);
 
     const img = document.createElement("img");
     img.className = "draw-thumb";
@@ -702,18 +964,45 @@ function renderDrawMemos() {
     card.appendChild(img);
     card.appendChild(body);
 
-    if (selectedDrawMemoId === item.id) {
-      card.classList.add("active");
-    }
-
     drawList.appendChild(card);
   });
 }
 
 /* ---------- helpers ---------- */
 
+function resetCanvas() {
+  selectedDrawMemoId = null;
+  titleInput.value = "";
+
+  resetLayers();
+
+  canvasStatus.textContent = "新規作成中";
+  renderDrawMemos();
+}
+
+function markDirty() {
+  canvasStatus.textContent = selectedDrawMemoId ? "未保存の変更あり" : "新規作成中";
+}
+
 function getSelectedMemo() {
   return drawMemos.find((item) => item.id === selectedDrawMemoId);
+}
+
+function loadImageToCanvas(src, canvas) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+
+    image.onload = () => {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      ctx.drawImage(image, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      resolve();
+    };
+
+    image.onerror = reject;
+    image.src = src;
+  });
 }
 
 function downloadDrawMemo(item) {
@@ -723,29 +1012,6 @@ function downloadDrawMemo(item) {
   link.href = item.imageUrl;
   link.download = `${sanitizeFileName(item.title || "notia-draw")}.png`;
   link.click();
-}
-
-function exportCurrent() {
-  const link = document.createElement("a");
-  const title = titleInput.value.trim() || "notia-draw";
-
-  link.href = getCanvasDataUrl();
-  link.download = `${sanitizeFileName(title)}.png`;
-  link.click();
-}
-
-function getCanvasDataUrl() {
-  const tempCanvas = document.createElement("canvas");
-  const tempCtx = tempCanvas.getContext("2d");
-
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-
-  tempCtx.fillStyle = "#ffffff";
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  tempCtx.drawImage(canvas, 0, 0);
-
-  return tempCanvas.toDataURL("image/png");
 }
 
 function formatFirebaseDate(value) {
@@ -783,12 +1049,6 @@ function sanitizeFileName(text) {
 
 /* ---------- events ---------- */
 
-canvas.addEventListener("pointerdown", startDrawing);
-canvas.addEventListener("pointermove", moveDrawing);
-canvas.addEventListener("pointerup", endDrawing);
-canvas.addEventListener("pointercancel", endDrawing);
-canvas.addEventListener("pointerleave", endDrawing);
-
 penBtn.addEventListener("click", () => {
   setTool("pen");
 });
@@ -814,9 +1074,7 @@ newDrawBtn.addEventListener("click", () => {
   resetCanvas();
 });
 
-titleInput.addEventListener("input", () => {
-  canvasStatus.textContent = selectedDrawMemoId ? "未保存の変更あり" : "新規作成中";
-});
+titleInput.addEventListener("input", markDirty);
 
 zoomRange.addEventListener("input", applyZoom);
 
@@ -830,6 +1088,18 @@ zoomInBtn.addEventListener("click", () => {
 
 zoomResetBtn.addEventListener("click", () => {
   setZoom(100);
+});
+
+addLayerBtn.addEventListener("click", addLayer);
+
+deleteLayerBtn.addEventListener("click", deleteActiveLayer);
+
+moveLayerUpBtn.addEventListener("click", () => {
+  moveActiveLayer(-1);
+});
+
+moveLayerDownBtn.addEventListener("click", () => {
+  moveActiveLayer(1);
 });
 
 /* ---------- init ---------- */
