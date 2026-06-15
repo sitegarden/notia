@@ -6,6 +6,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const ownerOnlyLinks = document.querySelectorAll(".owner-only-link");
+const prepareModal = document.getElementById("prepareModal");
+const closeModalButtons = document.querySelectorAll("[data-close-modal]");
+
+function openPrepareModal() {
+  prepareModal.classList.remove("hidden");
+  prepareModal.setAttribute("aria-hidden", "false");
+}
+
+function closePrepareModal() {
+  prepareModal.classList.add("hidden");
+  prepareModal.setAttribute("aria-hidden", "true");
+}
 
 onAuthStateChanged(auth, (user) => {
   const admin = isAdmin(user);
@@ -23,6 +35,16 @@ ownerOnlyLinks.forEach((link) => {
     }
 
     event.preventDefault();
-    alert("この機能は準備中です");
+    openPrepareModal();
   });
+});
+
+closeModalButtons.forEach((button) => {
+  button.addEventListener("click", closePrepareModal);
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closePrepareModal();
+  }
 });
