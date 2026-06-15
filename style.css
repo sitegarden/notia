@@ -4469,3 +4469,33 @@ body.modal-open {
     grid-template-columns: 1fr;
   }
 }
+
+.person-reading-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.person-reading-field span {
+  font-size: 12px;
+  font-weight: 900;
+  color: #7d6b86;
+}
+
+.person-reading-field input {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid rgba(98, 68, 96, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #35283c;
+  font: inherit;
+}
+
+.person-modal-reading {
+  margin: 2px 0 0;
+  color: #8a7b91;
+  font-size: 13px;
+  font-weight: 800;
+}
