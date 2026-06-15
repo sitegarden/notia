@@ -4991,3 +4991,167 @@ body.modal-open {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================
+   image memo / polish override
+========================= */
+
+.image-page button {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.image-page label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: #6d5d75;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.image-page input,
+.image-page select,
+.image-page textarea {
+  outline: none;
+}
+
+.image-page input:focus,
+.image-page select:focus,
+.image-page textarea:focus {
+  border-color: rgba(140, 123, 255, 0.55);
+  box-shadow: 0 0 0 4px rgba(140, 123, 255, 0.12);
+}
+
+.image-page .panel-title,
+.image-page h2,
+.image-page h3 {
+  color: #3f3148;
+}
+
+.image-page .label {
+  margin: 0;
+  color: #9a7aaa;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.image-page .primary-btn,
+.image-page .save-btn,
+.image-page #saveImageMemoBtn {
+  background: linear-gradient(135deg, #ff7cab, #8c7bff);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(140, 123, 255, 0.22);
+}
+
+.image-page .sub-btn,
+.image-page .ghost-btn,
+.image-page #newImageMemoBtn,
+.image-page #reloadImageMemosBtn {
+  background: rgba(98, 68, 96, 0.08);
+  color: #5e4b67;
+}
+
+.image-page .danger-btn,
+.image-page #deleteImageMemoBtn {
+  background: #9a4b52;
+  color: #fff;
+}
+
+.image-page .image-actions button,
+.image-page .image-toolbar button,
+.image-page .image-tab,
+.image-page .image-folder-btn {
+  border: none;
+  appearance: none;
+}
+
+.image-page .image-actions button {
+  min-height: 42px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.image-page .image-toolbar button,
+.image-page #reloadImageMemosBtn {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.image-page .image-input-area {
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(98, 68, 96, 0.05);
+}
+
+.image-page .image-input-area.hidden {
+  display: none !important;
+}
+
+.image-page input[type="file"] {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.image-page input[type="file"]::file-selector-button {
+  margin-right: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 999px;
+  background: #3a2b46;
+  color: #fffaf3;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.image-page .image-preview-box:empty::before {
+  content: "画像プレビュー";
+  color: #9a8aa0;
+  font-weight: 900;
+}
+
+.image-page .image-memo-card {
+  border: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.image-page .image-memo-card:focus-visible {
+  outline: 4px solid rgba(140, 123, 255, 0.35);
+  outline-offset: 3px;
+}
+
+.image-page .empty-text {
+  padding: 28px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.66);
+  color: #89768f;
+  text-align: center;
+  font-weight: 900;
+}
+
+@media (max-width: 800px) {
+  .image-page .image-control-panel,
+  .image-page .image-list-panel {
+    border-radius: 24px;
+    padding: 14px;
+  }
+
+  .image-page .image-input-tabs {
+    position: sticky;
+    top: 8px;
+    z-index: 5;
+  }
+
+  .image-page .image-memo-card {
+    min-width: 0;
+  }
+}
