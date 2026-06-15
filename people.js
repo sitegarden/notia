@@ -428,16 +428,23 @@ function renderPeople() {
       badges.appendChild(createBadge(tag));
     });
 
-    info.appendChild(name);
-    info.appendChild(sub);
-    info.appendChild(badges);
+    const icon = document.createElement("div");
+icon.className = "person-icon";
+icon.textContent = makePersonIconText(person);
 
-    card.appendChild(icon);
-    card.appendChild(info);
+const main = document.createElement("div");
+main.className = "person-main";
 
-    card.addEventListener("click", () => {
-      selectPerson(person);
-    });
+main.appendChild(name);
+main.appendChild(sub);
+main.appendChild(badges);
+
+card.appendChild(icon);
+card.appendChild(main);
+
+card.addEventListener("click", () => {
+  openPersonModal(person);
+});
 
     peopleList.appendChild(card);
   });
@@ -469,6 +476,155 @@ function selectPerson(person) {
   peopleStatus.textContent = "編集中";
 
   renderPeople();
+}
+
+function openPersonModal(person) {
+  const modal = ensurePersonModal();
+
+  modal.querySelector(".person-modal-icon").textContent = makePersonIconText(person);
+  modal.querySelector(".person-modal-name").textContent = person.name || "名前なし";
+  modal.querySelector(".person-modal-nickname").textContent = person.nickname
+    ? `通称：${person.nickname}`
+    : "通称なし";
+
+  modal.querySelector(".person-modal-type").textContent = getTypeLabel(person.type);
+  modal.querySelector(".person-modal-subtype").textContent = person.subType || "分類なし";
+  modal.querySelector(".person-modal-relation").textContent = person.relation || "関係なし";
+  modal.querySelector(".person-modal-mbti").textContent = person.mbti || "MBTIなし";
+  modal.querySelector(".person-modal-enneagram").textContent = person.enneagram || "エニアなし";
+  modal.querySelector(".person-modal-traits").textContent = person.traits || "特徴なし";
+  modal.querySelector(".person-modal-memo").textContent = person.memo || "メモなし";
+  modal.querySelector(".person-modal-props").textContent = person.props || "プロパティなし";
+
+  const tagsWrap = modal.querySelector(".person-modal-tags");
+  tagsWrap.innerHTML = "";
+
+  const tags = splitTags(person.tags);
+  if (tags.length) {
+    tags.forEach((tag) => {
+      tagsWrap.appendChild(createBadge(tag));
+    });
+  } else {
+    tagsWrap.appendChild(createBadge("タグなし"));
+  }
+
+  const editBtn = modal.querySelector(".person-modal-edit-btn");
+  editBtn.onclick = () => {
+    closePersonModal();
+    selectPerson(person);
+
+    const editor = document.querySelector(".people-editor, .person-editor, form");
+    if (editor) {
+      editor.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+  };
+
+  modal.classList.add("active");
+  document.body.classList.add("modal-open");
+}
+
+function closePersonModal() {
+  const modal = document.querySelector(".person-modal");
+  if (!modal) return;
+
+  modal.classList.remove("active");
+  document.body.classList.remove("modal-open");
+}
+
+function ensurePersonModal() {
+  let modal = document.querySelector(".person-modal");
+
+  if (modal) {
+    return modal;
+  }
+
+  modal = document.createElement("div");
+  modal.className = "person-modal";
+
+  modal.innerHTML = `
+    <div class="person-modal-backdrop"></div>
+
+    <section class="person-modal-card" role="dialog" aria-modal="true" aria-label="人物プロフィール">
+      <button class="person-modal-close" type="button" aria-label="閉じる">×</button>
+
+      <div class="person-modal-head">
+        <div class="person-modal-icon"></div>
+
+        <div>
+          <p class="label">PERSON PROFILE</p>
+          <h2 class="person-modal-name">名前なし</h2>
+          <p class="person-modal-nickname">通称なし</p>
+        </div>
+      </div>
+
+      <div class="person-modal-tags"></div>
+
+      <div class="person-modal-grid">
+        <div>
+          <span>種類</span>
+          <strong class="person-modal-type"></strong>
+        </div>
+        <div>
+          <span>分類</span>
+          <strong class="person-modal-subtype"></strong>
+        </div>
+        <div>
+          <span>関係</span>
+          <strong class="person-modal-relation"></strong>
+        </div>
+        <div>
+          <span>MBTI</span>
+          <strong class="person-modal-mbti"></strong>
+        </div>
+        <div>
+          <span>エニア</span>
+          <strong class="person-modal-enneagram"></strong>
+        </div>
+      </div>
+
+      <div class="person-modal-section">
+        <h3>特徴</h3>
+        <p class="person-modal-traits"></p>
+      </div>
+
+      <div class="person-modal-section">
+        <h3>メモ</h3>
+        <p class="person-modal-memo"></p>
+      </div>
+
+      <div class="person-modal-section">
+        <h3>謎プロパティ</h3>
+        <p class="person-modal-props"></p>
+      </div>
+
+      <div class="person-modal-actions">
+        <button class="person-modal-edit-btn" type="button">編集する</button>
+        <button class="person-modal-cancel-btn" type="button">閉じる</button>
+      </div>
+    </section>
+  `;
+
+  document.body.appendChild(modal);
+
+  modal.querySelector(".person-modal-backdrop").addEventListener("click", closePersonModal);
+  modal.querySelector(".person-modal-close").addEventListener("click", closePersonModal);
+  modal.querySelector(".person-modal-cancel-btn").addEventListener("click", closePersonModal);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closePersonModal();
+    }
+  });
+
+  return modal;
+}
+
+function makePersonIconText(person) {
+  const base = person.nickname || person.name || "?";
+  return base.trim().slice(0, 1);
 }
 
 /* ---------- auto ui ---------- */
