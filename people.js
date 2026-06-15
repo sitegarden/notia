@@ -428,23 +428,16 @@ function renderPeople() {
       badges.appendChild(createBadge(tag));
     });
 
-    const icon = document.createElement("div");
-icon.className = "person-icon";
-icon.textContent = makePersonIconText(person);
+    info.appendChild(name);
+    info.appendChild(sub);
+    info.appendChild(badges);
 
-const main = document.createElement("div");
-main.className = "person-main";
+    card.appendChild(icon);
+    card.appendChild(info);
 
-main.appendChild(name);
-main.appendChild(sub);
-main.appendChild(badges);
-
-card.appendChild(icon);
-card.appendChild(main);
-
-card.addEventListener("click", () => {
-  openPersonModal(person);
-});
+    card.addEventListener("click", () => {
+      openPersonModal(person);
+    });
 
     peopleList.appendChild(card);
   });
@@ -478,10 +471,23 @@ function selectPerson(person) {
   renderPeople();
 }
 
+/* ---------- modal ---------- */
+
 function openPersonModal(person) {
   const modal = ensurePersonModal();
 
-  modal.querySelector(".person-modal-icon").textContent = makePersonIconText(person);
+  const modalIcon = modal.querySelector(".person-modal-icon");
+  modalIcon.innerHTML = "";
+
+  if (person.iconImageUrl) {
+    const img = document.createElement("img");
+    img.src = person.iconImageUrl;
+    img.alt = person.name || "人物アイコン";
+    modalIcon.appendChild(img);
+  } else {
+    modalIcon.textContent = getInitial(person.name);
+  }
+
   modal.querySelector(".person-modal-name").textContent = person.name || "名前なし";
   modal.querySelector(".person-modal-nickname").textContent = person.nickname
     ? `通称：${person.nickname}`
@@ -513,7 +519,7 @@ function openPersonModal(person) {
     closePersonModal();
     selectPerson(person);
 
-    const editor = document.querySelector(".people-editor, .person-editor, form");
+    const editor = document.querySelector(".person-icon-field, form");
     if (editor) {
       editor.scrollIntoView({
         behavior: "smooth",
@@ -596,7 +602,7 @@ function ensurePersonModal() {
       </div>
 
       <div class="person-modal-section">
-        <h3>謎プロパティ</h3>
+        <h3>プロパティ</h3>
         <p class="person-modal-props"></p>
       </div>
 
@@ -620,11 +626,6 @@ function ensurePersonModal() {
   });
 
   return modal;
-}
-
-function makePersonIconText(person) {
-  const base = person.nickname || person.name || "?";
-  return base.trim().slice(0, 1);
 }
 
 /* ---------- auto ui ---------- */
