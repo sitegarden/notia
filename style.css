@@ -4084,3 +4084,105 @@ button {
 .owner-only-link.is-owner small::after {
   content: " / 管理人は開けます";
 }
+
+.prepare-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+}
+
+.prepare-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 124, 171, 0.22), transparent 34%),
+    radial-gradient(circle at 80% 12%, rgba(140, 123, 255, 0.24), transparent 34%),
+    rgba(53, 40, 60, 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.prepare-modal-card {
+  position: relative;
+  z-index: 1;
+  width: min(420px, 100%);
+  padding: 30px 24px 24px;
+  border: 1px solid rgba(98, 68, 96, 0.14);
+  border-radius: 28px;
+  text-align: center;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 248, 238, 0.9)),
+    radial-gradient(circle at 12% 0%, rgba(255, 124, 171, 0.18), transparent 36%),
+    radial-gradient(circle at 100% 0%, rgba(140, 123, 255, 0.18), transparent 36%);
+  box-shadow:
+    0 28px 80px rgba(53, 40, 60, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  animation: prepareModalIn 0.22s ease both;
+}
+
+.prepare-modal-icon {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 124, 171, 0.2), rgba(140, 123, 255, 0.18)),
+    rgba(255, 255, 255, 0.8);
+  font-size: 2rem;
+  box-shadow: 0 14px 34px rgba(140, 123, 255, 0.18);
+}
+
+.prepare-modal-card h2 {
+  margin: 0 0 10px;
+  color: #35283c;
+  font-size: 1.45rem;
+}
+
+.prepare-modal-card p {
+  margin: 0;
+  color: #736177;
+  line-height: 1.9;
+}
+
+.prepare-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #736177;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.prepare-modal-button {
+  margin-top: 20px;
+  padding: 12px 26px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff7cab, #8c7bff);
+  box-shadow: 0 14px 30px rgba(140, 123, 255, 0.24);
+}
+
+@keyframes prepareModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
