@@ -47,6 +47,7 @@ const newPersonBtn = document.getElementById("newPersonBtn");
 const deletePersonBtn = document.getElementById("deletePersonBtn");
 const savePersonBtn = document.getElementById("savePersonBtn");
 
+let personReadingInput = null;
 let personIconInput = null;
 let peopleViewMode = localStorage.getItem("notiaPeopleViewMode") || "list";
 
@@ -58,6 +59,7 @@ let selectedPersonId = null;
 /* ---------- init ui ---------- */
 
 createPeopleViewSwitcher();
+createPersonReadingInput();
 createPersonIconInput();
 
 /* ---------- auth ---------- */
@@ -177,11 +179,7 @@ async function loadPeople() {
     ...docSnap.data()
   }));
 
-  people.sort((a, b) => {
-    const aTime = a.updatedAt?.seconds || 0;
-    const bTime = b.updatedAt?.seconds || 0;
-    return bTime - aTime;
-  });
+  people.sort(comparePeopleByReading);
 
   renderPeople();
 }
@@ -233,6 +231,7 @@ async function savePerson() {
   }
 
   const name = personNameInput.value.trim();
+  const reading = personReadingInput?.value.trim() || "";
   const nickname = personNicknameInput.value.trim();
   const type = personTypeInput.value;
   const subType = personSubTypeInput.value.trim();
@@ -256,6 +255,7 @@ async function savePerson() {
 
   const data = {
     name,
+    reading,
     nickname,
     type,
     subType,
@@ -341,7 +341,7 @@ function renderPeople() {
   const keyword = peopleSearchInput.value.trim().toLowerCase();
   const typeFilter = peopleTypeFilter.value;
 
-  let filtered = people;
+  let filtered = [...people];
 
   if (typeFilter !== "all") {
     filtered = filtered.filter((person) => person.type === typeFilter);
@@ -351,6 +351,7 @@ function renderPeople() {
     filtered = filtered.filter((person) => {
       const searchText = [
         person.name,
+        person.reading,
         person.nickname,
         person.type,
         person.subType,
@@ -369,6 +370,8 @@ function renderPeople() {
       return searchText.includes(keyword);
     });
   }
+
+  filtered.sort(comparePeopleByReading);
 
   if (filtered.length === 0) {
     const empty = document.createElement("p");
@@ -451,6 +454,11 @@ function selectPerson(person) {
   peopleFormTitle.textContent = "人物を編集";
 
   personNameInput.value = person.name || "";
+
+  if (personReadingInput) {
+    personReadingInput.value = person.reading || "";
+  }
+
   personNicknameInput.value = person.nickname || "";
   personTypeInput.value = person.type || "real";
   personSubTypeInput.value = person.subType || "";
@@ -493,6 +501,10 @@ function openPersonModal(person) {
     ? `通称：${person.nickname}`
     : "通称なし";
 
+  modal.querySelector(".person-modal-reading").textContent = person.reading
+    ? `よみ：${person.reading}`
+    : "よみ未登録";
+
   modal.querySelector(".person-modal-type").textContent = getTypeLabel(person.type);
   modal.querySelector(".person-modal-subtype").textContent = person.subType || "分類なし";
   modal.querySelector(".person-modal-relation").textContent = person.relation || "関係なし";
@@ -519,7 +531,7 @@ function openPersonModal(person) {
     closePersonModal();
     selectPerson(person);
 
-    const editor = document.querySelector(".person-icon-field, form");
+    const editor = document.querySelector(".person-reading-field, .person-icon-field, form");
     if (editor) {
       editor.scrollIntoView({
         behavior: "smooth",
@@ -563,6 +575,7 @@ function ensurePersonModal() {
           <p class="label">PERSON PROFILE</p>
           <h2 class="person-modal-name">名前なし</h2>
           <p class="person-modal-nickname">通称なし</p>
+          <p class="person-modal-reading">よみ未登録</p>
         </div>
       </div>
 
@@ -668,6 +681,30 @@ function createPeopleViewSwitcher() {
   peopleList.parentNode.insertBefore(wrapper, peopleList);
 }
 
+function createPersonReadingInput() {
+  if (!personNameInput) return;
+
+  const field = document.createElement("label");
+  field.className = "person-reading-field";
+
+  const labelText = document.createElement("span");
+  labelText.textContent = "よみ";
+
+  personReadingInput = document.createElement("input");
+  personReadingInput.id = "personReadingInput";
+  personReadingInput.type = "text";
+  personReadingInput.placeholder = "例：やまだたろう";
+
+  field.appendChild(labelText);
+  field.appendChild(personReadingInput);
+
+  personNameInput.parentNode.insertAdjacentElement("afterend", field);
+
+  personReadingInput.addEventListener("input", () => {
+    peopleStatus.textContent = selectedPersonId ? "未保存の変更あり" : "新規人物";
+  });
+}
+
 function createPersonIconInput() {
   if (!peopleFormTitle) return;
 
@@ -721,6 +758,11 @@ function clearPersonForm() {
   peopleFormTitle.textContent = "人物を追加";
 
   personNameInput.value = "";
+
+  if (personReadingInput) {
+    personReadingInput.value = "";
+  }
+
   personNicknameInput.value = "";
   personTypeInput.value = "real";
   personSubTypeInput.value = "";
@@ -759,6 +801,7 @@ function makeSubText(person) {
   const parts = [];
 
   if (person.nickname) parts.push(person.nickname);
+  if (person.reading) parts.push(person.reading);
   if (person.subType) parts.push(person.subType);
   if (person.relation) parts.push(person.relation);
 
@@ -775,4 +818,29 @@ function splitTags(tags = "") {
 function getInitial(name = "") {
   const trimmed = String(name).trim();
   return trimmed ? trimmed.slice(0, 1) : "?";
+}
+
+function comparePeopleByReading(a, b) {
+  const aKey = getPersonSortKey(a);
+  const bKey = getPersonSortKey(b);
+
+  const result = aKey.localeCompare(bKey, "ja", {
+    numeric: true,
+    sensitivity: "base"
+  });
+
+  if (result !== 0) {
+    return result;
+  }
+
+  const aTime = a.updatedAt?.seconds || 0;
+  const bTime = b.updatedAt?.seconds || 0;
+
+  return bTime - aTime;
+}
+
+function getPersonSortKey(person) {
+  return String(person.reading || person.name || "")
+    .trim()
+    .toLowerCase();
 }
