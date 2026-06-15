@@ -4067,3 +4067,20 @@ button {
 .people-grid .person-badges {
   justify-content: center;
 }
+
+.owner-only-link {
+  cursor: not-allowed;
+}
+
+.owner-only-link:not(.is-owner) {
+  opacity: 0.72;
+}
+
+.owner-only-link.is-owner {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.owner-only-link.is-owner small::after {
+  content: " / 管理人は開けます";
+}
