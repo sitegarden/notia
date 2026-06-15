@@ -673,8 +673,8 @@ function renderImageMemos() {
     card.appendChild(info);
 
     card.addEventListener("click", () => {
-      selectImageMemo(item);
-    });
+  openImageDetailModal(item);
+});
 
     imageMemoList.appendChild(card);
   });
@@ -990,4 +990,133 @@ function escapeMarkdownText(text) {
     .replaceAll("]", "")
     .replaceAll("(", "")
     .replaceAll(")", "");
+}
+
+function openImageDetailModal(item) {
+  const modal = ensureImageDetailModal();
+
+  const modalImg = modal.querySelector(".image-detail-img");
+  const modalTitle = modal.querySelector(".image-detail-title");
+  const modalCategory = modal.querySelector(".image-detail-category");
+  const modalSource = modal.querySelector(".image-detail-source");
+  const modalMemo = modal.querySelector(".image-detail-memo");
+  const modalTags = modal.querySelector(".image-detail-tags");
+  const editBtn = modal.querySelector(".image-detail-edit-btn");
+  const copyBtn = modal.querySelector(".image-detail-copy-btn");
+
+  modalImg.src = item.imageUrl || "";
+  modalImg.alt = item.title || "画像";
+
+  modalTitle.textContent = `${item.favorite ? "★ " : ""}${item.title || "無題の画像"}`;
+  modalCategory.textContent = item.category || "未分類";
+  modalSource.textContent = item.sourceType === "upload" ? "アップロード" : "URL";
+  modalMemo.textContent = item.memo || "メモはありません。";
+
+  modalTags.innerHTML = "";
+
+  const tags = splitTags(item.tags);
+  if (tags.length) {
+    tags.forEach((tag) => {
+      const span = document.createElement("span");
+      span.textContent = tag;
+      modalTags.appendChild(span);
+    });
+  } else {
+    const span = document.createElement("span");
+    span.textContent = "タグなし";
+    modalTags.appendChild(span);
+  }
+
+  editBtn.onclick = () => {
+    closeImageDetailModal();
+    selectImageMemo(item);
+
+    const editor = document.querySelector(".image-control-panel");
+    if (editor) {
+      editor.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+  };
+
+  copyBtn.onclick = async () => {
+    const markdown = `![${escapeMarkdownText(item.title || "画像")}](${item.imageUrl})`;
+
+    try {
+      await navigator.clipboard.writeText(markdown);
+      imageStatus.textContent = "Markdownをコピーしました";
+    } catch (error) {
+      console.error(error);
+      prompt("コピーできない場合は手動でコピーしてね", markdown);
+    }
+  };
+
+  modal.classList.add("active");
+  document.body.classList.add("modal-open");
+}
+
+function closeImageDetailModal() {
+  const modal = document.querySelector(".image-detail-modal");
+  if (!modal) return;
+
+  modal.classList.remove("active");
+  document.body.classList.remove("modal-open");
+}
+
+function ensureImageDetailModal() {
+  let modal = document.querySelector(".image-detail-modal");
+
+  if (modal) {
+    return modal;
+  }
+
+  modal = document.createElement("div");
+  modal.className = "image-detail-modal";
+
+  modal.innerHTML = `
+    <div class="image-detail-backdrop"></div>
+
+    <section class="image-detail-card" role="dialog" aria-modal="true" aria-label="画像メモ詳細">
+      <button class="image-detail-close" type="button" aria-label="閉じる">×</button>
+
+      <div class="image-detail-img-wrap">
+        <img class="image-detail-img" alt="画像" />
+      </div>
+
+      <div class="image-detail-body">
+        <p class="label">IMAGE DETAIL</p>
+        <h2 class="image-detail-title">画像タイトル</h2>
+
+        <div class="image-detail-meta">
+          <span class="image-detail-category">未分類</span>
+          <span class="image-detail-source">画像</span>
+        </div>
+
+        <div class="image-detail-tags"></div>
+
+        <p class="image-detail-memo"></p>
+
+        <div class="image-detail-actions">
+          <button class="image-detail-edit-btn" type="button">編集する</button>
+          <button class="image-detail-copy-btn" type="button">MDコピー</button>
+          <button class="image-detail-cancel-btn" type="button">閉じる</button>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.body.appendChild(modal);
+
+  modal.querySelector(".image-detail-backdrop").addEventListener("click", closeImageDetailModal);
+  modal.querySelector(".image-detail-close").addEventListener("click", closeImageDetailModal);
+  modal.querySelector(".image-detail-cancel-btn").addEventListener("click", closeImageDetailModal);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeImageDetailModal();
+    }
+  });
+
+  return modal;
 }
