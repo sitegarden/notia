@@ -2,6 +2,30 @@
   min-height: 100vh;
 }
 
+.draw-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 10% 8%, rgba(255, 178, 216, 0.48), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(185, 205, 255, 0.55), transparent 32%),
+    radial-gradient(circle at 50% 92%, rgba(255, 236, 184, 0.42), transparent 34%);
+  pointer-events: none;
+}
+
+.draw-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.62)),
+    radial-gradient(circle, rgba(122, 91, 140, 0.11) 1.2px, transparent 1.2px);
+  background-size: auto, 18px 18px;
+  pointer-events: none;
+}
+
 .draw-main {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -18,13 +42,15 @@
 .draw-canvas-card,
 .draw-list-section {
   border: 1px solid rgba(98, 68, 96, 0.12);
-  border-radius: 28px;
+  border-radius: 30px;
   background:
-    radial-gradient(circle at 12% 10%, rgba(255, 175, 214, 0.36), transparent 36%),
-    radial-gradient(circle at 90% 16%, rgba(179, 205, 255, 0.42), transparent 34%),
-    rgba(255, 255, 255, 0.82);
-  box-shadow: 0 22px 60px rgba(74, 48, 92, 0.14);
-  backdrop-filter: blur(14px);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 248, 238, 0.7)),
+    radial-gradient(circle at 0% 0%, rgba(255, 124, 171, 0.13), transparent 34%),
+    radial-gradient(circle at 100% 0%, rgba(140, 123, 255, 0.15), transparent 34%);
+  box-shadow:
+    0 24px 70px rgba(74, 48, 92, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
 }
 
 .draw-auth-gate {
@@ -34,12 +60,19 @@
   text-align: center;
 }
 
-.draw-auth-gate h1 {
+.draw-auth-gate h1,
+.draw-hero h1 {
   margin: 8px 0 10px;
+  color: #35283c;
+  letter-spacing: 0.04em;
+}
+
+.draw-auth-gate h1 {
   font-size: clamp(2rem, 4vw, 3.2rem);
 }
 
-.draw-auth-gate p {
+.draw-auth-gate p,
+.draw-hero p {
   color: #736177;
   line-height: 1.9;
 }
@@ -58,30 +91,22 @@
   font-weight: 800;
 }
 
-.draw-app {
-  display: block;
-}
-
 .draw-hero {
   display: flex;
   justify-content: space-between;
   gap: 24px;
   align-items: flex-end;
   margin-bottom: 26px;
-  padding: 28px;
+  padding: 30px;
 }
 
 .draw-hero h1 {
-  margin: 8px 0 10px;
   font-size: clamp(2rem, 4vw, 3.3rem);
-  letter-spacing: 0.04em;
 }
 
 .draw-hero p {
-  max-width: 680px;
+  max-width: 700px;
   margin: 0;
-  color: #736177;
-  line-height: 1.9;
 }
 
 .draw-hero-actions {
@@ -92,16 +117,24 @@
 
 .draw-primary,
 .draw-secondary,
-.draw-buttons button {
-  border: 0;
+.draw-buttons button,
+.draw-zoom-buttons button,
+.layer-head button,
+.layer-actions button,
+.draw-card-actions button {
   border-radius: 999px;
   font: inherit;
   font-weight: 800;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease;
 }
 
 .draw-primary {
+  border: 0;
   padding: 13px 20px;
   color: #fff;
   background: linear-gradient(135deg, #ff7cab, #8c7bff);
@@ -117,13 +150,17 @@
 
 .draw-primary:hover,
 .draw-secondary:hover,
-.draw-buttons button:hover {
+.draw-buttons button:hover,
+.draw-zoom-buttons button:hover,
+.layer-head button:hover,
+.layer-actions button:hover,
+.draw-card-actions button:hover {
   transform: translateY(-2px);
 }
 
 .draw-layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 310px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -131,6 +168,8 @@
 .draw-tools {
   position: sticky;
   top: 18px;
+  display: grid;
+  gap: 16px;
 }
 
 .draw-panel {
@@ -152,7 +191,7 @@
   border: 1px solid rgba(98, 68, 96, 0.14);
   border-radius: 16px;
   color: #35283c;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.92);
   font: inherit;
   outline: none;
 }
@@ -210,15 +249,13 @@
   margin: -4px 0 14px;
 }
 
-.draw-zoom-buttons button {
+.draw-zoom-buttons button,
+.layer-actions button,
+.layer-head button {
   padding: 9px 10px;
   border: 1px solid rgba(98, 68, 96, 0.14);
-  border-radius: 999px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.86);
   color: #35283c;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
 }
 
 .draw-buttons {
@@ -230,7 +267,7 @@
 .draw-buttons button {
   padding: 11px 12px;
   color: #35283c;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(98, 68, 96, 0.14);
 }
 
@@ -253,9 +290,101 @@
   line-height: 1.7;
 }
 
+.layer-panel {
+  padding: 18px;
+}
+
+.layer-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.layer-head h2 {
+  margin: 3px 0 0;
+  color: #35283c;
+  font-size: 1.25rem;
+}
+
+.layer-head button {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  font-size: 1.25rem;
+}
+
+.layer-list {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.layer-item {
+  display: grid;
+  grid-template-columns: 34px 1fr 38px;
+  gap: 8px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid rgba(98, 68, 96, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.layer-item.active {
+  border-color: rgba(140, 123, 255, 0.45);
+  background:
+    linear-gradient(135deg, rgba(255, 124, 171, 0.16), rgba(140, 123, 255, 0.14)),
+    rgba(255, 255, 255, 0.86);
+  box-shadow: 0 10px 24px rgba(140, 123, 255, 0.14);
+}
+
+.layer-select {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #35283c;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.layer-eye,
+.layer-menu {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(98, 68, 96, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.layer-eye.off {
+  opacity: 0.38;
+}
+
+.layer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.layer-actions .danger {
+  grid-column: 1 / -1;
+  color: #d94a72;
+}
+
 .draw-canvas-card {
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.88);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 248, 238, 0.68)),
+    rgba(255, 255, 255, 0.86);
 }
 
 .draw-canvas-head {
@@ -286,13 +415,12 @@
   aspect-ratio: 4 / 3;
   overflow: auto;
   background:
+    radial-gradient(circle at 12% 12%, rgba(255, 124, 171, 0.08), transparent 26%),
+    radial-gradient(circle at 86% 16%, rgba(140, 123, 255, 0.1), transparent 28%),
     linear-gradient(45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(98, 68, 96, 0.035) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(98, 68, 96, 0.035) 75%),
-    #fff;
-  background-size: 24px 24px;
-  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    #fffaf2;
+  background-size: auto, auto, 24px 24px, 24px 24px, auto;
   user-select: none;
 }
 
@@ -302,18 +430,27 @@
   min-height: 100%;
   display: grid;
   place-items: center;
-  padding: 18px;
+  padding: 22px;
 }
 
-#drawCanvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  cursor: crosshair;
-  touch-action: none;
+.canvas-stack {
+  position: relative;
+  width: 1200px;
+  height: 900px;
   transform-origin: center center;
   background: #fff;
-  box-shadow: 0 12px 32px rgba(74, 48, 92, 0.12);
+  box-shadow:
+    0 16px 44px rgba(74, 48, 92, 0.16),
+    0 0 0 1px rgba(98, 68, 96, 0.08);
+}
+
+.layer-canvas {
+  position: absolute;
+  inset: 0;
+  width: 1200px;
+  height: 900px;
+  cursor: crosshair;
+  touch-action: none;
 }
 
 .draw-list-section {
@@ -345,8 +482,13 @@
   overflow: hidden;
   border: 1px solid rgba(98, 68, 96, 0.12);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.86);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 248, 238, 0.7));
   box-shadow: 0 12px 32px rgba(74, 48, 92, 0.1);
+}
+
+.draw-card.active {
+  outline: 3px solid rgba(140, 123, 255, 0.22);
 }
 
 .draw-thumb {
@@ -384,13 +526,9 @@
 .draw-card-actions button {
   padding: 9px 10px;
   border: 1px solid rgba(98, 68, 96, 0.12);
-  border-radius: 999px;
   background: #fff;
   color: #35283c;
-  font: inherit;
   font-size: 0.82rem;
-  font-weight: 800;
-  cursor: pointer;
 }
 
 .draw-card-actions button.danger {
@@ -444,5 +582,15 @@
 
   .draw-tool-row {
     grid-template-columns: 76px 1fr;
+  }
+
+  .canvas-stack {
+    width: 900px;
+    height: 675px;
+  }
+
+  .layer-canvas {
+    width: 900px;
+    height: 675px;
   }
 }
