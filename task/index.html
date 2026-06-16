@@ -37,86 +37,86 @@
     </div>
   </header>
 
-  <main class="container task-layout">
-    <aside class="task-form-panel">
-      <details class="task-mini-section task-collapse">
-  <summary>グループ追加</summary>
+ <main class="container task-layout">
+  <section class="task-form-panel task-top-panel">
+    <details class="task-mini-section task-collapse">
+      <summary>グループ追加</summary>
 
-  <input
-    type="text"
-    id="groupTitleInput"
-    placeholder="例：OCFAのタスク"
-  />
+      <input
+        type="text"
+        id="groupTitleInput"
+        placeholder="例：OCFAのタスク"
+      />
 
-  <textarea
-    id="groupDescriptionInput"
-    placeholder="説明・目的・メモなど"
-  ></textarea>
+      <textarea
+        id="groupDescriptionInput"
+        placeholder="説明・目的・メモなど"
+      ></textarea>
 
-  <input
-    type="url"
-    id="groupLinkInput"
-    placeholder="関連リンク（任意）"
-  />
+      <input
+        type="url"
+        id="groupLinkInput"
+        placeholder="関連リンク（任意）"
+      />
 
-  <button id="addGroupBtn" class="task-sub-btn">グループ追加</button>
-</details>
+      <button id="addGroupBtn" class="task-sub-btn">グループ追加</button>
+    </details>
 
-      <details class="task-mini-section task-collapse" open>
-  <summary>タスク追加</summary>
+    <details class="task-mini-section task-collapse" open>
+      <summary>タスク追加</summary>
 
-  <input
-    type="text"
-    id="taskTitleInput"
-    placeholder="やること"
-  />
+      <input
+        type="text"
+        id="taskTitleInput"
+        placeholder="やること"
+      />
 
-  <textarea
-    id="taskMemoInput"
-    placeholder="補足メモ"
-  ></textarea>
+      <textarea
+        id="taskMemoInput"
+        placeholder="補足メモ"
+      ></textarea>
 
-  <div class="task-form-row">
-    <input
-      type="date"
-      id="taskDueInput"
-    />
-
-    <input
-      type="text"
-      id="taskCategoryInput"
-      placeholder="カテゴリ"
-    />
-
-    <select id="taskGroupSelect">
-      <option value="">グループなし</option>
-    </select>
-  </div>
-
-  <button id="addTaskBtn">追加</button>
-  <p id="taskStatusText">ログインしてください</p>
-</details>
-    </aside>
-
-    <section class="task-list-panel">
-      <div class="task-toolbar">
+      <div class="task-form-row">
         <input
-          type="text"
-          id="taskSearchInput"
-          placeholder="タスク・グループを検索"
+          type="date"
+          id="taskDueInput"
         />
 
-        <select id="taskFilterSelect">
-          <option value="todo">未完了</option>
-          <option value="done">完了</option>
-          <option value="all">すべて</option>
+        <input
+          type="text"
+          id="taskCategoryInput"
+          placeholder="カテゴリ"
+        />
+
+        <select id="taskGroupSelect">
+          <option value="">グループなし</option>
         </select>
       </div>
 
-      <div id="taskList" class="task-list"></div>
-    </section>
-  </main>
+      <button id="addTaskBtn">追加</button>
+      <p id="taskStatusText">ログインしてください</p>
+    </details>
+  </section>
 
+  <section class="task-list-panel">
+    <div class="task-toolbar">
+      <input
+        type="text"
+        id="taskSearchInput"
+        placeholder="タスク・グループを検索"
+      />
+
+      <select id="taskFilterSelect">
+        <option value="todo">未完了</option>
+        <option value="done">完了</option>
+        <option value="all">すべて</option>
+      </select>
+    </div>
+
+    <div id="taskList" class="task-list"></div>
+  </section>
+</main>
+  
   <div id="taskEditModal" class="task-modal hidden">
   <div class="task-modal-bg" id="taskEditModalBg"></div>
 
