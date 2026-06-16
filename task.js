@@ -426,7 +426,8 @@ function renderTasks() {
       link.href = groupBlock.group.link;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "関連リンクを開く";
+      link.textContent = "🔗 リンク";
+      link.title = "関連リンクを開く";
       headerMain.appendChild(link);
     }
 
