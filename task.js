@@ -510,8 +510,8 @@ function createTaskItem(task) {
   const editBtn = document.createElement("button");
 editBtn.className = "task-edit-btn";
 editBtn.textContent = "編集";
-editBtn.addEventListener("click", async () => {
-  await editTask(task);
+editBtn.addEventListener("click", () => {
+  openTaskEditForm(task, item);
 });
 
   const deleteBtn = document.createElement("button");
@@ -548,61 +548,122 @@ async function toggleTaskStatus(task) {
   }
 }
 
-async function editTask(task) {
-  if (!currentUser) return;
+function openTaskEditForm(task, item) {
+  const oldForm = item.querySelector(".task-edit-form");
 
-  const nextTitle = prompt("タスク名を編集", task.title || "");
-  if (nextTitle === null) return;
-
-  const title = nextTitle.trim();
-
-  if (!title) {
-    alert("タスク名は空にできません");
+  if (oldForm) {
+    oldForm.remove();
     return;
   }
 
-  const nextMemo = prompt("メモを編集", task.memo || "");
-  if (nextMemo === null) return;
+  const form = document.createElement("div");
+  form.className = "task-edit-form";
 
-  const nextDueDate = prompt(
-    "期限を編集してください\n例：2026-06-16\n空欄で期限なし",
-    task.dueDate || ""
-  );
-  if (nextDueDate === null) return;
+  const titleInput = document.createElement("input");
+  titleInput.type = "text";
+  titleInput.value = task.title || "";
+  titleInput.placeholder = "タスク名";
 
-  const nextCategory = prompt("カテゴリを編集", task.category || "");
-  if (nextCategory === null) return;
+  const memoInput = document.createElement("textarea");
+  memoInput.value = task.memo || "";
+  memoInput.placeholder = "メモ";
 
-  const groupText = buildGroupPromptText();
-  const nextGroupId = prompt(
-    `移動先グループを選んでください\n\n${groupText}\n\nグループなしにする場合は空欄`,
-    task.groupId || ""
-  );
-  if (nextGroupId === null) return;
+  const dueInput = document.createElement("input");
+  dueInput.type = "date";
+  dueInput.value = task.dueDate || "";
 
-  const groupId = nextGroupId.trim();
+  const categoryInput = document.createElement("input");
+  categoryInput.type = "text";
+  categoryInput.value = task.category || "";
+  categoryInput.placeholder = "カテゴリ";
 
-  if (groupId && !taskGroups.some((group) => group.id === groupId)) {
-    alert("存在しないグループIDです");
-    return;
-  }
+  const groupSelect = document.createElement("select");
 
-  try {
-    await updateDoc(doc(db, "tasks", task.id), {
-      title,
-      memo: nextMemo.trim(),
-      dueDate: nextDueDate.trim(),
-      category: nextCategory.trim(),
-      groupId,
-      updatedAt: serverTimestamp()
-    });
+  const noneOption = document.createElement("option");
+  noneOption.value = "";
+  noneOption.textContent = "グループなし";
+  groupSelect.appendChild(noneOption);
 
-    taskStatusText.textContent = "タスクを編集しました";
-    await loadTaskData();
-  } catch (error) {
-    console.error(error);
-    alert("タスク編集に失敗しました");
-  }
+  taskGroups.forEach((group) => {
+    const option = document.createElement("option");
+    option.value = group.id;
+    option.textContent = group.title || "無題のグループ";
+    groupSelect.appendChild(option);
+  });
+
+  groupSelect.value = task.groupId || "";
+
+  const buttonRow = document.createElement("div");
+  buttonRow.className = "task-edit-actions";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.className = "task-edit-save-btn";
+  saveBtn.textContent = "保存";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "task-edit-cancel-btn";
+  cancelBtn.textContent = "キャンセル";
+
+  saveBtn.addEventListener("click", async () => {
+    const title = titleInput.value.trim();
+    const memo = memoInput.value.trim();
+    const dueDate = dueInput.value;
+    const category = categoryInput.value.trim();
+    const groupId = groupSelect.value || "";
+
+    if (!title) {
+      alert("タスク名は空にできません");
+      return;
+    }
+
+    if (!isAdmin(currentUser) && title.length > TASK_TITLE_LIMIT) {
+      alert(`タスク名は${TASK_TITLE_LIMIT}文字までです`);
+      return;
+    }
+
+    if (!isAdmin(currentUser) && memo.length > TASK_MEMO_LIMIT) {
+      alert(`タスクメモは${TASK_MEMO_LIMIT}文字までです`);
+      return;
+    }
+
+    if (!isAdmin(currentUser) && category.length > TASK_CATEGORY_LIMIT) {
+      alert(`カテゴリは${TASK_CATEGORY_LIMIT}文字までです`);
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "tasks", task.id), {
+        title,
+        memo,
+        dueDate,
+        category,
+        groupId,
+        updatedAt: serverTimestamp()
+      });
+
+      taskStatusText.textContent = "タスクを編集しました";
+      await loadTaskData();
+    } catch (error) {
+      console.error(error);
+      alert("タスク編集に失敗しました");
+    }
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    form.remove();
+  });
+
+  buttonRow.appendChild(saveBtn);
+  buttonRow.appendChild(cancelBtn);
+
+  form.appendChild(titleInput);
+  form.appendChild(memoInput);
+  form.appendChild(dueInput);
+  form.appendChild(categoryInput);
+  form.appendChild(groupSelect);
+  form.appendChild(buttonRow);
+
+  item.appendChild(form);
 }
 
 /* delete task */
@@ -728,16 +789,6 @@ function isSafeUrl(url) {
   } catch {
     return false;
   }
-}
-
-function buildGroupPromptText() {
-  if (taskGroups.length === 0) {
-    return "グループはまだありません";
-  }
-
-  return taskGroups
-    .map((group) => `${group.title || "無題のグループ"}：${group.id}`)
-    .join("\n");
 }
 
 function getGroupStats(groupTasks) {
