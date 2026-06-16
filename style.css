@@ -5250,3 +5250,19 @@ body.modal-open {
     min-width: 0;
   }
 }
+
+.task-group-progress {
+  width: 100%;
+  height: 10px;
+  margin: 0 0 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6d9c9;
+}
+
+.task-group-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: #6d5a46;
+  transition: width 0.2s ease;
+}
