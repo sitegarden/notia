@@ -5643,3 +5643,16 @@ body.modal-open {
 .task-collapse[open] summary {
   margin-bottom: 8px;
 }
+.task-group-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fffaf3;
+  color: #5a4b3d;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
