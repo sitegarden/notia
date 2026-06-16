@@ -58,6 +58,7 @@ const GROUP_DESCRIPTION_LIMIT = 1000;
 const GROUP_LINK_LIMIT = 500;
 
 /* auth */
+
 loginBtn.addEventListener("click", async () => {
   try {
     await signInWithPopup(auth, googleProvider);
@@ -211,16 +212,16 @@ async function addTask() {
 
   try {
     await addDoc(collection(db, "tasks"), {
-      uid: currentUser.uid,
-      title,
-      memo,
-      dueDate,
-      category,
-      groupId,
-      status: "todo",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
+  uid: currentUser.uid,
+  title,
+  memo,
+  dueDate,
+  category,
+  groupId,
+  status: "todo",
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp()
+});
 
     taskTitleInput.value = "";
     taskMemoInput.value = "";
@@ -276,10 +277,16 @@ async function loadTasks() {
 
   const snapshot = await getDocs(q);
 
-  tasks = snapshot.docs.map((docSnap) => ({
+  tasks = snapshot.docs.map((docSnap) => {
+  const data = docSnap.data();
+
+  return {
     id: docSnap.id,
-    ...docSnap.data()
-  }));
+    ...data,
+    groupId: data.groupId || "",
+    status: data.status || "todo"
+  };
+});
 
   tasks.sort((a, b) => {
     const aDone = a.status === "done" ? 1 : 0;
@@ -588,16 +595,23 @@ function buildGroupedTasks(targetTasks) {
     });
   });
 
-  const noGroup = {
-    group: null,
+  const noGroupBlock = {
+    group: {
+      id: "",
+      title: "グループなし",
+      description: "",
+      link: ""
+    },
     tasks: []
   };
 
   targetTasks.forEach((task) => {
-    if (task.groupId && groupMap.has(task.groupId)) {
-      groupMap.get(task.groupId).tasks.push(task);
+    const groupId = task.groupId || "";
+
+    if (groupId && groupMap.has(groupId)) {
+      groupMap.get(groupId).tasks.push(task);
     } else {
-      noGroup.tasks.push(task);
+      noGroupBlock.tasks.push(task);
     }
   });
 
@@ -609,8 +623,8 @@ function buildGroupedTasks(targetTasks) {
     }
   });
 
-  if (noGroup.tasks.length > 0) {
-    result.push(noGroup);
+  if (noGroupBlock.tasks.length > 0) {
+    result.push(noGroupBlock);
   }
 
   return result;
