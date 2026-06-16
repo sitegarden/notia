@@ -408,9 +408,11 @@ function renderTasks() {
       headerMain.appendChild(link);
     }
 
-    const count = document.createElement("p");
-    count.className = "task-group-count";
-    count.textContent = `${groupBlock.tasks.length}件`;
+    const stats = getGroupStats(groupBlock.tasks);
+
+const count = document.createElement("p");
+count.className = "task-group-count";
+count.textContent = `${stats.done}/${stats.total} 完了`;
 
     header.appendChild(headerMain);
     header.appendChild(count);
@@ -427,6 +429,16 @@ function renderTasks() {
 }
 
     section.appendChild(header);
+
+    const progressWrap = document.createElement("div");
+progressWrap.className = "task-group-progress";
+
+const progressBar = document.createElement("div");
+progressBar.className = "task-group-progress-bar";
+progressBar.style.width = `${stats.percent}%`;
+
+progressWrap.appendChild(progressBar);
+section.appendChild(progressWrap);
 
     const list = document.createElement("div");
     list.className = "task-group-task-list";
@@ -651,4 +663,18 @@ function isSafeUrl(url) {
   } catch {
     return false;
   }
+}
+
+function getGroupStats(groupTasks) {
+  const total = groupTasks.length;
+  const done = groupTasks.filter((task) => task.status === "done").length;
+  const todo = total - done;
+  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+
+  return {
+    total,
+    done,
+    todo,
+    percent
+  };
 }
