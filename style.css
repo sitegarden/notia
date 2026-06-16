@@ -5656,3 +5656,272 @@ body.modal-open {
   font-weight: 800;
   text-decoration: none;
 }
+
+/* list memo */
+
+.listmemo-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.listmemo-create-panel,
+.listmemo-main-panel {
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+  border-radius: 24px;
+  box-shadow: 0 12px 30px rgba(54, 43, 32, 0.08);
+}
+
+.listmemo-create-panel {
+  padding: 14px;
+}
+
+.listmemo-collapse {
+  padding: 12px;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 250, 243, 0.9)),
+    #fffaf3;
+  border: 1px solid #e6d9c9;
+}
+
+.listmemo-collapse summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 16px;
+  font-weight: 900;
+  color: #2f2924;
+}
+
+.listmemo-collapse summary::-webkit-details-marker {
+  display: none;
+}
+
+.listmemo-collapse summary::before {
+  content: "＋";
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  border-radius: 999px;
+  background: #f7f0e8;
+  color: #6d5a46;
+  font-size: 14px;
+}
+
+.listmemo-collapse[open] summary::before {
+  content: "－";
+}
+
+.listmemo-collapse[open] summary {
+  margin-bottom: 10px;
+}
+
+.listmemo-create-panel input,
+.listmemo-create-panel textarea,
+.listmemo-toolbar input,
+.listmemo-add-area input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d8c8b6;
+  border-radius: 14px;
+  background: #fff;
+  color: #2c2823;
+}
+
+.listmemo-create-panel textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+#addListBtn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #2f2924;
+  color: #fffaf3;
+  font-weight: 900;
+}
+
+#listStatusText {
+  margin: 8px 0 0;
+  color: #8a7d70;
+  font-size: 13px;
+}
+
+.listmemo-main-panel {
+  padding: 16px;
+}
+
+.listmemo-toolbar {
+  margin-bottom: 14px;
+}
+
+.listmemo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.listmemo-card {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 250, 243, 0.95)),
+    #fff7d8;
+  border: 1px solid #eadfbf;
+  box-shadow:
+    0 12px 24px rgba(54, 43, 32, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.listmemo-card:nth-child(4n + 2) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 250, 243, 0.95)),
+    #e9f7ff;
+  border-color: #cde3ed;
+}
+
+.listmemo-card:nth-child(4n + 3) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 250, 243, 0.95)),
+    #f1eaff;
+  border-color: #dccff1;
+}
+
+.listmemo-card:nth-child(4n + 4) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 250, 243, 0.95)),
+    #eaf8e8;
+  border-color: #d0e8cd;
+}
+
+.listmemo-card::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 42px;
+  height: 10px;
+  transform: translateX(-50%) rotate(-2deg);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 2px 8px rgba(54, 43, 32, 0.08);
+}
+
+.listmemo-card-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding-top: 6px;
+}
+
+.listmemo-title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.listmemo-description {
+  margin: 5px 0 0;
+  color: #6f6255;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.listmemo-count {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  color: #5a4b3d;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.listmemo-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.listmemo-item {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #3b332b;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(54, 43, 32, 0.06);
+}
+
+.listmemo-item::before {
+  content: "●";
+  margin-right: 5px;
+  color: #c9a86a;
+  font-size: 9px;
+}
+
+.listmemo-item-empty {
+  margin: 0;
+  color: #8a7d70;
+  font-size: 13px;
+}
+
+.listmemo-add-area {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.listmemo-add-area button {
+  width: 42px;
+  border-radius: 14px;
+  background: #6d5a46;
+  color: #fffaf3;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.listmemo-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.listmemo-delete-btn {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(139, 58, 53, 0.12);
+  color: #8b3a35;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+@media (max-width: 1050px) {
+  .listmemo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .listmemo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .listmemo-main-panel {
+    padding: 12px;
+  }
+
+  .listmemo-card {
+    padding: 14px;
+  }
+}
