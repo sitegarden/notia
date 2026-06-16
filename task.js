@@ -42,6 +42,21 @@ const taskSearchInput = document.getElementById("taskSearchInput");
 const taskFilterSelect = document.getElementById("taskFilterSelect");
 const taskList = document.getElementById("taskList");
 
+const taskEditModal = document.getElementById("taskEditModal");
+const taskEditModalBg = document.getElementById("taskEditModalBg");
+
+const editTaskTitleInput = document.getElementById("editTaskTitleInput");
+const editTaskMemoInput = document.getElementById("editTaskMemoInput");
+const editTaskDueInput = document.getElementById("editTaskDueInput");
+const editTaskCategoryInput = document.getElementById("editTaskCategoryInput");
+const editTaskGroupSelect = document.getElementById("editTaskGroupSelect");
+
+const saveTaskEditBtn = document.getElementById("saveTaskEditBtn");
+const deleteTaskEditBtn = document.getElementById("deleteTaskEditBtn");
+const cancelTaskEditBtn = document.getElementById("cancelTaskEditBtn");
+
+let editingTaskId = null;
+
 let currentUser = null;
 let tasks = [];
 let taskGroups = [];
@@ -96,12 +111,14 @@ onAuthStateChanged(auth, async (user) => {
     taskGroups = [];
     taskList.innerHTML = "";
     renderGroupSelect();
+    closeTaskEditModal();
 
     taskStatusText.textContent = "ログインしてください";
   }
 });
 
 /* group add */
+
 addGroupBtn.addEventListener("click", async () => {
   await addTaskGroup();
 });
@@ -169,6 +186,7 @@ async function addTaskGroup() {
 }
 
 /* task add */
+
 addTaskBtn.addEventListener("click", async () => {
   await addTask();
 });
@@ -212,21 +230,22 @@ async function addTask() {
 
   try {
     await addDoc(collection(db, "tasks"), {
-  uid: currentUser.uid,
-  title,
-  memo,
-  dueDate,
-  category,
-  groupId,
-  status: "todo",
-  createdAt: serverTimestamp(),
-  updatedAt: serverTimestamp()
-});
+      uid: currentUser.uid,
+      title,
+      memo,
+      dueDate,
+      category,
+      groupId,
+      status: "todo",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
 
     taskTitleInput.value = "";
     taskMemoInput.value = "";
     taskDueInput.value = "";
     taskCategoryInput.value = "";
+    taskGroupSelect.value = "";
 
     taskStatusText.textContent = "追加しました";
     await loadTaskData();
@@ -237,6 +256,7 @@ async function addTask() {
 }
 
 /* load */
+
 async function loadTaskData() {
   if (!currentUser) return;
 
@@ -278,15 +298,15 @@ async function loadTasks() {
   const snapshot = await getDocs(q);
 
   tasks = snapshot.docs.map((docSnap) => {
-  const data = docSnap.data();
+    const data = docSnap.data();
 
-  return {
-    id: docSnap.id,
-    ...data,
-    groupId: data.groupId || "",
-    status: data.status || "todo"
-  };
-});
+    return {
+      id: docSnap.id,
+      ...data,
+      groupId: data.groupId || "",
+      status: data.status || "todo"
+    };
+  });
 
   tasks.sort((a, b) => {
     const aDone = a.status === "done" ? 1 : 0;
@@ -307,6 +327,7 @@ async function loadTasks() {
 }
 
 /* render group select */
+
 function renderGroupSelect() {
   taskGroupSelect.innerHTML = "";
 
@@ -324,6 +345,7 @@ function renderGroupSelect() {
 }
 
 /* render tasks */
+
 function renderTasks() {
   taskList.innerHTML = "";
 
@@ -410,35 +432,35 @@ function renderTasks() {
 
     const stats = getGroupStats(groupBlock.tasks);
 
-const count = document.createElement("p");
-count.className = "task-group-count";
-count.textContent = `${stats.done}/${stats.total} 完了`;
+    const count = document.createElement("p");
+    count.className = "task-group-count";
+    count.textContent = `${stats.done}/${stats.total} 完了`;
 
     header.appendChild(headerMain);
     header.appendChild(count);
 
-  if (groupBlock.group?.id) {
-  const deleteGroupBtn = document.createElement("button");
-  deleteGroupBtn.className = "task-group-delete-btn";
-  deleteGroupBtn.textContent = "グループ削除";
-  deleteGroupBtn.addEventListener("click", async () => {
-    await deleteTaskGroup(groupBlock.group.id);
-  });
+    if (groupBlock.group?.id) {
+      const deleteGroupBtn = document.createElement("button");
+      deleteGroupBtn.className = "task-group-delete-btn";
+      deleteGroupBtn.textContent = "グループ削除";
+      deleteGroupBtn.addEventListener("click", async () => {
+        await deleteTaskGroup(groupBlock.group.id);
+      });
 
-  header.appendChild(deleteGroupBtn);
-}
+      header.appendChild(deleteGroupBtn);
+    }
 
     section.appendChild(header);
 
     const progressWrap = document.createElement("div");
-progressWrap.className = "task-group-progress";
+    progressWrap.className = "task-group-progress";
 
-const progressBar = document.createElement("div");
-progressBar.className = "task-group-progress-bar";
-progressBar.style.width = `${stats.percent}%`;
+    const progressBar = document.createElement("div");
+    progressBar.className = "task-group-progress-bar";
+    progressBar.style.width = `${stats.percent}%`;
 
-progressWrap.appendChild(progressBar);
-section.appendChild(progressWrap);
+    progressWrap.appendChild(progressBar);
+    section.appendChild(progressWrap);
 
     const list = document.createElement("div");
     list.className = "task-group-task-list";
@@ -508,28 +530,21 @@ function createTaskItem(task) {
   }
 
   const editBtn = document.createElement("button");
-editBtn.className = "task-edit-btn";
-editBtn.textContent = "編集";
-editBtn.addEventListener("click", () => {
-  openTaskEditForm(task, item);
-});
-
-  const deleteBtn = document.createElement("button");
-  deleteBtn.className = "task-delete-btn";
-  deleteBtn.textContent = "削除";
-  deleteBtn.addEventListener("click", async () => {
-    await deleteTask(task.id);
+  editBtn.className = "task-edit-btn";
+  editBtn.textContent = "編集";
+  editBtn.addEventListener("click", () => {
+    openTaskEditModal(task);
   });
 
   item.appendChild(checkbox);
-item.appendChild(main);
-item.appendChild(editBtn);
-item.appendChild(deleteBtn);
+  item.appendChild(main);
+  item.appendChild(editBtn);
 
   return item;
 }
 
 /* update */
+
 async function toggleTaskStatus(task) {
   if (!currentUser) return;
 
@@ -548,140 +563,123 @@ async function toggleTaskStatus(task) {
   }
 }
 
-function openTaskEditForm(task, item) {
-  const oldForm = item.querySelector(".task-edit-form");
+/* task modal */
 
-  if (oldForm) {
-    oldForm.remove();
-    return;
+function openTaskEditModal(task) {
+  editingTaskId = task.id;
+
+  editTaskTitleInput.value = task.title || "";
+  editTaskMemoInput.value = task.memo || "";
+  editTaskDueInput.value = task.dueDate || "";
+  editTaskCategoryInput.value = task.category || "";
+
+  renderEditGroupSelect(task.groupId || "");
+
+  taskEditModal.classList.remove("hidden");
+}
+
+function closeTaskEditModal() {
+  editingTaskId = null;
+
+  if (taskEditModal) {
+    taskEditModal.classList.add("hidden");
   }
+}
 
-  const form = document.createElement("div");
-  form.className = "task-edit-form";
-
-  const titleInput = document.createElement("input");
-  titleInput.type = "text";
-  titleInput.value = task.title || "";
-  titleInput.placeholder = "タスク名";
-
-  const memoInput = document.createElement("textarea");
-  memoInput.value = task.memo || "";
-  memoInput.placeholder = "メモ";
-
-  const dueInput = document.createElement("input");
-  dueInput.type = "date";
-  dueInput.value = task.dueDate || "";
-
-  const categoryInput = document.createElement("input");
-  categoryInput.type = "text";
-  categoryInput.value = task.category || "";
-  categoryInput.placeholder = "カテゴリ";
-
-  const groupSelect = document.createElement("select");
+function renderEditGroupSelect(selectedGroupId = "") {
+  editTaskGroupSelect.innerHTML = "";
 
   const noneOption = document.createElement("option");
   noneOption.value = "";
   noneOption.textContent = "グループなし";
-  groupSelect.appendChild(noneOption);
+  editTaskGroupSelect.appendChild(noneOption);
 
   taskGroups.forEach((group) => {
     const option = document.createElement("option");
     option.value = group.id;
     option.textContent = group.title || "無題のグループ";
-    groupSelect.appendChild(option);
+    editTaskGroupSelect.appendChild(option);
   });
 
-  groupSelect.value = task.groupId || "";
-
-  const buttonRow = document.createElement("div");
-  buttonRow.className = "task-edit-actions";
-
-  const saveBtn = document.createElement("button");
-  saveBtn.className = "task-edit-save-btn";
-  saveBtn.textContent = "保存";
-
-  const cancelBtn = document.createElement("button");
-  cancelBtn.className = "task-edit-cancel-btn";
-  cancelBtn.textContent = "キャンセル";
-
-  saveBtn.addEventListener("click", async () => {
-    const title = titleInput.value.trim();
-    const memo = memoInput.value.trim();
-    const dueDate = dueInput.value;
-    const category = categoryInput.value.trim();
-    const groupId = groupSelect.value || "";
-
-    if (!title) {
-      alert("タスク名は空にできません");
-      return;
-    }
-
-    if (!isAdmin(currentUser) && title.length > TASK_TITLE_LIMIT) {
-      alert(`タスク名は${TASK_TITLE_LIMIT}文字までです`);
-      return;
-    }
-
-    if (!isAdmin(currentUser) && memo.length > TASK_MEMO_LIMIT) {
-      alert(`タスクメモは${TASK_MEMO_LIMIT}文字までです`);
-      return;
-    }
-
-    if (!isAdmin(currentUser) && category.length > TASK_CATEGORY_LIMIT) {
-      alert(`カテゴリは${TASK_CATEGORY_LIMIT}文字までです`);
-      return;
-    }
-
-    try {
-      await updateDoc(doc(db, "tasks", task.id), {
-        title,
-        memo,
-        dueDate,
-        category,
-        groupId,
-        updatedAt: serverTimestamp()
-      });
-
-      taskStatusText.textContent = "タスクを編集しました";
-      await loadTaskData();
-    } catch (error) {
-      console.error(error);
-      alert("タスク編集に失敗しました");
-    }
-  });
-
-  cancelBtn.addEventListener("click", () => {
-    form.remove();
-  });
-
-  buttonRow.appendChild(saveBtn);
-  buttonRow.appendChild(cancelBtn);
-
-  form.appendChild(titleInput);
-  form.appendChild(memoInput);
-  form.appendChild(dueInput);
-  form.appendChild(categoryInput);
-  form.appendChild(groupSelect);
-  form.appendChild(buttonRow);
-
-  item.appendChild(form);
+  editTaskGroupSelect.value = selectedGroupId || "";
 }
 
-/* delete task */
-async function deleteTask(taskId) {
+saveTaskEditBtn.addEventListener("click", async () => {
+  if (!currentUser || !editingTaskId) return;
+
+  const title = editTaskTitleInput.value.trim();
+  const memo = editTaskMemoInput.value.trim();
+  const dueDate = editTaskDueInput.value;
+  const category = editTaskCategoryInput.value.trim();
+  const groupId = editTaskGroupSelect.value || "";
+
+  if (!title) {
+    alert("タスク名は空にできません");
+    return;
+  }
+
+  if (!isAdmin(currentUser) && title.length > TASK_TITLE_LIMIT) {
+    alert(`タスク名は${TASK_TITLE_LIMIT}文字までです`);
+    return;
+  }
+
+  if (!isAdmin(currentUser) && memo.length > TASK_MEMO_LIMIT) {
+    alert(`タスクメモは${TASK_MEMO_LIMIT}文字までです`);
+    return;
+  }
+
+  if (!isAdmin(currentUser) && category.length > TASK_CATEGORY_LIMIT) {
+    alert(`カテゴリは${TASK_CATEGORY_LIMIT}文字までです`);
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "tasks", editingTaskId), {
+      title,
+      memo,
+      dueDate,
+      category,
+      groupId,
+      updatedAt: serverTimestamp()
+    });
+
+    taskStatusText.textContent = "タスクを編集しました";
+    closeTaskEditModal();
+    await loadTaskData();
+  } catch (error) {
+    console.error(error);
+    alert("タスク編集に失敗しました");
+  }
+});
+
+deleteTaskEditBtn.addEventListener("click", async () => {
+  if (!currentUser || !editingTaskId) return;
+
   const ok = confirm("このタスクを削除しますか？");
   if (!ok) return;
 
   try {
-    await deleteDoc(doc(db, "tasks", taskId));
-    taskStatusText.textContent = "削除しました";
+    await deleteDoc(doc(db, "tasks", editingTaskId));
+
+    taskStatusText.textContent = "タスクを削除しました";
+    closeTaskEditModal();
     await loadTaskData();
   } catch (error) {
     console.error(error);
     alert("タスク削除に失敗しました");
   }
-}
+});
+
+cancelTaskEditBtn.addEventListener("click", () => {
+  closeTaskEditModal();
+});
+
+taskEditModalBg.addEventListener("click", () => {
+  closeTaskEditModal();
+});
 
 /* delete group */
+
 async function deleteTaskGroup(groupId) {
   const ok = confirm(
     "このグループを削除しますか？\n中のタスクは削除せず、グループなしに移動します。"
@@ -714,6 +712,7 @@ async function deleteTaskGroup(groupId) {
 }
 
 /* search / filter */
+
 taskSearchInput.addEventListener("input", () => {
   renderTasks();
 });
@@ -723,6 +722,7 @@ taskFilterSelect.addEventListener("change", () => {
 });
 
 /* helpers */
+
 function buildGroupedTasks(targetTasks) {
   const groupMap = new Map();
 
