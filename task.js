@@ -183,7 +183,7 @@ async function addTask() {
   const memo = taskMemoInput.value.trim();
   const dueDate = taskDueInput.value;
   const category = taskCategoryInput.value.trim();
-  const groupId = taskGroupSelect.value;
+  const groupId = taskGroupSelect.value || "";
 
   if (!title) {
     alert("やることを入力してください");
@@ -415,16 +415,16 @@ function renderTasks() {
     header.appendChild(headerMain);
     header.appendChild(count);
 
-    if (groupBlock.group) {
-      const deleteGroupBtn = document.createElement("button");
-      deleteGroupBtn.className = "task-group-delete-btn";
-      deleteGroupBtn.textContent = "グループ削除";
-      deleteGroupBtn.addEventListener("click", async () => {
-        await deleteTaskGroup(groupBlock.group.id);
-      });
+  if (groupBlock.group?.id) {
+  const deleteGroupBtn = document.createElement("button");
+  deleteGroupBtn.className = "task-group-delete-btn";
+  deleteGroupBtn.textContent = "グループ削除";
+  deleteGroupBtn.addEventListener("click", async () => {
+    await deleteTaskGroup(groupBlock.group.id);
+  });
 
-      header.appendChild(deleteGroupBtn);
-    }
+  header.appendChild(deleteGroupBtn);
+}
 
     section.appendChild(header);
 
