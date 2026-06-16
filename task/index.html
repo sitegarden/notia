@@ -117,6 +117,46 @@
     </section>
   </main>
 
+  <div id="taskEditModal" class="task-modal hidden">
+  <div class="task-modal-bg" id="taskEditModalBg"></div>
+
+  <div class="task-modal-box">
+    <h2>タスク編集</h2>
+
+    <input
+      type="text"
+      id="editTaskTitleInput"
+      placeholder="タスク名"
+    />
+
+    <textarea
+      id="editTaskMemoInput"
+      placeholder="メモ"
+    ></textarea>
+
+    <input
+      type="date"
+      id="editTaskDueInput"
+    />
+
+    <input
+      type="text"
+      id="editTaskCategoryInput"
+      placeholder="カテゴリ"
+    />
+
+    <select id="editTaskGroupSelect">
+      <option value="">グループなし</option>
+    </select>
+
+    <div class="task-modal-actions">
+      <button id="saveTaskEditBtn">保存</button>
+      <button id="deleteTaskEditBtn" type="button">削除</button>
+      <button id="cancelTaskEditBtn" type="button">キャンセル</button>
+    </div>
+  </div>
+</div>
+
   <script type="module" src="/task.js"></script>
 </body>
 </html>
