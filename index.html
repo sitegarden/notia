@@ -4,119 +4,309 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>タスク | notia</title>
+  <title>notia</title>
 
   <meta
     name="description"
-    content="やることを軽く置いて、終わったら完了にできるnotiaのタスク管理ページです。"
+    content="notiaは、メモ・タスク・共有メモ・創作ログなどをまとめて保管できるメモサイトです。"
   />
+
+  <!-- OGP -->
+  <meta property="og:title" content="notia" />
+  <meta property="og:description" content="メモ・タスク・共有メモ・創作ログなどをまとめて保管できるメモサイト。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://notia.jp/" />
+  <meta property="og:image" content="https://notia.jp/ogp.png" />
+
+  <!-- X / Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="notia" />
+  <meta name="twitter:description" content="メモ・タスク・共有メモ・創作ログなどをまとめて保管できるメモサイト。" />
+  <meta name="twitter:image" content="https://notia.jp/ogp.png" />
 
   <link rel="stylesheet" href="/style.css" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
 
-<body>
+<body class="landing-page">
   <div id="commonHeader"></div>
-  <script type="module" src="/header.js"></script>
 
-  <header class="site-header">
+  <main>
+    <section class="landing-hero">
+      <div class="hero-copy">
+        <p class="label">PERSONAL NOTE STORAGE</p>
+
+        <h1>
+          いろいろ保管できる、<br>
+          自分用メモサイト。
+        </h1>
+
+        <p class="hero-lead">
+          notiaは、思いつき・タスク・共有メモ・創作ログなどを、
+          自分の使いやすい形でまとめて残せるメモサイトです。
+        </p>
+
+        <div class="hero-actions">
+          <a href="/home/" class="hero-primary">Homeを開く</a>
+          <a href="/quick/" class="hero-secondary">クイックメモを書く</a>
+        </div>
+
+        <p class="hero-note">
+          ※ 使える機能から少しずつ公開・調整しています。
+        </p>
+      </div>
+
+      <div class="hero-card">
+        <div class="notebook-card">
+          <div class="notebook-top">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <h2>notia</h2>
+          <p>メモも、記録も、創作も。</p>
+
+          <div class="mini-note-list">
+            <div>
+              <strong>Quick Memo</strong>
+              <span>思いつきをすぐ保存</span>
+            </div>
+
+            <div>
+              <strong>Task</strong>
+              <span>やることを整理</span>
+            </div>
+
+            <div>
+              <strong>Share</strong>
+              <span>必要なメモだけ共有</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="landing-section">
+      <div class="section-title">
+        <p class="label">FEATURES</p>
+        <h2>notiaでできること</h2>
+        <p>
+          まずは軽く使える機能から。今後、記録や創作向けの機能も少しずつ整えていきます。
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        
+        <a href="/home/" class="feature-card accent-home">
+          <span>🏠</span>
+          <h3>Home</h3>
+          <p>最近書いたメモや記録をまとめて確認できます。</p>
+          <small>利用できます</small>
+        </a>
+
+        
+ <a href="/shared/" class="feature-card accent-share">
+          <span>🔗</span>
+          <h3>共有メモ</h3>
+          <p>自分が共有したクイックメモを確認・管理できます。</p>
+          <small>利用できます</small>
+        </a>
+
+
+        <a href="/quick/" class="feature-card">
+          <span>📝</span>
+          <h3>クイックメモ</h3>
+          <p>タイトルなしでも、すぐに書けるシンプルなメモ。</p>
+          <small>利用できます</small>
+        </a>
+
+        <a href="/task/" class="feature-card">
+          <span>✅</span>
+          <h3>タスク</h3>
+          <p>やることを軽く置いて、完了したらチェックできます。</p>
+          <small>利用できます</small>
+        </a>
+
+        <a href="/normal/" class="feature-card planned-feature owner-only-link">
+  <span>📝</span>
+  <h3>通常メモ</h3>
+  <p>Markdown風に書ける、しっかりめの長文メモ。</p>
+  <small>調整中</small>
+</a>
+
+        <a href="/chat/" class="feature-card planned-feature owner-only-link">
+  <span>💬</span>
+  <h3>チャット風メモ</h3>
+  <p>会話形式でメモを残せる、キャラ・人物管理にも使える機能。</p>
+  <small>調整中</small>
+</a>
+
+       <a href="/diary/" class="feature-card planned-feature owner-only-link">
+  <span>📅</span>
+  <h3>日記</h3>
+  <p>カレンダーから日付を選んで、日々の記録を残せます。</p>
+  <small>調整中</small>
+</a>
+
+<a href="/dream/" class="feature-card planned-feature owner-only-link">
+  <span>🌙</span>
+  <h3>夢日記</h3>
+  <p>見た夢や、印象に残った内容を残せる記録機能。</p>
+  <small>調整中</small>
+</a>
+
+<a href="/music/" class="feature-card planned-feature owner-only-link">
+  <span>🎧</span>
+  <h3>曲メモ</h3>
+  <p>曲名・歌詞・和訳・URLなどをまとめて保存。</p>
+  <small>調整中</small>
+</a>
+
+<a href="/story/" class="feature-card planned-feature owner-only-link">
+  <span>📖</span>
+  <h3>ストーリー</h3>
+  <p>作品ごとに話や設定メモを整理できる創作用機能。</p>
+  <small>調整中</small>
+</a>
+
+<a href="/people/" class="feature-card planned-feature owner-only-link">
+  <span>👤</span>
+  <h3>人物帳</h3>
+  <p>人物やキャラクターの情報を整理できるメモ機能。</p>
+  <small>調整中</small>
+</a>
+
+<a href="/image/" class="feature-card planned-feature owner-only-link">
+  <span>🖼️</span>
+  <h3>画像メモ</h3>
+  <p>画像をアップロードしたり、画像URLを登録して整理できる機能。</p>
+  <small>調整中</small>
+</a>
+
+<a href="/draw/" class="feature-card planned-feature owner-only-link">
+  <span>🎨</span>
+  <h3>らくがきメモ</h3>
+  <p>思いついた絵や図をその場で描いて保存できます。</p>
+  <small>調整中</small>
+</a>
+        
+      </div>
+    </section>
+
+    <section id="private" class="landing-section split-section">
+      <div>
+        <p class="label">PRIVATE FIRST</p>
+        <h2>基本は、自分のための保管場所。</h2>
+        <p>
+          notiaは、まず「自分が使いやすいこと」を大切にしたメモサイトです。
+          必要なものを必要な形で残せるように、少しずつ機能を整えています。
+        </p>
+      </div>
+
+      <div class="private-box">
+        <h3>共有はコピー方式</h3>
+        <p>
+          共有したいメモだけを共有用データとしてコピーします。
+          元のメモ本体は、自分だけの場所に残ります。
+        </p>
+      </div>
+    </section>
+
+    <section class="landing-section split-section">
+      <div>
+        <p class="label">SAFETY</p>
+        <h2>安心して使うために。</h2>
+        <p>
+          大事なデータは各自でバックアップをお願いします。
+          また、住所・電話番号・パスワード・他人の個人情報など、
+          外に出ると困る情報は書かないようにしてください。
+        </p>
+      </div>
+
+      <div class="private-box">
+        <h3>ルールも用意しています</h3>
+        <p>
+          notiaを安全に使うため、利用規約とプライバシーポリシーを用意しています。
+        </p>
+
+        <div class="hero-actions small-actions">
+          <a href="/terms/" class="hero-secondary">利用規約</a>
+          <a href="/privacy/" class="hero-secondary">プライバシー</a>
+        </div>
+      </div>
+    </section>
+
+<section class="landing-section contact-section">
+  <div class="section-title">
+    <p class="label">CONTACT</p>
+    <h2>困ったこと・気づいたことがあれば。</h2>
+    <p>
+      不具合報告、使い方の相談、データ削除などの連絡、
+      感想や機能の要望はこちらから送れます。
+    </p>
+  </div>
+
+  <div class="contact-card">
     <div>
-      <p class="label">TASK</p>
-      <h1>タスク</h1>
-      <p class="lead">
-        やることを軽く置いて、グループごとに整理できるタスク管理。
+      <h3>notiaへのお問い合わせ</h3>
+      <p>
+        ログインできない、メモがうまく保存されない、表示が崩れるなど、
+        気づいたことがあればフォームから送ってください。
+      </p>
+      <p class="contact-note">
+        返信が必要な場合は、返信先も一緒に記入してください。
       </p>
     </div>
 
-    <div class="auth-area">
-      <a href="/home/" class="back-link">Homeへ</a>
-      <button id="loginBtn">Googleでログイン</button>
-      <button id="logoutBtn" class="hidden">ログアウト</button>
-      <p id="userInfo" class="user-info"></p>
-    </div>
-  </header>
-
-  <main class="container task-layout">
-    <aside class="task-form-panel">
-      <section class="task-mini-section">
-        <h2>グループ追加</h2>
-
-        <input
-          type="text"
-          id="groupTitleInput"
-          placeholder="例：OCFAのタスク"
-        />
-
-        <textarea
-          id="groupDescriptionInput"
-          placeholder="説明・目的・メモなど"
-        ></textarea>
-
-        <input
-          type="url"
-          id="groupLinkInput"
-          placeholder="関連リンク（任意）"
-        />
-
-        <button id="addGroupBtn" class="task-sub-btn">グループ追加</button>
-      </section>
-
-      <section class="task-mini-section">
-        <h2>タスク追加</h2>
-
-        <input
-          type="text"
-          id="taskTitleInput"
-          placeholder="やること"
-        />
-
-        <textarea
-          id="taskMemoInput"
-          placeholder="補足メモ"
-        ></textarea>
-
-        <div class="task-form-row">
-          <input
-            type="date"
-            id="taskDueInput"
-          />
-
-          <input
-            type="text"
-            id="taskCategoryInput"
-            placeholder="カテゴリ"
-          />
-
-          <select id="taskGroupSelect">
-            <option value="">グループなし</option>
-          </select>
-        </div>
-
-        <button id="addTaskBtn">追加</button>
-        <p id="taskStatusText">ログインしてください</p>
-      </section>
-    </aside>
-
-    <section class="task-list-panel">
-      <div class="task-toolbar">
-        <input
-          type="text"
-          id="taskSearchInput"
-          placeholder="タスク・グループを検索"
-        />
-
-        <select id="taskFilterSelect">
-          <option value="todo">未完了</option>
-          <option value="done">完了</option>
-          <option value="all">すべて</option>
-        </select>
-      </div>
-
-      <div id="taskList" class="task-list"></div>
-    </section>
+    <a
+      href="https://docs.google.com/forms/d/e/1FAIpQLSesMw6-ymf5_sRUzs_35r_Ml-ztA3Cgh8JAai1XNQH84__SWQ/viewform?usp=header"
+      class="hero-primary"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      フォームを開く
+    </a>
+  </div>
+</section>
+    
   </main>
 
-  <script type="module" src="/task.js"></script>
+  <div id="prepareModal" class="prepare-modal hidden" aria-hidden="true">
+  <div class="prepare-modal-backdrop" data-close-modal></div>
+
+  <div class="prepare-modal-card" role="dialog" aria-modal="true" aria-labelledby="prepareModalTitle">
+    <button type="button" class="prepare-modal-close" data-close-modal>×</button>
+
+    <div class="prepare-modal-icon">🫧</div>
+    <h2 id="prepareModalTitle">まだ準備中です</h2>
+    <p>
+  この機能はただいま調整中です。<br>
+  もう少しだけ待っていてください。
+</p>
+
+    <button type="button" class="prepare-modal-button" data-close-modal>
+      OK
+    </button>
+  </div>
+</div>
+
+ <footer class="landing-footer">
+  <p>Created by Lane / Presented by ゆるおり</p>
+  <p>notia.jp</p>
+  <p>
+    <a
+      href="https://docs.google.com/forms/d/e/1FAIpQLSesMw6-ymf5_sRUzs_35r_Ml-ztA3Cgh8JAai1XNQH84__SWQ/viewform?usp=header"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      お問い合わせ・不具合報告
+    </a>
+  </p>
+</footer>
+  
+  <script type="module" src="/header.js"></script>
+<script type="module" src="/index.js"></script>
 </body>
 </html>
