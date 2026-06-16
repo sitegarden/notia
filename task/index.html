@@ -17,16 +17,15 @@
 </head>
 
 <body>
-
   <div id="commonHeader"></div>
-<script type="module" src="/header.js"></script>
-  
+  <script type="module" src="/header.js"></script>
+
   <header class="site-header">
     <div>
       <p class="label">TASK</p>
       <h1>タスク</h1>
       <p class="lead">
-        やることを軽く置いて、終わったら完了にするシンプルなタスク管理。
+        やることを軽く置いて、グループごとに整理できるタスク管理。
       </p>
     </div>
 
@@ -39,43 +38,72 @@
   </header>
 
   <main class="container task-layout">
-    <section class="task-form-panel">
-      <h2>タスク追加</h2>
-
-      <input
-        type="text"
-        id="taskTitleInput"
-        placeholder="やること"
-      />
-
-      <textarea
-        id="taskMemoInput"
-        placeholder="補足メモ"
-      ></textarea>
-
-      <div class="task-form-row">
-        <input
-          type="date"
-          id="taskDueInput"
-        />
+    <aside class="task-form-panel">
+      <section class="task-mini-section">
+        <h2>グループ追加</h2>
 
         <input
           type="text"
-          id="taskCategoryInput"
-          placeholder="カテゴリ"
+          id="groupTitleInput"
+          placeholder="例：OCFAのタスク"
         />
-      </div>
 
-      <button id="addTaskBtn">追加</button>
-      <p id="taskStatusText">ログインしてください</p>
-    </section>
+        <textarea
+          id="groupDescriptionInput"
+          placeholder="説明・目的・メモなど"
+        ></textarea>
+
+        <input
+          type="url"
+          id="groupLinkInput"
+          placeholder="関連リンク（任意）"
+        />
+
+        <button id="addGroupBtn" class="task-sub-btn">グループ追加</button>
+      </section>
+
+      <section class="task-mini-section">
+        <h2>タスク追加</h2>
+
+        <input
+          type="text"
+          id="taskTitleInput"
+          placeholder="やること"
+        />
+
+        <textarea
+          id="taskMemoInput"
+          placeholder="補足メモ"
+        ></textarea>
+
+        <div class="task-form-row">
+          <input
+            type="date"
+            id="taskDueInput"
+          />
+
+          <input
+            type="text"
+            id="taskCategoryInput"
+            placeholder="カテゴリ"
+          />
+
+          <select id="taskGroupSelect">
+            <option value="">グループなし</option>
+          </select>
+        </div>
+
+        <button id="addTaskBtn">追加</button>
+        <p id="taskStatusText">ログインしてください</p>
+      </section>
+    </aside>
 
     <section class="task-list-panel">
       <div class="task-toolbar">
         <input
           type="text"
           id="taskSearchInput"
-          placeholder="タスクを検索"
+          placeholder="タスク・グループを検索"
         />
 
         <select id="taskFilterSelect">
