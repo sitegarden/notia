@@ -507,6 +507,13 @@ function createTaskItem(task) {
     main.appendChild(meta);
   }
 
+  const editBtn = document.createElement("button");
+editBtn.className = "task-edit-btn";
+editBtn.textContent = "編集";
+editBtn.addEventListener("click", async () => {
+  await editTask(task);
+});
+
   const deleteBtn = document.createElement("button");
   deleteBtn.className = "task-delete-btn";
   deleteBtn.textContent = "削除";
@@ -515,8 +522,9 @@ function createTaskItem(task) {
   });
 
   item.appendChild(checkbox);
-  item.appendChild(main);
-  item.appendChild(deleteBtn);
+item.appendChild(main);
+item.appendChild(editBtn);
+item.appendChild(deleteBtn);
 
   return item;
 }
@@ -537,6 +545,63 @@ async function toggleTaskStatus(task) {
   } catch (error) {
     console.error(error);
     alert("タスク更新に失敗しました");
+  }
+}
+
+async function editTask(task) {
+  if (!currentUser) return;
+
+  const nextTitle = prompt("タスク名を編集", task.title || "");
+  if (nextTitle === null) return;
+
+  const title = nextTitle.trim();
+
+  if (!title) {
+    alert("タスク名は空にできません");
+    return;
+  }
+
+  const nextMemo = prompt("メモを編集", task.memo || "");
+  if (nextMemo === null) return;
+
+  const nextDueDate = prompt(
+    "期限を編集してください\n例：2026-06-16\n空欄で期限なし",
+    task.dueDate || ""
+  );
+  if (nextDueDate === null) return;
+
+  const nextCategory = prompt("カテゴリを編集", task.category || "");
+  if (nextCategory === null) return;
+
+  const groupText = buildGroupPromptText();
+  const nextGroupId = prompt(
+    `移動先グループを選んでください\n\n${groupText}\n\nグループなしにする場合は空欄`,
+    task.groupId || ""
+  );
+  if (nextGroupId === null) return;
+
+  const groupId = nextGroupId.trim();
+
+  if (groupId && !taskGroups.some((group) => group.id === groupId)) {
+    alert("存在しないグループIDです");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "tasks", task.id), {
+      title,
+      memo: nextMemo.trim(),
+      dueDate: nextDueDate.trim(),
+      category: nextCategory.trim(),
+      groupId,
+      updatedAt: serverTimestamp()
+    });
+
+    taskStatusText.textContent = "タスクを編集しました";
+    await loadTaskData();
+  } catch (error) {
+    console.error(error);
+    alert("タスク編集に失敗しました");
   }
 }
 
@@ -663,6 +728,16 @@ function isSafeUrl(url) {
   } catch {
     return false;
   }
+}
+
+function buildGroupPromptText() {
+  if (taskGroups.length === 0) {
+    return "グループはまだありません";
+  }
+
+  return taskGroups
+    .map((group) => `${group.title || "無題のグループ"}：${group.id}`)
+    .join("\n");
 }
 
 function getGroupStats(groupTasks) {
