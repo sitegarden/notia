@@ -5332,3 +5332,87 @@ body.modal-open {
   background: #d8c8b6;
   color: #2f2924;
 }
+
+.task-modal.hidden {
+  display: none;
+}
+
+.task-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.task-modal-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(47, 41, 36, 0.45);
+}
+
+.task-modal-box {
+  position: relative;
+  z-index: 1;
+  width: min(520px, 100%);
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 24px;
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+  box-shadow: 0 20px 60px rgba(54, 43, 32, 0.25);
+}
+
+.task-modal-box h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.task-modal-box input,
+.task-modal-box textarea,
+.task-modal-box select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d8c8b6;
+  border-radius: 14px;
+  background: #fff;
+  color: #2c2823;
+}
+
+.task-modal-box textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.task-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+#saveTaskEditBtn,
+#deleteTaskEditBtn,
+#cancelTaskEditBtn {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+#saveTaskEditBtn {
+  background: #2f2924;
+  color: #fffaf3;
+}
+
+#deleteTaskEditBtn {
+  background: #8b3a35;
+  color: #fffaf3;
+}
+
+#cancelTaskEditBtn {
+  background: #d8c8b6;
+  color: #2f2924;
+}
