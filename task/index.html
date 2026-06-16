@@ -39,63 +39,63 @@
 
   <main class="container task-layout">
     <aside class="task-form-panel">
-      <section class="task-mini-section">
-        <h2>グループ追加</h2>
+      <details class="task-mini-section task-collapse">
+  <summary>グループ追加</summary>
 
-        <input
-          type="text"
-          id="groupTitleInput"
-          placeholder="例：OCFAのタスク"
-        />
+  <input
+    type="text"
+    id="groupTitleInput"
+    placeholder="例：OCFAのタスク"
+  />
 
-        <textarea
-          id="groupDescriptionInput"
-          placeholder="説明・目的・メモなど"
-        ></textarea>
+  <textarea
+    id="groupDescriptionInput"
+    placeholder="説明・目的・メモなど"
+  ></textarea>
 
-        <input
-          type="url"
-          id="groupLinkInput"
-          placeholder="関連リンク（任意）"
-        />
+  <input
+    type="url"
+    id="groupLinkInput"
+    placeholder="関連リンク（任意）"
+  />
 
-        <button id="addGroupBtn" class="task-sub-btn">グループ追加</button>
-      </section>
+  <button id="addGroupBtn" class="task-sub-btn">グループ追加</button>
+</details>
 
-      <section class="task-mini-section">
-        <h2>タスク追加</h2>
+      <details class="task-mini-section task-collapse" open>
+  <summary>タスク追加</summary>
 
-        <input
-          type="text"
-          id="taskTitleInput"
-          placeholder="やること"
-        />
+  <input
+    type="text"
+    id="taskTitleInput"
+    placeholder="やること"
+  />
 
-        <textarea
-          id="taskMemoInput"
-          placeholder="補足メモ"
-        ></textarea>
+  <textarea
+    id="taskMemoInput"
+    placeholder="補足メモ"
+  ></textarea>
 
-        <div class="task-form-row">
-          <input
-            type="date"
-            id="taskDueInput"
-          />
+  <div class="task-form-row">
+    <input
+      type="date"
+      id="taskDueInput"
+    />
 
-          <input
-            type="text"
-            id="taskCategoryInput"
-            placeholder="カテゴリ"
-          />
+    <input
+      type="text"
+      id="taskCategoryInput"
+      placeholder="カテゴリ"
+    />
 
-          <select id="taskGroupSelect">
-            <option value="">グループなし</option>
-          </select>
-        </div>
+    <select id="taskGroupSelect">
+      <option value="">グループなし</option>
+    </select>
+  </div>
 
-        <button id="addTaskBtn">追加</button>
-        <p id="taskStatusText">ログインしてください</p>
-      </section>
+  <button id="addTaskBtn">追加</button>
+  <p id="taskStatusText">ログインしてください</p>
+</details>
     </aside>
 
     <section class="task-list-panel">
