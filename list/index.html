@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>リストメモ | notia</title>
+
+  <meta
+    name="description"
+    content="お題に対して、思いついたものを付箋みたいに集められるnotiaのリストメモです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+</head>
+
+<body>
+  <div id="commonHeader"></div>
+  <script type="module" src="/header.js"></script>
+
+  <header class="site-header">
+    <div>
+      <p class="label">LIST MEMO</p>
+      <h1>リストメモ</h1>
+      <p class="lead">
+        お題に対して、思いついたものを付箋みたいに集めるメモ。
+      </p>
+    </div>
+
+    <div class="auth-area">
+      <a href="/home/" class="back-link">Homeへ</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container listmemo-layout">
+    <section class="listmemo-create-panel">
+      <details class="listmemo-collapse" open>
+        <summary>リストを作る</summary>
+
+        <input
+          type="text"
+          id="listTitleInput"
+          placeholder="例：好きな飲み物"
+        />
+
+        <textarea
+          id="listDescriptionInput"
+          placeholder="説明・メモなど 任意"
+        ></textarea>
+
+        <button id="addListBtn">追加</button>
+        <p id="listStatusText">ログインしてください</p>
+      </details>
+    </section>
+
+    <section class="listmemo-main-panel">
+      <div class="listmemo-toolbar">
+        <input
+          type="text"
+          id="listSearchInput"
+          placeholder="リストや項目を検索"
+        />
+      </div>
+
+      <div id="listMemoList" class="listmemo-grid"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/list.js"></script>
+</body>
+</html>
