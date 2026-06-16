@@ -5266,3 +5266,19 @@ body.modal-open {
   background: #6d5a46;
   transition: width 0.2s ease;
 }
+
+.task-edit-btn {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #6d5a46;
+  color: #fffaf3;
+  font-weight: 800;
+}
+
+.task-edit-btn,
+.task-delete-btn {
+  grid-column: 2;
+  justify-self: start;
+}
+
+
