@@ -5282,3 +5282,53 @@ body.modal-open {
 }
 
 
+.task-edit-form {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #f7f0e8;
+  border: 1px dashed #d8c8b6;
+}
+
+.task-edit-form input,
+.task-edit-form textarea,
+.task-edit-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d8c8b6;
+  border-radius: 12px;
+  background: #fff;
+  color: #2c2823;
+}
+
+.task-edit-form textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.task-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-edit-save-btn,
+.task-edit-cancel-btn {
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.task-edit-save-btn {
+  background: #2f2924;
+  color: #fffaf3;
+}
+
+.task-edit-cancel-btn {
+  background: #d8c8b6;
+  color: #2f2924;
+}
