@@ -71,6 +71,42 @@
     </section>
   </main>
 
+  <div id="listEditModal" class="listmemo-modal hidden">
+  <div class="listmemo-modal-bg" id="listEditModalBg"></div>
+
+  <div class="listmemo-modal-box">
+    <h2>リスト編集</h2>
+
+    <input
+      type="text"
+      id="editListTitleInput"
+      placeholder="お題"
+    />
+
+    <textarea
+      id="editListDescriptionInput"
+      placeholder="説明・メモなど"
+    ></textarea>
+
+    <div class="listmemo-modal-add">
+      <input
+        type="text"
+        id="editListItemInput"
+        placeholder="項目を追加"
+      />
+      <button id="addListItemModalBtn" type="button">＋</button>
+    </div>
+
+    <div id="editListItems" class="listmemo-modal-items"></div>
+
+    <div class="listmemo-modal-actions">
+      <button id="saveListEditBtn">保存</button>
+      <button id="deleteListEditBtn" type="button">リスト削除</button>
+      <button id="cancelListEditBtn" type="button">キャンセル</button>
+    </div>
+  </div>
+</div>
+
   <script type="module" src="/list.js"></script>
 </body>
 </html>
