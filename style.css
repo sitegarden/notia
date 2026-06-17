@@ -5925,3 +5925,154 @@ body.modal-open {
     padding: 14px;
   }
 }
+
+.listmemo-card-actions {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.listmemo-edit-btn {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #6d5a46;
+  color: #fffaf3;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.listmemo-modal.hidden {
+  display: none;
+}
+
+.listmemo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.listmemo-modal-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(47, 41, 36, 0.45);
+}
+
+.listmemo-modal-box {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: min(760px, 90vh);
+  overflow: auto;
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 24px;
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+  box-shadow: 0 20px 60px rgba(54, 43, 32, 0.25);
+}
+
+.listmemo-modal-box h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.listmemo-modal-box input,
+.listmemo-modal-box textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d8c8b6;
+  border-radius: 14px;
+  background: #fff;
+  color: #2c2823;
+}
+
+.listmemo-modal-box textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.listmemo-modal-add {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+#addListItemModalBtn {
+  width: 44px;
+  border-radius: 14px;
+  background: #6d5a46;
+  color: #fffaf3;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.listmemo-modal-items {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border-radius: 16px;
+  background: #f7f0e8;
+  border: 1px dashed #d8c8b6;
+}
+
+.listmemo-modal-item-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #fffaf3;
+  border: 1px solid #e6d9c9;
+}
+
+.listmemo-modal-item-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 800;
+}
+
+.listmemo-modal-item-row button {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(139, 58, 53, 0.12);
+  color: #8b3a35;
+  font-weight: 900;
+}
+
+.listmemo-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+#saveListEditBtn,
+#deleteListEditBtn,
+#cancelListEditBtn {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 900;
+}
+
+#saveListEditBtn {
+  background: #2f2924;
+  color: #fffaf3;
+}
+
+#deleteListEditBtn {
+  background: #8b3a35;
+  color: #fffaf3;
+}
+
+#cancelListEditBtn {
+  background: #d8c8b6;
+  color: #2f2924;
+}
