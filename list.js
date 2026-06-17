@@ -32,6 +32,22 @@ const listStatusText = document.getElementById("listStatusText");
 const listSearchInput = document.getElementById("listSearchInput");
 const listMemoList = document.getElementById("listMemoList");
 
+const listEditModal = document.getElementById("listEditModal");
+const listEditModalBg = document.getElementById("listEditModalBg");
+
+const editListTitleInput = document.getElementById("editListTitleInput");
+const editListDescriptionInput = document.getElementById("editListDescriptionInput");
+const editListItemInput = document.getElementById("editListItemInput");
+const editListItems = document.getElementById("editListItems");
+
+const addListItemModalBtn = document.getElementById("addListItemModalBtn");
+const saveListEditBtn = document.getElementById("saveListEditBtn");
+const deleteListEditBtn = document.getElementById("deleteListEditBtn");
+const cancelListEditBtn = document.getElementById("cancelListEditBtn");
+
+let editingListId = null;
+let editingItems = [];
+
 let currentUser = null;
 let listMemos = [];
 
@@ -227,12 +243,26 @@ function createListMemoCard(memo) {
     titleWrap.appendChild(description);
   }
 
+  const headerActions = document.createElement("div");
+  headerActions.className = "listmemo-card-actions";
+
   const count = document.createElement("span");
   count.className = "listmemo-count";
   count.textContent = `${memo.items.length}個`;
 
+  const editBtn = document.createElement("button");
+  editBtn.className = "listmemo-edit-btn";
+  editBtn.type = "button";
+  editBtn.textContent = "編集";
+  editBtn.addEventListener("click", () => {
+    openListEditModal(memo);
+  });
+
+  headerActions.appendChild(count);
+  headerActions.appendChild(editBtn);
+
   header.appendChild(titleWrap);
-  header.appendChild(count);
+  header.appendChild(headerActions);
 
   const items = document.createElement("div");
   items.className = "listmemo-items";
@@ -243,73 +273,76 @@ function createListMemoCard(memo) {
     empty.textContent = "まだ項目がありません";
     items.appendChild(empty);
   } else {
-    memo.items.forEach((itemText, index) => {
-      const item = document.createElement("button");
+    memo.items.forEach((itemText) => {
+      const item = document.createElement("span");
       item.className = "listmemo-item";
-      item.type = "button";
       item.textContent = itemText;
-      item.title = "クリックで削除";
-
-      item.addEventListener("click", async () => {
-        await deleteListItem(memo, index);
-      });
-
       items.appendChild(item);
     });
   }
 
-  const addArea = document.createElement("div");
-  addArea.className = "listmemo-add-area";
-
-  const itemInput = document.createElement("input");
-  itemInput.type = "text";
-  itemInput.placeholder = "項目を追加";
-
-  const itemAddBtn = document.createElement("button");
-  itemAddBtn.type = "button";
-  itemAddBtn.textContent = "＋";
-
-  itemAddBtn.addEventListener("click", async () => {
-    await addListItem(memo, itemInput);
-  });
-
-  itemInput.addEventListener("keydown", async (event) => {
-    if (event.key === "Enter") {
-      await addListItem(memo, itemInput);
-    }
-  });
-
-  addArea.appendChild(itemInput);
-  addArea.appendChild(itemAddBtn);
-
-  const actions = document.createElement("div");
-  actions.className = "listmemo-actions";
-
-  const deleteBtn = document.createElement("button");
-  deleteBtn.className = "listmemo-delete-btn";
-  deleteBtn.type = "button";
-  deleteBtn.textContent = "リスト削除";
-
-  deleteBtn.addEventListener("click", async () => {
-    await deleteListMemo(memo.id);
-  });
-
-  actions.appendChild(deleteBtn);
-
   card.appendChild(header);
   card.appendChild(items);
-  card.appendChild(addArea);
-  card.appendChild(actions);
 
   return card;
 }
 
-/* item */
+function openListEditModal(memo) {
+  editingListId = memo.id;
+  editingItems = [...memo.items];
 
-async function addListItem(memo, input) {
-  if (!currentUser) return;
+  editListTitleInput.value = memo.title || "";
+  editListDescriptionInput.value = memo.description || "";
+  editListItemInput.value = "";
 
-  const text = input.value.trim();
+  renderEditingItems();
+
+  listEditModal.classList.remove("hidden");
+}
+
+function closeListEditModal() {
+  editingListId = null;
+  editingItems = [];
+  listEditModal.classList.add("hidden");
+}
+
+function renderEditingItems() {
+  editListItems.innerHTML = "";
+
+  if (editingItems.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "listmemo-item-empty";
+    empty.textContent = "まだ項目がありません";
+    editListItems.appendChild(empty);
+    return;
+  }
+
+  editingItems.forEach((itemText, index) => {
+    const row = document.createElement("div");
+    row.className = "listmemo-modal-item-row";
+
+    const text = document.createElement("span");
+    text.textContent = itemText;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "×";
+    deleteBtn.title = "項目を削除";
+
+    deleteBtn.addEventListener("click", () => {
+      editingItems = editingItems.filter((_, itemIndex) => itemIndex !== index);
+      renderEditingItems();
+    });
+
+    row.appendChild(text);
+    row.appendChild(deleteBtn);
+
+    editListItems.appendChild(row);
+  });
+}
+
+function addEditingItem() {
+  const text = editListItemInput.value.trim();
 
   if (!text) {
     alert("項目を入力してください");
@@ -321,66 +354,91 @@ async function addListItem(memo, input) {
     return;
   }
 
-  if (!isAdmin(currentUser) && memo.items.length >= ITEM_LIMIT) {
+  if (!isAdmin(currentUser) && editingItems.length >= ITEM_LIMIT) {
     alert(`項目は1リストにつき${ITEM_LIMIT}個までです`);
     return;
   }
 
-  const nextItems = [...memo.items, text];
+  editingItems.push(text);
+  editListItemInput.value = "";
+  renderEditingItems();
+}
+
+/* search */
+
+addListItemModalBtn.addEventListener("click", () => {
+  addEditingItem();
+});
+
+editListItemInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    addEditingItem();
+  }
+});
+
+saveListEditBtn.addEventListener("click", async () => {
+  if (!currentUser || !editingListId) return;
+
+  const title = editListTitleInput.value.trim();
+  const description = editListDescriptionInput.value.trim();
+
+  if (!title) {
+    alert("お題を入力してください");
+    return;
+  }
+
+  if (!isAdmin(currentUser) && title.length > LIST_TITLE_LIMIT) {
+    alert(`お題は${LIST_TITLE_LIMIT}文字までです`);
+    return;
+  }
+
+  if (!isAdmin(currentUser) && description.length > LIST_DESCRIPTION_LIMIT) {
+    alert(`説明は${LIST_DESCRIPTION_LIMIT}文字までです`);
+    return;
+  }
 
   try {
-    await updateDoc(doc(db, "listMemos", memo.id), {
-      items: nextItems,
+    await updateDoc(doc(db, "listMemos", editingListId), {
+      title,
+      description,
+      items: editingItems,
       updatedAt: serverTimestamp()
     });
 
-    input.value = "";
-    listStatusText.textContent = "項目を追加しました";
+    listStatusText.textContent = "リストを編集しました";
+    closeListEditModal();
     await loadListMemos();
   } catch (error) {
     console.error(error);
-    alert("項目追加に失敗しました");
+    alert("リスト編集に失敗しました");
   }
-}
+});
 
-async function deleteListItem(memo, index) {
-  const ok = confirm("この項目を削除しますか？");
-  if (!ok) return;
+deleteListEditBtn.addEventListener("click", async () => {
+  if (!currentUser || !editingListId) return;
 
-  const nextItems = memo.items.filter((_, itemIndex) => itemIndex !== index);
-
-  try {
-    await updateDoc(doc(db, "listMemos", memo.id), {
-      items: nextItems,
-      updatedAt: serverTimestamp()
-    });
-
-    listStatusText.textContent = "項目を削除しました";
-    await loadListMemos();
-  } catch (error) {
-    console.error(error);
-    alert("項目削除に失敗しました");
-  }
-}
-
-/* delete list */
-
-async function deleteListMemo(listId) {
   const ok = confirm("このリストを削除しますか？");
   if (!ok) return;
 
   try {
-    await deleteDoc(doc(db, "listMemos", listId));
+    await deleteDoc(doc(db, "listMemos", editingListId));
 
     listStatusText.textContent = "リストを削除しました";
+    closeListEditModal();
     await loadListMemos();
   } catch (error) {
     console.error(error);
     alert("リスト削除に失敗しました");
   }
-}
+});
 
-/* search */
+cancelListEditBtn.addEventListener("click", () => {
+  closeListEditModal();
+});
+
+listEditModalBg.addEventListener("click", () => {
+  closeListEditModal();
+});
 
 listSearchInput.addEventListener("input", () => {
   renderListMemos();
