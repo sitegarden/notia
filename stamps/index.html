@@ -150,6 +150,28 @@
     </section>
   </main>
 
+  <div id="stampPreviewModal" class="stamp-preview-modal hidden">
+  <div class="stamp-preview-backdrop" id="stampPreviewBackdrop"></div>
+
+  <section class="stamp-preview-box">
+    <button id="closeStampPreviewBtn" class="stamp-preview-close" type="button">×</button>
+
+    <div class="stamp-preview-head">
+      <div>
+        <p class="label">STAMP PREVIEW</p>
+        <h2 id="previewPackTitle">スタンプ集</h2>
+        <p id="previewPackMeta"></p>
+      </div>
+
+      <span id="previewPackStatus" class="stamp-status-badge">制作中</span>
+    </div>
+
+    <p id="previewPackMemo" class="stamp-preview-memo"></p>
+
+    <div id="previewStampGrid" class="stamp-preview-grid"></div>
+  </section>
+</div>
+
   <script type="module" src="/header.js"></script>
   <script type="module" src="/stamp.js"></script>
 </body>
