@@ -60,13 +60,23 @@ const stampSearchInput = document.getElementById("stampSearchInput");
 const stampStatusFilter = document.getElementById("stampStatusFilter");
 const stampPackList = document.getElementById("stampPackList");
 
+const stampPreviewModal = document.getElementById("stampPreviewModal");
+const stampPreviewBackdrop = document.getElementById("stampPreviewBackdrop");
+const closeStampPreviewBtn = document.getElementById("closeStampPreviewBtn");
+const previewPackTitle = document.getElementById("previewPackTitle");
+const previewPackMeta = document.getElementById("previewPackMeta");
+const previewPackStatus = document.getElementById("previewPackStatus");
+const previewPackMemo = document.getElementById("previewPackMemo");
+const previewStampGrid = document.getElementById("previewStampGrid");
+
 [
   loginBtn,
   logoutBtn,
   newStampPackBtn,
   saveStampPackBtn,
   deleteStampPackBtn,
-  reloadStampPacksBtn
+  reloadStampPacksBtn,
+  closeStampPreviewBtn
 ].forEach((btn) => {
   if (btn) btn.type = "button";
 });
@@ -376,6 +386,17 @@ function renderPacks() {
           <p class="stamp-date">
             ${updated ? `更新：${updated}` : created ? `作成：${created}` : ""}
           </p>
+
+<div class="stamp-card-actions">
+  <button type="button" class="small-btn preview-pack-btn" data-preview-id="${pack.id}">
+    プレビュー
+  </button>
+  <button type="button" class="small-btn edit-pack-btn" data-edit-id="${pack.id}">
+    編集
+  </button>
+</div>
+
+          
         </div>
       </article>
     `;
@@ -442,6 +463,49 @@ function editPack(packId) {
   renderDraftList();
   setStatus("編集中");
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openStampPreview(packId) {
+  const pack = stampPacks.find((item) => item.id === packId);
+  if (!pack) return;
+
+  previewPackTitle.textContent = pack.title || "無題のスタンプ";
+  previewPackStatus.textContent = pack.status || "制作中";
+
+  const stickerCount = pack.stickers?.length || 0;
+
+  previewPackMeta.textContent = [
+    pack.character || "キャラ未設定",
+    `${stickerCount}枚`
+  ].join(" / ");
+
+  previewPackMemo.textContent = pack.memo || "";
+
+  const stickers = pack.stickers || [];
+
+  if (!stickers.length) {
+    previewStampGrid.innerHTML = `<p class="empty-text">スタンプ画像がありません。</p>`;
+  } else {
+    previewStampGrid.innerHTML = stickers.map((sticker, index) => `
+      <article class="stamp-preview-item">
+        <div class="stamp-preview-image">
+          <img src="${escapeHtml(sticker.url)}" alt="${escapeHtml(sticker.text || `スタンプ${index + 1}`)}" />
+        </div>
+
+        <p>
+          ${escapeHtml(sticker.text || `スタンプ ${index + 1}`)}
+        </p>
+      </article>
+    `).join("");
+  }
+
+  stampPreviewModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+function closeStampPreview() {
+  stampPreviewModal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
 }
 
 async function saveStampPack() {
@@ -662,11 +726,35 @@ stampDraftList.addEventListener("click", async (event) => {
   }
 });
 
-stampPackList.addEventListener("click", (event) => {
-  const card = event.target.closest(".stamp-pack-card");
-  if (!card) return;
+closeStampPreviewBtn.addEventListener("click", closeStampPreview);
+stampPreviewBackdrop.addEventListener("click", closeStampPreview);
 
-  editPack(card.dataset.id);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeStampPreview();
+  }
+});
+
+stampPackList.addEventListener("click", (event) => {
+  const editBtn = event.target.closest("[data-edit-id]");
+  const previewBtn = event.target.closest("[data-preview-id]");
+  const card = event.target.closest(".stamp-pack-card");
+
+  if (editBtn) {
+    event.stopPropagation();
+    editPack(editBtn.dataset.editId);
+    return;
+  }
+
+  if (previewBtn) {
+    event.stopPropagation();
+    openStampPreview(previewBtn.dataset.previewId);
+    return;
+  }
+
+  if (card) {
+    openStampPreview(card.dataset.id);
+  }
 });
 
 stampSearchInput.addEventListener("input", renderPacks);
