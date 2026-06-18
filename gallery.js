@@ -116,14 +116,13 @@ const COLLECTION_TYPES = [
   "AI資料",
   "画像",
   "友人のイラスト",
-  "ゲーム",
   "スクリーンショット",
   "その他"
 ];
 
 const SOURCE_TYPES = [
   "絵チャ",
-  "ゲーム",
+  "OCFAゲーム",
   "DrawMe",
   "オープンチャット",
   "パロコラ",
@@ -529,6 +528,7 @@ function renderCollections() {
   const authorFilter = galleryAuthorFilter?.value || "all";
   const genreFilter = galleryGenreFilter?.value || "all";
   const personFilter = galleryPersonFilter?.value || "all";
+  const sourceTypeFilter = gallerySourceTypeFilter?.value || "all";
 
   const filtered = galleryCollections.filter((item) => {
    const joined = [
@@ -556,8 +556,6 @@ function renderCollections() {
     
     const matchSearch = !searchText || joined.includes(searchText);
     const matchType = typeFilter === "all" || item.type === typeFilter;
-
-    const sourceTypeFilter = gallerySourceTypeFilter?.value || "all";
 
     const matchSourceType =
   sourceTypeFilter === "all" ||
@@ -1143,9 +1141,11 @@ onAuthStateChanged(auth, async (user) => {
 
     people = [];
 galleryCollections = [];
+
 updatePersonOptions();
-renderCollections();
+updateGenreFilterOptions();
 resetForm();
+renderCollections();
   }
 });
 
