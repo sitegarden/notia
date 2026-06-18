@@ -254,6 +254,7 @@ copyMarkdownBtn.addEventListener("click", async () => {
 });
 
 reloadImageMemosBtn.addEventListener("click", async () => {
+  await loadPeople();
   await loadImageMemos();
 });
 
@@ -1159,18 +1160,27 @@ function openImageDetailModal(item) {
 
   modalTags.innerHTML = "";
 
-  const tags = splitTags(item.tags);
-  if (tags.length) {
-    tags.forEach((tag) => {
-      const span = document.createElement("span");
-      span.textContent = tag;
-      modalTags.appendChild(span);
-    });
-  } else {
+ const normalTags = splitTags(item.tags);
+const personNames = getPersonNames(item.personIds);
+
+if (normalTags.length || personNames.length) {
+  normalTags.forEach((tag) => {
     const span = document.createElement("span");
-    span.textContent = "タグなし";
+    span.textContent = tag;
     modalTags.appendChild(span);
-  }
+  });
+
+  personNames.forEach((name) => {
+    const span = document.createElement("span");
+    span.className = "person-tag";
+    span.textContent = `👤 ${name}`;
+    modalTags.appendChild(span);
+  });
+} else {
+  const span = document.createElement("span");
+  span.textContent = "タグなし";
+  modalTags.appendChild(span);
+}
 
   editBtn.onclick = () => {
     closeImageDetailModal();
