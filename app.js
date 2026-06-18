@@ -6,7 +6,8 @@ import {
 } from "./firebase.js";
 
 import {
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -25,11 +26,15 @@ function isAdmin(user) {
 
 loginBtn.addEventListener("click", async () => {
   try {
-    await signInWithPopup(auth, googleProvider);
+    await signInWithRedirect(auth, googleProvider);
   } catch (error) {
     console.error(error);
     alert("ログインに失敗しました");
   }
+});
+
+getRedirectResult(auth).catch((error) => {
+  console.error(error);
 });
 
 logoutBtn.addEventListener("click", async () => {
@@ -61,6 +66,10 @@ onAuthStateChanged(auth, (user) => {
 
     document.querySelectorAll(".admin-card").forEach((card) => {
       card.classList.add("hidden");
+
+      document.querySelectorAll(".public-card").forEach((card) => {
+  card.classList.add("hidden");
+});
     });
   }
 });
