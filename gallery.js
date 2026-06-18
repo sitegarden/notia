@@ -94,6 +94,23 @@ let existingImages = [];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
+const COLLECTION_TYPES = [
+  "イラスト",
+  "AIアイコン",
+  "絵柄参考",
+  "キャラ",
+  "シリーズ",
+  "資料",
+  "ネタ",
+  "この人のイラスト",
+  "推し絵柄",
+  "背景参考",
+  "表情参考",
+  "ポーズ参考",
+  "色使い参考",
+  "その他"
+];
+
 function setStatus(message) {
   galleryStatus.textContent = message;
 }
@@ -105,6 +122,17 @@ function escapeHtml(text = "") {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function setupTypeOptions() {
+  collectionTypeInput.innerHTML = COLLECTION_TYPES
+    .map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+    .join("");
+
+  galleryTypeFilter.innerHTML = [
+    `<option value="all">すべて</option>`,
+    ...COLLECTION_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+  ].join("");
 }
 
 function formatDate(timestamp) {
@@ -377,7 +405,7 @@ function editCollection(collectionId) {
   editingCollectionId = item.id;
 
   collectionTitleInput.value = item.title || "";
-  collectionTypeInput.value = item.type || "イラスト";
+  collectionTypeInput.value = COLLECTION_TYPES[0] || "その他";
   collectionSourceInput.value = item.source || "";
   collectionTagsInput.value = item.tags || "";
   collectionMemoInput.value = item.memo || "";
@@ -636,6 +664,8 @@ document.addEventListener("keydown", (event) => {
 
 gallerySearchInput.addEventListener("input", renderCollections);
 galleryTypeFilter.addEventListener("change", renderCollections);
+
+setupTypeOptions();
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
