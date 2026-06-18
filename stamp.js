@@ -60,6 +60,23 @@ const stampSearchInput = document.getElementById("stampSearchInput");
 const stampStatusFilter = document.getElementById("stampStatusFilter");
 const stampPackList = document.getElementById("stampPackList");
 
+[
+  loginBtn,
+  logoutBtn,
+  newStampPackBtn,
+  saveStampPackBtn,
+  deleteStampPackBtn,
+  reloadStampPacksBtn
+].forEach((btn) => {
+  if (btn) btn.type = "button";
+});
+
+document.querySelectorAll("form").forEach((form) => {
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+  });
+});
+
 let currentUser = null;
 let editingPackId = null;
 let stampPacks = [];
@@ -664,8 +681,7 @@ onAuthStateChanged(auth, async (user) => {
     userInfo.textContent = user.displayName || user.email || "ログイン中";
 
     saveStampPackBtn.disabled = false;
-    setStatus("保存できます");
-
+    resetForm();
     await loadStampPacks();
   } else {
     loginBtn.classList.remove("hidden");
