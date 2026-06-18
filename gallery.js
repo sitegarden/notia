@@ -41,9 +41,9 @@ const newGalleryBtn = document.getElementById("newGalleryBtn");
 
 const collectionTitleInput = document.getElementById("collectionTitleInput");
 const collectionTypeInput = document.getElementById("collectionTypeInput");
-const collectionSourceInput = document.getElementById("collectionSourceInput");
 const collectionSourceTypeInput = document.getElementById("collectionSourceTypeInput");
-const gallerySourceTypeFilter = document.getElementById("gallerySourceTypeFilter");
+const collectionPersonInput = document.getElementById("collectionPersonInput");
+const collectionAuthorInput = document.getElementById("collectionAuthorInput");
 const collectionTagsInput = document.getElementById("collectionTagsInput");
 const collectionMemoInput = document.getElementById("collectionMemoInput");
 
@@ -58,6 +58,9 @@ const reloadGalleryBtn = document.getElementById("reloadGalleryBtn");
 
 const gallerySearchInput = document.getElementById("gallerySearchInput");
 const galleryTypeFilter = document.getElementById("galleryTypeFilter");
+const gallerySourceTypeFilter = document.getElementById("gallerySourceTypeFilter");
+const galleryPersonFilter = document.getElementById("galleryPersonFilter");
+const galleryAuthorFilter = document.getElementById("galleryAuthorFilter");
 const galleryCollectionList = document.getElementById("galleryCollectionList");
 const loadMoreCollectionsBtn = document.getElementById("loadMoreCollectionsBtn");
 
@@ -70,17 +73,6 @@ const previewGalleryType = document.getElementById("previewGalleryType");
 const previewGalleryMemo = document.getElementById("previewGalleryMemo");
 const previewGalleryGrid = document.getElementById("previewGalleryGrid");
 const loadMorePreviewImagesBtn = document.getElementById("loadMorePreviewImagesBtn");
-
-const collectionPersonInput = document.getElementById("collectionPersonInput");
-const galleryPersonFilter = document.getElementById("galleryPersonFilter");
-
-const collectionAuthorInput = document.getElementById("collectionAuthorInput");
-const collectionGenreInput = document.getElementById("collectionGenreInput");
-
-const galleryAuthorFilter = document.getElementById("galleryAuthorFilter");
-const galleryGenreFilter = document.getElementById("galleryGenreFilter");
-
-
 
 [
   loginBtn,
@@ -184,6 +176,7 @@ function setupTypeOptions() {
 
 function formatDate(timestamp) {
   if (!timestamp?.toDate) return "";
+
   return timestamp.toDate().toLocaleString("ja-JP", {
     year: "numeric",
     month: "2-digit",
@@ -283,15 +276,15 @@ function createPersonSelectHtml(value = "", dataName = "") {
 
 function createAuthorSelectHtml(value = "", dataName = "") {
   return `
-  <select ${dataName} class="gallery-image-author-select">
-    <option value="">画像の作者：なし</option>
-    ${people.map((person) => {
-      const label = getPersonLabel(person);
-      const selected = person.id === value ? "selected" : "";
+    <select ${dataName} class="gallery-image-author-select">
+      <option value="">画像の作者：なし</option>
+      ${people.map((person) => {
+        const label = getPersonLabel(person);
+        const selected = person.id === value ? "selected" : "";
 
-      return `<option value="${escapeHtml(person.id)}" ${selected}>${escapeHtml(label)}</option>`;
-    }).join("")}
-  </select>
+        return `<option value="${escapeHtml(person.id)}" ${selected}>${escapeHtml(label)}</option>`;
+      }).join("")}
+    </select>
   `;
 }
 
@@ -373,14 +366,18 @@ function resetForm() {
   collectionTitleInput.value = "";
   collectionTypeInput.value = COLLECTION_TYPES[0] || "その他";
 
-if (collectionSourceTypeInput) {
-  collectionSourceTypeInput.value = "";
-}
-  
-  collectionSourceInput.value = "";
-  collectionPersonInput.value = "";
-  collectionAuthorInput.value = "";
-  collectionGenreInput.value = "";
+  if (collectionSourceTypeInput) {
+    collectionSourceTypeInput.value = "";
+  }
+
+  if (collectionPersonInput) {
+    collectionPersonInput.value = "";
+  }
+
+  if (collectionAuthorInput) {
+    collectionAuthorInput.value = "";
+  }
+
   collectionTagsInput.value = "";
   collectionMemoInput.value = "";
 
@@ -399,6 +396,7 @@ if (collectionSourceTypeInput) {
 function syncDraftTexts() {
   galleryDraftList.querySelectorAll("[data-draft-index]").forEach((input) => {
     const index = Number(input.dataset.draftIndex);
+
     if (galleryDrafts[index]) {
       galleryDrafts[index].memo = input.value;
     }
@@ -406,6 +404,7 @@ function syncDraftTexts() {
 
   galleryDraftList.querySelectorAll("[data-existing-index]").forEach((input) => {
     const index = Number(input.dataset.existingIndex);
+
     if (existingImages[index]) {
       existingImages[index].memo = input.value;
     }
@@ -413,6 +412,7 @@ function syncDraftTexts() {
 
   galleryDraftList.querySelectorAll("[data-draft-person-index]").forEach((select) => {
     const index = Number(select.dataset.draftPersonIndex);
+
     if (galleryDrafts[index]) {
       galleryDrafts[index].personId = select.value;
     }
@@ -420,26 +420,27 @@ function syncDraftTexts() {
 
   galleryDraftList.querySelectorAll("[data-existing-person-index]").forEach((select) => {
     const index = Number(select.dataset.existingPersonIndex);
+
     if (existingImages[index]) {
       existingImages[index].personId = select.value;
     }
   });
 
   galleryDraftList.querySelectorAll("[data-draft-author-index]").forEach((select) => {
-  const index = Number(select.dataset.draftAuthorIndex);
+    const index = Number(select.dataset.draftAuthorIndex);
 
-  if (galleryDrafts[index]) {
-    galleryDrafts[index].authorId = select.value;
-  }
-});
+    if (galleryDrafts[index]) {
+      galleryDrafts[index].authorId = select.value;
+    }
+  });
 
-galleryDraftList.querySelectorAll("[data-existing-author-index]").forEach((select) => {
-  const index = Number(select.dataset.existingAuthorIndex);
+  galleryDraftList.querySelectorAll("[data-existing-author-index]").forEach((select) => {
+    const index = Number(select.dataset.existingAuthorIndex);
 
-  if (existingImages[index]) {
-    existingImages[index].authorId = select.value;
-  }
-});
+    if (existingImages[index]) {
+      existingImages[index].authorId = select.value;
+    }
+  });
 }
 
 function renderDraftList() {
@@ -508,106 +509,80 @@ function renderDraftList() {
     : `<p class="empty-text">画像を追加するとここに並びます。</p>`;
 }
 
-function updateGenreFilterOptions() {
-  if (!galleryGenreFilter) return;
-
-  const currentValue = galleryGenreFilter.value || "all";
-
-  const genres = Array.from(
-    new Set(
-      galleryCollections
-        .map((item) => item.genre)
-        .filter(Boolean)
-    )
-  ).sort((a, b) => a.localeCompare(b, "ja", { numeric: true }));
-
-  galleryGenreFilter.innerHTML = [
-    `<option value="all">ジャンルすべて</option>`,
-    `<option value="">ジャンルなし</option>`,
-    ...genres.map((genre) => `<option value="${escapeHtml(genre)}">${escapeHtml(genre)}</option>`)
-  ].join("");
-
-  galleryGenreFilter.value =
-    currentValue === "all" ||
-    currentValue === "" ||
-    genres.includes(currentValue)
-      ? currentValue
-      : "all";
-}
-
 function renderCollections() {
   const searchText = gallerySearchInput.value.trim().toLowerCase();
   const typeFilter = galleryTypeFilter.value;
-  const authorFilter = galleryAuthorFilter?.value || "all";
-  const genreFilter = galleryGenreFilter?.value || "all";
-  const personFilter = galleryPersonFilter?.value || "all";
   const sourceTypeFilter = gallerySourceTypeFilter?.value || "all";
+  const personFilter = galleryPersonFilter?.value || "all";
+  const authorFilter = galleryAuthorFilter?.value || "all";
 
   const filtered = galleryCollections.filter((item) => {
-   const joined = [
-  item.title,
-  item.type,
-  item.sourceType,
-  item.source,
-  item.genre,
-  item.personName,
-  item.personNickname,
-  item.authorName,
-  item.authorNickname,
-  item.tags,
-  item.memo,
-  ...(item.images || []).map((image) => [
-    image.memo,
-    image.personName,
-    image.personNickname,
-    image.authorName,
-    image.authorNickname
-  ].join(" "))
-]
-.join(" ")
-.toLowerCase();
-    
+    const joined = [
+      item.title,
+      item.type,
+      item.sourceType,
+      item.personName,
+      item.personNickname,
+      item.authorName,
+      item.authorNickname,
+      item.tags,
+      item.memo,
+      ...(item.images || []).map((image) => [
+        image.memo,
+        image.personName,
+        image.personNickname,
+        image.authorName,
+        image.authorNickname
+      ].join(" "))
+    ]
+      .join(" ")
+      .toLowerCase();
+
     const matchSearch = !searchText || joined.includes(searchText);
-    const matchType = typeFilter === "all" || item.type === typeFilter;
+
+    const matchType =
+      typeFilter === "all" ||
+      item.type === typeFilter;
 
     const matchSourceType =
-  sourceTypeFilter === "all" ||
-  (sourceTypeFilter === "" && !item.sourceType) ||
-  item.sourceType === sourceTypeFilter;
+      sourceTypeFilter === "all" ||
+      (sourceTypeFilter === "" && !item.sourceType) ||
+      item.sourceType === sourceTypeFilter;
 
     const matchPerson =
-  personFilter === "all" ||
-  (personFilter === "" && !item.personId && !(item.images || []).some((image) => image.personId)) ||
-  item.personId === personFilter ||
-  (item.images || []).some((image) => image.personId === personFilter);
+      personFilter === "all" ||
+      (
+        personFilter === "" &&
+        !item.personId &&
+        !(item.images || []).some((image) => image.personId)
+      ) ||
+      item.personId === personFilter ||
+      (item.images || []).some((image) => image.personId === personFilter);
 
     const matchAuthor =
-  authorFilter === "all" ||
-  (authorFilter === "" && !item.authorId && !(item.images || []).some((image) => image.authorId)) ||
-  item.authorId === authorFilter ||
-  (item.images || []).some((image) => image.authorId === authorFilter);
+      authorFilter === "all" ||
+      (
+        authorFilter === "" &&
+        !item.authorId &&
+        !(item.images || []).some((image) => image.authorId)
+      ) ||
+      item.authorId === authorFilter ||
+      (item.images || []).some((image) => image.authorId === authorFilter);
 
-const matchGenre =
-  genreFilter === "all" ||
-  (genreFilter === "" && !item.genre) ||
-  item.genre === genreFilter;
-
-    return matchSearch && matchType && matchSourceType && matchPerson && matchAuthor && matchGenre;
+    return matchSearch && matchType && matchSourceType && matchPerson && matchAuthor;
   });
 
   if (!filtered.length) {
-  galleryCollectionList.innerHTML = `<p class="empty-text">コレクションがありません。</p>`;
+    galleryCollectionList.innerHTML = `<p class="empty-text">コレクションがありません。</p>`;
 
-  if (loadMoreCollectionsBtn) {
-    loadMoreCollectionsBtn.classList.add("hidden");
+    if (loadMoreCollectionsBtn) {
+      loadMoreCollectionsBtn.classList.add("hidden");
+    }
+
+    return;
   }
 
-  return;
-}
-
-const visibleItems = filtered.slice(0, visibleCollectionCount);
-
-  
+  const visibleItems = filtered.slice(0, visibleCollectionCount);
 
   galleryCollectionList.innerHTML = visibleItems.map((item) => {
     const mainUrl = item.images?.[0]?.url || "";
@@ -615,46 +590,43 @@ const visibleItems = filtered.slice(0, visibleCollectionCount);
     const created = formatDate(item.createdAt);
     const updated = formatDate(item.updatedAt);
 
-    
-
     return `
       <article class="gallery-collection-card" data-id="${item.id}">
         <div class="gallery-collection-thumb">
           ${
             mainUrl
-              ? `<img src="${escapeHtml(mainUrl)}" alt="${escapeHtml(item.title)}" />`
+              ? `<img src="${escapeHtml(mainUrl)}" alt="${escapeHtml(item.title || "")}" />`
               : `<span>NO IMAGE</span>`
           }
         </div>
 
         <div class="gallery-collection-body">
+          ${
+            item.personName
+              ? `<div class="gallery-linked-person">
+                  ${
+                    item.personIconUrl
+                      ? `<img src="${escapeHtml(item.personIconUrl)}" alt="${escapeHtml(item.personName)}" />`
+                      : `<span>${escapeHtml(item.personName.slice(0, 1))}</span>`
+                  }
+                  <p>${escapeHtml(item.personName)}</p>
+                </div>`
+              : ""
+          }
 
-${
-  item.personName
-    ? `<div class="gallery-linked-person">
-        ${
-          item.personIconUrl
-            ? `<img src="${escapeHtml(item.personIconUrl)}" alt="${escapeHtml(item.personName)}" />`
-            : `<span>${escapeHtml(item.personName.slice(0, 1))}</span>`
-        }
-        <p>${escapeHtml(item.personName)}</p>
-      </div>`
-    : ""
-}
-        
           <div class="gallery-title-row">
             <h3>${escapeHtml(item.title || "無題のコレクション")}</h3>
-            <span class="gallery-type-badge">${escapeHtml(item.type || "イラスト")}</span>
+            <span class="gallery-type-badge">${escapeHtml(item.type || "種類なし")}</span>
           </div>
 
           <p class="gallery-meta">
-  ${escapeHtml(item.type || "種類なし")} / 
-  ${escapeHtml(item.sourceType || "入手元なし")} / 
-  ${escapeHtml(item.genre || "ジャンルなし")} / 
-  ${escapeHtml(item.personName || "人物なし")} / 
-  ${escapeHtml(item.authorName || item.source || "作者・出典未設定")} / 
-  ${imageCount}枚
-</p>
+            ${escapeHtml(item.type || "種類なし")} /
+            ${escapeHtml(item.sourceType || "入手元なし")} /
+            ${escapeHtml(item.personName || "人物なし")} /
+            ${escapeHtml(item.authorName || "作者未設定")} /
+            ${imageCount}枚
+          </p>
+
           ${
             item.tags
               ? `<p class="gallery-tags">${escapeHtml(item.tags)}</p>`
@@ -691,18 +663,18 @@ ${
       </article>
     `;
   }).join("");
+
   if (loadMoreCollectionsBtn) {
-  if (visibleCollectionCount < filtered.length) {
-    loadMoreCollectionsBtn.classList.remove("hidden");
-    loadMoreCollectionsBtn.textContent = `もっと見る（${filtered.length - visibleCollectionCount}件）`;
-  } else {
-    loadMoreCollectionsBtn.classList.add("hidden");
+    if (visibleCollectionCount < filtered.length) {
+      loadMoreCollectionsBtn.classList.remove("hidden");
+      loadMoreCollectionsBtn.textContent = `もっと見る（${filtered.length - visibleCollectionCount}件）`;
+    } else {
+      loadMoreCollectionsBtn.classList.add("hidden");
+    }
   }
-}
 }
 
 async function loadPeopleForGallery() {
-  
   if (!currentUser) {
     people = [];
     updatePersonOptions();
@@ -752,14 +724,12 @@ function resetCollectionPaging() {
 }
 
 async function loadGalleryCollections() {
-  
   if (!currentUser) {
-  galleryCollections = [];
-  visibleCollectionCount = COLLECTION_PAGE_SIZE;
-  updateGenreFilterOptions();
-  renderCollections();
-  return;
-}
+    galleryCollections = [];
+    visibleCollectionCount = COLLECTION_PAGE_SIZE;
+    renderCollections();
+    return;
+  }
 
   setStatus("読み込み中...");
 
@@ -782,12 +752,9 @@ async function loadGalleryCollections() {
         return bTime - aTime;
       });
 
-    
-
     visibleCollectionCount = COLLECTION_PAGE_SIZE;
-updateGenreFilterOptions();
-renderCollections();
-    
+    renderCollections();
+
     setStatus("読み込み完了");
   } catch (error) {
     console.error("読み込みエラー:", error);
@@ -804,14 +771,18 @@ function editCollection(collectionId) {
   collectionTitleInput.value = item.title || "";
   collectionTypeInput.value = item.type || COLLECTION_TYPES[0] || "その他";
 
-if (collectionSourceTypeInput) {
-  collectionSourceTypeInput.value = item.sourceType || "";
-}
-  
-  collectionSourceInput.value = item.source || "";
-  collectionPersonInput.value = item.personId || "";
-  collectionAuthorInput.value = item.authorId || "";
-  collectionGenreInput.value = item.genre || "";
+  if (collectionSourceTypeInput) {
+    collectionSourceTypeInput.value = item.sourceType || "";
+  }
+
+  if (collectionPersonInput) {
+    collectionPersonInput.value = item.personId || "";
+  }
+
+  if (collectionAuthorInput) {
+    collectionAuthorInput.value = item.authorId || "";
+  }
+
   collectionTagsInput.value = item.tags || "";
   collectionMemoInput.value = item.memo || "";
 
@@ -908,9 +879,8 @@ function openGalleryPreview(collectionId) {
   previewGalleryMeta.textContent = [
     item.type ? `種類：${item.type}` : "種類なし",
     item.sourceType ? `入手元：${item.sourceType}` : "入手元なし",
-    item.genre ? `ジャンル：${item.genre}` : "ジャンルなし",
     item.personName ? `人物：${item.personName}` : "人物なし",
-    item.authorName ? `作者：${item.authorName}` : item.source || "作者・出典未設定",
+    item.authorName ? `作者：${item.authorName}` : "作者未設定",
     `${imageCount}枚`
   ].join(" / ");
 
@@ -944,7 +914,6 @@ async function saveGalleryCollection() {
 
   const title = collectionTitleInput.value.trim();
   const type = collectionTypeInput.value;
-  const source = collectionSourceInput.value.trim();
   const sourceType = collectionSourceTypeInput?.value || "";
 
   const collectionPersonId = collectionPersonInput?.value || "";
@@ -953,7 +922,6 @@ async function saveGalleryCollection() {
   const collectionAuthorId = collectionAuthorInput?.value || "";
   const collectionAuthorData = getAuthorData(collectionAuthorId);
 
-  const genre = collectionGenreInput.value.trim();
   const tags = collectionTagsInput.value.trim();
   const memo = collectionMemoInput.value.trim();
 
@@ -1006,7 +974,6 @@ async function saveGalleryCollection() {
       title,
       type,
       sourceType,
-      source,
 
       personId: collectionPersonData.personId,
       personName: collectionPersonData.personName,
@@ -1018,7 +985,6 @@ async function saveGalleryCollection() {
       authorNickname: collectionAuthorData.authorNickname,
       authorIconUrl: collectionAuthorData.authorIconUrl,
 
-      genre,
       tags,
       memo,
       images,
@@ -1093,14 +1059,14 @@ galleryImagesInput.addEventListener("change", () => {
   const files = Array.from(galleryImagesInput.files || []);
   const validFiles = files.filter(validateFile);
 
- galleryDrafts.push(
-  ...validFiles.map((file) => ({
-  file,
-  memo: "",
-  personId: "",
-  authorId: ""
-}))
-);
+  galleryDrafts.push(
+    ...validFiles.map((file) => ({
+      file,
+      memo: "",
+      personId: "",
+      authorId: ""
+    }))
+  );
 
   gallerySelectedText.textContent = validFiles.length
     ? `${validFiles.length}枚追加しました。`
@@ -1177,55 +1143,16 @@ galleryTypeFilter.addEventListener("change", resetCollectionPaging);
 gallerySourceTypeFilter?.addEventListener("change", resetCollectionPaging);
 galleryPersonFilter?.addEventListener("change", resetCollectionPaging);
 galleryAuthorFilter?.addEventListener("change", resetCollectionPaging);
-galleryGenreFilter?.addEventListener("change", resetCollectionPaging);
+
+collectionSourceTypeInput?.addEventListener("change", () => {
+  setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
+});
 
 collectionPersonInput?.addEventListener("change", () => {
   setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
 });
+
 collectionAuthorInput?.addEventListener("change", () => {
-  setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
-});
-
-collectionGenreInput?.addEventListener("input", () => {
-  setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
-});
-
-
-setupTypeOptions();
-
-onAuthStateChanged(auth, async (user) => {
-  currentUser = user;
-
-  if (user) {
-  loginBtn.classList.add("hidden");
-  logoutBtn.classList.remove("hidden");
-  userInfo.textContent = user.displayName || user.email || "ログイン中";
-
-  saveGalleryBtn.disabled = false;
-
-  await loadPeopleForGallery();
-  resetForm();
-  await loadGalleryCollections();
-} else {
-    loginBtn.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
-    userInfo.textContent = "";
-
-    saveGalleryBtn.disabled = true;
-    deleteGalleryBtn.classList.add("hidden");
-
-    people = [];
-galleryCollections = [];
-
-updatePersonOptions();
-updateGenreFilterOptions();
-resetForm();
-visibleCollectionCount = COLLECTION_PAGE_SIZE;
-renderCollections();
-  }
-});
-
-collectionSourceTypeInput?.addEventListener("change", () => {
   setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
 });
 
@@ -1237,4 +1164,37 @@ loadMoreCollectionsBtn?.addEventListener("click", () => {
 loadMorePreviewImagesBtn?.addEventListener("click", () => {
   visiblePreviewImageCount += PREVIEW_IMAGE_PAGE_SIZE;
   renderPreviewImages();
+});
+
+setupTypeOptions();
+
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+
+  if (user) {
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
+    userInfo.textContent = user.displayName || user.email || "ログイン中";
+
+    saveGalleryBtn.disabled = false;
+
+    await loadPeopleForGallery();
+    resetForm();
+    await loadGalleryCollections();
+  } else {
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+    userInfo.textContent = "";
+
+    saveGalleryBtn.disabled = true;
+    deleteGalleryBtn.classList.add("hidden");
+
+    people = [];
+    galleryCollections = [];
+    visibleCollectionCount = COLLECTION_PAGE_SIZE;
+
+    updatePersonOptions();
+    resetForm();
+    renderCollections();
+  }
 });
