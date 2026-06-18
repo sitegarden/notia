@@ -7230,3 +7230,21 @@ body.modal-open {
 .gallery-filters {
   grid-template-columns: minmax(0, 1fr) 130px 130px 130px 130px 130px;
 }
+
+#loadMorePreviewImagesBtn {
+  display: block;
+  width: min(320px, 100%);
+  min-height: 44px;
+  margin: 20px auto 0;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: #2f2924;
+  color: #fffaf3;
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(64, 50, 32, 0.12);
+}
+
+#loadMorePreviewImagesBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(64, 50, 32, 0.16);
+}
