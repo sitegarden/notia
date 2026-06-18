@@ -7522,3 +7522,92 @@ body.modal-open {
   object-position: center center;
   display: block;
 }
+
+/* ==============================
+   Gallery / square image hard fix
+============================== */
+
+/* 一覧カードのサムネ枠を完全に1:1固定 */
+.gallery-collection-thumb {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  display: block !important;
+  overflow: hidden !important;
+  background: #f7f3ec;
+}
+
+/* 一覧カードの画像を枠いっぱいに */
+.gallery-collection-thumb img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+/* NO IMAGE用 */
+.gallery-collection-thumb span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* カード内ミニ画像も1:1固定 */
+.gallery-mini {
+  width: 100%;
+  aspect-ratio: 1 / 1 !important;
+  overflow: hidden;
+}
+
+.gallery-mini img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+/* プレビューは切らずに見せる */
+.gallery-preview-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+  columns: initial !important;
+  column-gap: initial !important;
+}
+
+.gallery-preview-item {
+  margin: 0 !important;
+  break-inside: auto !important;
+}
+
+.gallery-preview-image {
+  width: 100%;
+  aspect-ratio: 1 / 1 !important;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f7f3ec;
+}
+
+.gallery-preview-image img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+
+@media (max-width: 560px) {
+  .gallery-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
