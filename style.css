@@ -6922,3 +6922,49 @@ body.modal-open {
     border-radius: 18px;
   }
 }
+
+.gallery-draft-fields {
+  display: grid;
+  gap: 8px;
+}
+
+.gallery-image-person-select {
+  width: 100%;
+  margin: 0;
+  font-size: 13px;
+}
+
+.gallery-linked-person,
+.gallery-image-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(244, 250, 255, 0.95);
+  border: 1px solid rgba(70, 58, 40, 0.1);
+}
+
+.gallery-linked-person img,
+.gallery-linked-person span,
+.gallery-image-person img,
+.gallery-image-person span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #fff;
+  object-fit: cover;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.gallery-linked-person p,
+.gallery-image-person p {
+  margin: 0;
+  color: #5d554b;
+  font-size: 13px;
+  font-weight: 800;
+}
