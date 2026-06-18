@@ -78,6 +78,9 @@ const imageMemoList = document.getElementById("imageMemoList");
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
+const imagePeopleInput = document.getElementById("imagePeopleInput");
+const imagePeopleFilter = document.getElementById("imagePeopleFilter");
+
 const ALLOWED_IMAGE_TYPES = [
   "image/png",
   "image/jpeg",
@@ -91,6 +94,7 @@ let selectedImageMemoId = null;
 let selectedFile = null;
 let inputMode = "upload";
 let previewObjectUrl = "";
+let people = [];
 
 /* ---------- auth ---------- */
 
@@ -123,6 +127,7 @@ onAuthStateChanged(auth, async (user) => {
     imageMemos = [];
     selectedImageMemoId = null;
     selectedFile = null;
+    people = [];
 
     clearForm();
     renderImageFolders();
@@ -143,6 +148,7 @@ onAuthStateChanged(auth, async (user) => {
   userInfo.textContent = user.displayName || user.email || "ログイン中";
   imageStatus.textContent = "画像メモを保存できます";
 
+  await loadPeople();
   await loadImageMemos();
 });
 
@@ -220,13 +226,18 @@ imageUrlInput.addEventListener("input", () => {
   imageTitleInput,
   imageCategoryInput,
   imageTagsInput,
+  imagePeopleInput,
   imageMemoInput,
   imageFavoriteInput
 ].forEach((input) => {
+  if (!input) return;
+
   input.addEventListener("input", () => {
-    imageStatus.textContent = selectedImageMemoId
-      ? "未保存の変更あり"
-      : "新規画像メモ";
+    imageStatus.textContent = selectedImageMemoId ? "未保存の変更あり" : "新規画像メモ";
+  });
+
+  input.addEventListener("change", () => {
+    imageStatus.textContent = selectedImageMemoId ? "未保存の変更あり" : "新規画像メモ";
   });
 });
 
@@ -254,6 +265,12 @@ imageCategoryFilter.addEventListener("change", () => {
   renderImageFolders();
   renderImageMemos();
 });
+
+if (imagePeopleFilter) {
+  imagePeopleFilter.addEventListener("change", () => {
+    renderImageMemos();
+  });
+}
 
 favoriteOnlyInput.addEventListener("change", () => {
   renderImageFolders();
@@ -333,6 +350,80 @@ async function loadImageMemos() {
   }
 }
 
+async function loadPeople() {
+  if (!currentUser) return;
+
+  try {
+    const q = query(
+      collection(db, "people"),
+      where("uid", "==", currentUser.uid)
+    );
+
+    const snapshot = await getDocs(q);
+
+    people = snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
+
+    people.sort((a, b) => {
+      const aName = a.name || "";
+      const bName = b.name || "";
+      return aName.localeCompare(bName, "ja");
+    });
+
+    updatePeopleInputs();
+  } catch (error) {
+    console.error(error);
+    alert("人物タグの読み込みに失敗しました");
+  }
+}
+
+function updatePeopleInputs() {
+  if (imagePeopleInput) {
+    const selectedIds = getSelectedPersonIds();
+
+    imagePeopleInput.innerHTML = "";
+
+    if (people.length === 0) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "人物がありません";
+      imagePeopleInput.appendChild(option);
+    } else {
+      people.forEach((person) => {
+        const option = document.createElement("option");
+        option.value = person.id;
+        option.textContent = person.name || "名前なし";
+        option.selected = selectedIds.includes(person.id);
+        imagePeopleInput.appendChild(option);
+      });
+    }
+  }
+
+  if (imagePeopleFilter) {
+    const currentValue = imagePeopleFilter.value || "all";
+
+    imagePeopleFilter.innerHTML = "";
+
+    const allOption = document.createElement("option");
+    allOption.value = "all";
+    allOption.textContent = "人物すべて";
+    imagePeopleFilter.appendChild(allOption);
+
+    people.forEach((person) => {
+      const option = document.createElement("option");
+      option.value = person.id;
+      option.textContent = person.name || "名前なし";
+      imagePeopleFilter.appendChild(option);
+    });
+
+    imagePeopleFilter.value = people.some((person) => person.id === currentValue)
+      ? currentValue
+      : "all";
+  }
+}
+
 /* ---------- save ---------- */
 
 async function saveImageMemo() {
@@ -350,6 +441,7 @@ async function saveImageMemo() {
   const title = imageTitleInput.value.trim();
   const category = imageCategoryInput.value.trim();
   const tags = imageTagsInput.value.trim();
+  const personIds = getSelectedPersonIds();
   const memo = imageMemoInput.value.trim();
   const favorite = imageFavoriteInput.checked;
 
@@ -420,16 +512,17 @@ async function saveImageMemo() {
     const safeTitle = title || "無題の画像";
 
     const data = {
-      title: safeTitle,
-      category,
-      tags,
-      memo,
-      favorite,
-      imageUrl,
-      storagePath,
-      sourceType,
-      updatedAt: serverTimestamp()
-    };
+  title: safeTitle,
+  category,
+  tags,
+  personIds,
+  memo,
+  favorite,
+  imageUrl,
+  storagePath,
+  sourceType,
+  updatedAt: serverTimestamp()
+};
 
     if (selectedImageMemoId) {
       await updateDoc(doc(db, "imageMemos", selectedImageMemoId), data);
@@ -590,6 +683,7 @@ function renderImageMemos() {
   const keyword = imageSearchInput.value.trim().toLowerCase();
   const categoryFilter = imageCategoryFilter.value;
   const favoriteOnly = favoriteOnlyInput.checked;
+const personFilter = imagePeopleFilter ? imagePeopleFilter.value : "all";
 
   let filtered = [...imageMemos];
 
@@ -599,6 +693,12 @@ function renderImageMemos() {
       return itemCategory === categoryFilter;
     });
   }
+  
+  if (personFilter !== "all") {
+  filtered = filtered.filter((item) => {
+    return Array.isArray(item.personIds) && item.personIds.includes(personFilter);
+  });
+}
 
   if (favoriteOnly) {
     filtered = filtered.filter((item) => item.favorite);
@@ -606,14 +706,17 @@ function renderImageMemos() {
 
   if (keyword) {
     filtered = filtered.filter((item) => {
-      const searchText = [
-        item.title,
-        item.category,
-        item.tags,
-        item.memo
-      ]
-        .join(" ")
-        .toLowerCase();
+      const personNames = getPersonNames(item.personIds).join(" ");
+
+const searchText = [
+  item.title,
+  item.category,
+  item.tags,
+  personNames,
+  item.memo
+]
+  .join(" ")
+  .toLowerCase();
 
       return searchText.includes(keyword);
     });
@@ -665,6 +768,13 @@ function renderImageMemos() {
       tags.appendChild(badge);
     });
 
+getPersonNames(item.personIds).slice(0, 4).forEach((name) => {
+  const badge = document.createElement("span");
+  badge.className = "image-memo-tag person-tag";
+  badge.textContent = `👤 ${name}`;
+  tags.appendChild(badge);
+});
+
     info.appendChild(title);
     info.appendChild(sub);
     info.appendChild(tags);
@@ -690,6 +800,7 @@ function selectImageMemo(item) {
   imageCategoryInput.value = item.category || "";
   imageTagsInput.value = item.tags || "";
   imageMemoInput.value = item.memo || "";
+  setSelectedPersonIds(item.personIds || []);
   imageFavoriteInput.checked = Boolean(item.favorite);
 
   imageFileInput.value = "";
@@ -839,6 +950,7 @@ function clearForm() {
   imageTitleInput.value = "";
   imageCategoryInput.value = "";
   imageTagsInput.value = "";
+  setSelectedPersonIds([]);
   imageMemoInput.value = "";
   imageFavoriteInput.checked = false;
 
@@ -966,6 +1078,39 @@ function splitTags(tags = "") {
   return tags
     .split(/[,\s、，]+/)
     .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function getSelectedPersonIds() {
+  if (!imagePeopleInput) return [];
+
+  return [...imagePeopleInput.selectedOptions]
+    .map((option) => option.value)
+    .filter(Boolean);
+}
+
+function setSelectedPersonIds(personIds = []) {
+  if (!imagePeopleInput) return;
+
+  const ids = Array.isArray(personIds) ? personIds : [];
+
+  [...imagePeopleInput.options].forEach((option) => {
+    option.selected = ids.includes(option.value);
+  });
+}
+
+function getPersonById(personId) {
+  return people.find((person) => person.id === personId);
+}
+
+function getPersonNames(personIds = []) {
+  if (!Array.isArray(personIds)) return [];
+
+  return personIds
+    .map((personId) => {
+      const person = getPersonById(personId);
+      return person?.name || "";
+    })
     .filter(Boolean);
 }
 
