@@ -59,6 +59,7 @@ const reloadGalleryBtn = document.getElementById("reloadGalleryBtn");
 const gallerySearchInput = document.getElementById("gallerySearchInput");
 const galleryTypeFilter = document.getElementById("galleryTypeFilter");
 const galleryCollectionList = document.getElementById("galleryCollectionList");
+const loadMoreCollectionsBtn = document.getElementById("loadMoreCollectionsBtn");
 
 const galleryPreviewModal = document.getElementById("galleryPreviewModal");
 const galleryPreviewBackdrop = document.getElementById("galleryPreviewBackdrop");
@@ -85,7 +86,8 @@ const galleryGenreFilter = document.getElementById("galleryGenreFilter");
   saveGalleryBtn,
   deleteGalleryBtn,
   reloadGalleryBtn,
-  closeGalleryPreviewBtn
+  closeGalleryPreviewBtn,
+  loadMoreCollectionsBtn
 ].forEach((btn) => {
   if (btn) btn.type = "button";
 });
@@ -103,6 +105,9 @@ let people = [];
 
 let galleryDrafts = [];
 let existingImages = [];
+
+const COLLECTION_PAGE_SIZE = 30;
+let visibleCollectionCount = COLLECTION_PAGE_SIZE;
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -583,13 +588,20 @@ const matchGenre =
   });
 
   if (!filtered.length) {
-    galleryCollectionList.innerHTML = `<p class="empty-text">コレクションがありません。</p>`;
-    return;
+  galleryCollectionList.innerHTML = `<p class="empty-text">コレクションがありません。</p>`;
+
+  if (loadMoreCollectionsBtn) {
+    loadMoreCollectionsBtn.classList.add("hidden");
   }
+
+  return;
+}
+
+const visibleItems = filtered.slice(0, visibleCollectionCount);
 
   
 
-  galleryCollectionList.innerHTML = filtered.map((item) => {
+  galleryCollectionList.innerHTML = visibleItems.map((item) => {
     const mainUrl = item.images?.[0]?.url || "";
     const imageCount = item.images?.length || 0;
     const created = formatDate(item.createdAt);
@@ -671,9 +683,18 @@ ${
       </article>
     `;
   }).join("");
+  if (loadMoreCollectionsBtn) {
+  if (visibleCollectionCount < filtered.length) {
+    loadMoreCollectionsBtn.classList.remove("hidden");
+    loadMoreCollectionsBtn.textContent = `もっと見る（${filtered.length - visibleCollectionCount}件）`;
+  } else {
+    loadMoreCollectionsBtn.classList.add("hidden");
+  }
+}
 }
 
 async function loadPeopleForGallery() {
+  
   if (!currentUser) {
     people = [];
     updatePersonOptions();
@@ -717,13 +738,20 @@ async function loadPeopleForGallery() {
   }
 }
 
+function resetCollectionPaging() {
+  visibleCollectionCount = COLLECTION_PAGE_SIZE;
+  renderCollections();
+}
+
 async function loadGalleryCollections() {
+  
   if (!currentUser) {
-    galleryCollections = [];
-    updateGenreFilterOptions();
-renderCollections();
-    return;
-  }
+  galleryCollections = [];
+  visibleCollectionCount = COLLECTION_PAGE_SIZE;
+  updateGenreFilterOptions();
+  renderCollections();
+  return;
+}
 
   setStatus("読み込み中...");
 
@@ -748,8 +776,10 @@ renderCollections();
 
     
 
-    updateGenreFilterOptions();
-   renderCollections();
+    visibleCollectionCount = COLLECTION_PAGE_SIZE;
+updateGenreFilterOptions();
+renderCollections();
+    
     setStatus("読み込み完了");
   } catch (error) {
     console.error("読み込みエラー:", error);
@@ -1098,8 +1128,13 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-gallerySearchInput.addEventListener("input", renderCollections);
-galleryTypeFilter.addEventListener("change", renderCollections);
+gallerySearchInput.addEventListener("input", resetCollectionPaging);
+galleryTypeFilter.addEventListener("change", resetCollectionPaging);
+gallerySourceTypeFilter?.addEventListener("change", resetCollectionPaging);
+galleryPersonFilter?.addEventListener("change", resetCollectionPaging);
+galleryAuthorFilter?.addEventListener("change", resetCollectionPaging);
+galleryGenreFilter?.addEventListener("change", resetCollectionPaging);
+
 collectionPersonInput?.addEventListener("change", () => {
   setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
 });
@@ -1111,10 +1146,6 @@ collectionGenreInput?.addEventListener("input", () => {
   setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
 });
 
-galleryAuthorFilter?.addEventListener("change", renderCollections);
-galleryGenreFilter?.addEventListener("change", renderCollections);
-
-galleryPersonFilter?.addEventListener("change", renderCollections);
 
 setupTypeOptions();
 
@@ -1145,6 +1176,7 @@ galleryCollections = [];
 updatePersonOptions();
 updateGenreFilterOptions();
 resetForm();
+visibleCollectionCount = COLLECTION_PAGE_SIZE;
 renderCollections();
   }
 });
@@ -1153,4 +1185,7 @@ collectionSourceTypeInput?.addEventListener("change", () => {
   setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
 });
 
-gallerySourceTypeFilter?.addEventListener("change", renderCollections);
+loadMoreCollectionsBtn?.addEventListener("click", () => {
+  visibleCollectionCount += COLLECTION_PAGE_SIZE;
+  renderCollections();
+});
