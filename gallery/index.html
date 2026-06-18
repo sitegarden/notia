@@ -64,6 +64,16 @@
   <option value="">コレクション全体の人物：なし</option>
 </select>
 
+      <select id="collectionAuthorInput">
+  <option value="">コレクション全体の作者：なし</option>
+</select>
+
+<input
+  id="collectionGenreInput"
+  type="text"
+  placeholder="ジャンルタグ 例：OCFA / SHUYAKU / 猫 / ゲームFA"
+/>
+
       <input
         id="collectionTagsInput"
         type="text"
@@ -129,6 +139,14 @@
   <option value="all">人物すべて</option>
 </select>
 
+<select id="galleryAuthorFilter">
+  <option value="all">作者すべて</option>
+</select>
+
+<select id="galleryGenreFilter">
+  <option value="all">ジャンルすべて</option>
+</select>
+      
       <div id="galleryCollectionList" class="gallery-collection-grid"></div>
     </section>
   </main>
