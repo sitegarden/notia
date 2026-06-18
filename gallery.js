@@ -42,6 +42,8 @@ const newGalleryBtn = document.getElementById("newGalleryBtn");
 const collectionTitleInput = document.getElementById("collectionTitleInput");
 const collectionTypeInput = document.getElementById("collectionTypeInput");
 const collectionSourceInput = document.getElementById("collectionSourceInput");
+const collectionSourceTypeInput = document.getElementById("collectionSourceTypeInput");
+const gallerySourceTypeFilter = document.getElementById("gallerySourceTypeFilter");
 const collectionTagsInput = document.getElementById("collectionTagsInput");
 const collectionMemoInput = document.getElementById("collectionMemoInput");
 
@@ -105,6 +107,9 @@ let existingImages = [];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const COLLECTION_TYPES = [
+  "OC",
+  "FA",
+  "GIFT",
   "絵柄",
   "AIアイコン",
   "キャラクター",
@@ -113,6 +118,16 @@ const COLLECTION_TYPES = [
   "友人のイラスト",
   "ゲーム",
   "スクリーンショット",
+  "その他"
+];
+
+const SOURCE_TYPES = [
+  "絵チャ",
+  "ゲーム",
+  "DrawMe",
+  "オープンチャット",
+  "パロコラ",
+  "友人",
   "その他"
 ];
 
@@ -135,9 +150,24 @@ function setupTypeOptions() {
     .join("");
 
   galleryTypeFilter.innerHTML = [
-    `<option value="all">すべて</option>`,
+    `<option value="all">種類すべて</option>`,
     ...COLLECTION_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
   ].join("");
+
+  if (collectionSourceTypeInput) {
+    collectionSourceTypeInput.innerHTML = [
+      `<option value="">入手元：指定なし</option>`,
+      ...SOURCE_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+    ].join("");
+  }
+
+  if (gallerySourceTypeFilter) {
+    gallerySourceTypeFilter.innerHTML = [
+      `<option value="all">入手元すべて</option>`,
+      `<option value="">入手元なし</option>`,
+      ...SOURCE_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+    ].join("");
+  }
 }
 
 function formatDate(timestamp) {
@@ -330,6 +360,11 @@ function resetForm() {
 
   collectionTitleInput.value = "";
   collectionTypeInput.value = COLLECTION_TYPES[0] || "その他";
+
+if (collectionSourceTypeInput) {
+  collectionSourceTypeInput.value = "";
+}
+  
   collectionSourceInput.value = "";
   collectionPersonInput.value = "";
   collectionAuthorInput.value = "";
@@ -499,6 +534,7 @@ function renderCollections() {
    const joined = [
   item.title,
   item.type,
+  item.sourceType,
   item.source,
   item.genre,
   item.personName,
@@ -521,6 +557,13 @@ function renderCollections() {
     const matchSearch = !searchText || joined.includes(searchText);
     const matchType = typeFilter === "all" || item.type === typeFilter;
 
+    const sourceTypeFilter = gallerySourceTypeFilter?.value || "all";
+
+    const matchSourceType =
+  sourceTypeFilter === "all" ||
+  (sourceTypeFilter === "" && !item.sourceType) ||
+  item.sourceType === sourceTypeFilter;
+
     const matchPerson =
   personFilter === "all" ||
   (personFilter === "" && !item.personId && !(item.images || []).some((image) => image.personId)) ||
@@ -538,7 +581,7 @@ const matchGenre =
   (genreFilter === "" && !item.genre) ||
   item.genre === genreFilter;
 
-    return matchSearch && matchType && matchPerson && matchAuthor && matchGenre;
+    return matchSearch && matchType && matchSourceType && matchPerson && matchAuthor && matchGenre;
   });
 
   if (!filtered.length) {
@@ -546,11 +589,15 @@ const matchGenre =
     return;
   }
 
+  
+
   galleryCollectionList.innerHTML = filtered.map((item) => {
     const mainUrl = item.images?.[0]?.url || "";
     const imageCount = item.images?.length || 0;
     const created = formatDate(item.createdAt);
     const updated = formatDate(item.updatedAt);
+
+    
 
     return `
       <article class="gallery-collection-card" data-id="${item.id}">
@@ -583,12 +630,13 @@ ${
           </div>
 
           <p class="gallery-meta">
+  ${escapeHtml(item.type || "種類なし")} / 
+  ${escapeHtml(item.sourceType || "入手元なし")} / 
+  ${escapeHtml(item.genre || "ジャンルなし")} / 
   ${escapeHtml(item.personName || "人物なし")} / 
   ${escapeHtml(item.authorName || item.source || "作者・出典未設定")} / 
-  ${escapeHtml(item.genre || "ジャンルなし")} / 
   ${imageCount}枚
 </p>
-
           ${
             item.tags
               ? `<p class="gallery-tags">${escapeHtml(item.tags)}</p>`
@@ -719,6 +767,11 @@ function editCollection(collectionId) {
 
   collectionTitleInput.value = item.title || "";
   collectionTypeInput.value = item.type || COLLECTION_TYPES[0] || "その他";
+
+if (collectionSourceTypeInput) {
+  collectionSourceTypeInput.value = item.sourceType || "";
+}
+  
   collectionSourceInput.value = item.source || "";
   collectionPersonInput.value = item.personId || "";
   collectionAuthorInput.value = item.authorId || "";
@@ -748,9 +801,11 @@ function openGalleryPreview(collectionId) {
   const imageCount = item.images?.length || 0;
 
   previewGalleryMeta.textContent = [
+  item.type ? `種類：${item.type}` : "種類なし",
+  item.sourceType ? `入手元：${item.sourceType}` : "入手元なし",
+  item.genre ? `ジャンル：${item.genre}` : "ジャンルなし",
   item.personName ? `人物：${item.personName}` : "人物なし",
   item.authorName ? `作者：${item.authorName}` : item.source || "作者・出典未設定",
-  item.genre ? `ジャンル：${item.genre}` : "ジャンルなし",
   `${imageCount}枚`
 ].join(" / ");
 
@@ -818,6 +873,7 @@ async function saveGalleryCollection() {
   const title = collectionTitleInput.value.trim();
   const type = collectionTypeInput.value;
   const source = collectionSourceInput.value.trim();
+  const sourceType = collectionSourceTypeInput?.value || "";
 
   const collectionPersonId = collectionPersonInput?.value || "";
   const collectionPersonData = getPersonData(collectionPersonId);
@@ -877,6 +933,7 @@ async function saveGalleryCollection() {
       uid: currentUser.uid,
       title,
       type,
+      sourceType,
       source,
 
       personId: collectionPersonData.personId,
@@ -1091,3 +1148,9 @@ renderCollections();
 resetForm();
   }
 });
+
+collectionSourceTypeInput?.addEventListener("change", () => {
+  setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
+});
+
+gallerySourceTypeFilter?.addEventListener("change", renderCollections);
