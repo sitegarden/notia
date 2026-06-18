@@ -7248,3 +7248,141 @@ body.modal-open {
   transform: translateY(-2px);
   box-shadow: 0 16px 34px rgba(64, 50, 32, 0.16);
 }
+
+/* ==============================
+   Gallery Memo / collapse & filter fix
+============================== */
+
+.gallery-layout {
+  grid-template-columns: 360px minmax(0, 1fr);
+}
+
+.gallery-form-collapse {
+  display: block;
+}
+
+.gallery-form-collapse summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(244, 250, 255, 0.95);
+  border: 1px solid rgba(70, 58, 40, 0.1);
+  cursor: pointer;
+  list-style: none;
+}
+
+.gallery-form-collapse summary::-webkit-details-marker {
+  display: none;
+}
+
+.gallery-form-collapse summary span {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.gallery-form-collapse summary small {
+  color: #7b7164;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.gallery-form-collapse summary strong {
+  color: #2f2924;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.gallery-form-collapse summary b {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #2f2924;
+  color: #fffaf3;
+  font-size: 12px;
+}
+
+.gallery-form-collapse[open] summary {
+  margin-bottom: 14px;
+}
+
+.gallery-form-collapse[open] summary b {
+  font-size: 0;
+}
+
+.gallery-form-collapse[open] summary b::before {
+  content: "閉じる";
+  font-size: 12px;
+}
+
+.gallery-form-body {
+  display: grid;
+  gap: 0;
+}
+
+.gallery-control-panel input,
+.gallery-control-panel select,
+.gallery-control-panel textarea {
+  margin-bottom: 10px;
+}
+
+/* フィルター横並び修正 */
+.gallery-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(5, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 14px 0 18px;
+}
+
+.gallery-filters input,
+.gallery-filters select {
+  width: 100%;
+  min-width: 0;
+}
+
+/* 変な image-toolbar 影響を受けないようにする */
+.gallery-list-panel .image-toolbar {
+  display: block;
+  margin: 0;
+}
+
+/* 入手元フィルターがプレビュー内に残ってた場合の保険 */
+.gallery-preview-box > #gallerySourceTypeFilter {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .gallery-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-control-panel {
+    position: static;
+  }
+
+  .gallery-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gallery-filters input {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .gallery-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-form-collapse summary {
+    padding: 12px 14px;
+  }
+
+  .gallery-form-collapse summary strong {
+    font-size: 16px;
+  }
+}
