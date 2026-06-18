@@ -7386,3 +7386,9 @@ body.modal-open {
     font-size: 16px;
   }
 }
+.gallery-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 14px 0 18px;
+}
