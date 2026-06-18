@@ -47,7 +47,17 @@ const newPersonBtn = document.getElementById("newPersonBtn");
 const deletePersonBtn = document.getElementById("deletePersonBtn");
 const savePersonBtn = document.getElementById("savePersonBtn");
 
-let personReadingInput = null;
+const PERSON_TYPES = [
+  "リアル",
+  "オリキャラ",
+  "よその子",
+  "友人",
+  "絵チャ",
+  "家族",
+  "その他"
+];
+
+let personReadingInput = document.getElementById("personReadingInput");
 let personIconInput = null;
 let peopleViewMode = localStorage.getItem("notiaPeopleViewMode") || "list";
 
@@ -59,7 +69,7 @@ let selectedPersonId = null;
 /* ---------- init ui ---------- */
 
 createPeopleViewSwitcher();
-createPersonReadingInput();
+setupPersonTypeOptions();
 createPersonIconInput();
 
 /* ---------- auth ---------- */
@@ -460,7 +470,7 @@ function selectPerson(person) {
   }
 
   personNicknameInput.value = person.nickname || "";
-  personTypeInput.value = person.type || "real";
+  personTypeInput.value = person.type || PERSON_TYPES[0] || "その他";
   personSubTypeInput.value = person.subType || "";
   personRelationInput.value = person.relation || "";
   personMbtiInput.value = person.mbti || "";
@@ -681,30 +691,6 @@ function createPeopleViewSwitcher() {
   peopleList.parentNode.insertBefore(wrapper, peopleList);
 }
 
-function createPersonReadingInput() {
-  if (!personNameInput) return;
-
-  const field = document.createElement("label");
-  field.className = "person-reading-field";
-
-  const labelText = document.createElement("span");
-  labelText.textContent = "よみ";
-
-  personReadingInput = document.createElement("input");
-  personReadingInput.id = "personReadingInput";
-  personReadingInput.type = "text";
-  personReadingInput.placeholder = "例：やまだたろう";
-
-  field.appendChild(labelText);
-  field.appendChild(personReadingInput);
-
-  personNameInput.parentNode.insertAdjacentElement("afterend", field);
-
-  personReadingInput.addEventListener("input", () => {
-    peopleStatus.textContent = selectedPersonId ? "未保存の変更あり" : "新規人物";
-  });
-}
-
 function createPersonIconInput() {
   if (!peopleFormTitle) return;
 
@@ -727,6 +713,28 @@ function createPersonIconInput() {
   });
 
   updatePersonIconOptions();
+}
+
+function setupPersonTypeOptions() {
+  if (!personTypeInput || !peopleTypeFilter) return;
+
+  personTypeInput.innerHTML = PERSON_TYPES
+    .map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+    .join("");
+
+  peopleTypeFilter.innerHTML = [
+    `<option value="all">すべて</option>`,
+    ...PERSON_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+  ].join("");
+}
+
+function escapeHtml(text = "") {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function updatePersonIconOptions() {
@@ -764,7 +772,7 @@ function clearPersonForm() {
   }
 
   personNicknameInput.value = "";
-  personTypeInput.value = "real";
+  personTypeInput.value = PERSON_TYPES[0] || "その他";
   personSubTypeInput.value = "";
   personRelationInput.value = "";
   personMbtiInput.value = "";
@@ -787,14 +795,7 @@ function createBadge(text) {
 }
 
 function getTypeLabel(type) {
-  const labels = {
-    real: "リアル",
-    character: "キャラ",
-    original: "創作",
-    other: "その他"
-  };
-
-  return labels[type] || "その他";
+  return type || "その他";
 }
 
 function makeSubText(person) {
