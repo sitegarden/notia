@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>スタンプメモ | notia</title>
+  <meta
+    name="description"
+    content="自分で作ったLINEスタンプ用の画像・セリフ・進捗をセット単位で保管できるnotiaのスタンプメモです。"
+  />
+
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+</head>
+
+<body class="stamp-page">
+  <div id="commonHeader"></div>
+
+  <header class="site-header stamp-header">
+    <div>
+      <p class="label">STAMP MEMO</p>
+      <h1>スタンプメモ</h1>
+      <p class="lead">
+        自分で作ったLINEスタンプを、セット単位でまとめて保管できます。
+      </p>
+    </div>
+
+    <div class="auth-area">
+      <a href="/home/" class="back-link">Homeへ</a>
+      <button id="loginBtn">Googleでログイン</button>
+      <button id="logoutBtn" class="hidden">ログアウト</button>
+      <p id="userInfo" class="user-info"></p>
+    </div>
+  </header>
+
+  <main class="container stamp-layout">
+    <section class="stamp-control-panel">
+      <div class="panel-head">
+        <div>
+          <p class="label">ADD PACK</p>
+          <h2 id="stampFormTitle">スタンプセットを追加</h2>
+        </div>
+
+        <button id="newStampPackBtn" class="small-btn" type="button">新規</button>
+      </div>
+
+      <input
+        id="packTitleInput"
+        type="text"
+        placeholder="セット名 例：ごまちゃん おもしろスタンプ"
+      />
+
+      <input
+        id="packCharacterInput"
+        type="text"
+        placeholder="キャラ名 例：ごまちゃん"
+      />
+
+      <select id="packStatusInput">
+        <option value="制作中">制作中</option>
+        <option value="完成">完成</option>
+        <option value="申請済み">申請済み</option>
+        <option value="販売中">販売中</option>
+        <option value="保留">保留</option>
+      </select>
+
+      <input
+        id="packTagsInput"
+        type="text"
+        placeholder="タグ 例：ごまちゃん, 相撲, ネタ"
+      />
+
+      <textarea
+        id="packMemoInput"
+        placeholder="このスタンプセットについてのメモ"
+      ></textarea>
+
+      <div class="stamp-size-row">
+        <label>
+          <span>メイン画像 240×240</span>
+          <input id="mainImageInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+        </label>
+
+        <label>
+          <span>タブ画像 96×74</span>
+          <input id="tabImageInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+        </label>
+      </div>
+
+      <div class="stamp-upload-box">
+        <label for="stampImagesInput">
+          <span>スタンプ画像を追加</span>
+          <small>複数選択OK / png・jpg・webp・gif</small>
+        </label>
+
+        <input
+          id="stampImagesInput"
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          multiple
+          class="hidden"
+        />
+
+        <p id="stampSelectedText" class="image-help-text">
+          まだスタンプ画像は選択されていません。
+        </p>
+      </div>
+
+      <div id="stampDraftList" class="stamp-draft-list"></div>
+
+      <div class="editor-actions">
+        <p id="stampStatus">ログインしてください</p>
+        <button id="deleteStampPackBtn" class="danger-btn" type="button">削除</button>
+        <button id="saveStampPackBtn" type="button">保存</button>
+      </div>
+    </section>
+
+    <section class="stamp-list-panel">
+      <div class="panel-head">
+        <div>
+          <p class="label">PACK LIST</p>
+          <h2>スタンプ一覧</h2>
+        </div>
+
+        <button id="reloadStampPacksBtn" class="small-btn icon-btn" type="button" aria-label="再読み込み">
+          ↻
+        </button>
+      </div>
+
+      <div class="image-toolbar">
+        <input
+          id="stampSearchInput"
+          type="search"
+          placeholder="セット名・キャラ名・タグ・セリフを検索"
+        />
+
+        <select id="stampStatusFilter">
+          <option value="all">すべて</option>
+          <option value="制作中">制作中</option>
+          <option value="完成">完成</option>
+          <option value="申請済み">申請済み</option>
+          <option value="販売中">販売中</option>
+          <option value="保留">保留</option>
+        </select>
+      </div>
+
+      <div id="stampPackList" class="stamp-pack-grid"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/header.js"></script>
+  <script type="module" src="/stamp.js"></script>
+</body>
+</html>
