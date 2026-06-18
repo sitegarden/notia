@@ -7392,3 +7392,101 @@ body.modal-open {
   gap: 10px;
   margin: 14px 0 18px;
 }
+
+/* ==============================
+   Gallery / square card & preview images
+============================== */
+
+/* 一覧カードを安定させる */
+.gallery-collection-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 一覧サムネを1:1固定 */
+.gallery-collection-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gallery-collection-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* NO IMAGEも中央揃え */
+.gallery-collection-thumb span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ミニ画像も全部1:1 */
+.gallery-mini {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.gallery-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* プレビュー側をcolumnsではなくgridにする */
+.gallery-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+  columns: initial;
+  column-gap: initial;
+}
+
+/* プレビューカード */
+.gallery-preview-item {
+  break-inside: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* プレビュー画像も1:1固定 */
+.gallery-preview-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f7f3ec;
+}
+
+.gallery-preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* プレビュー内のメモを伸びすぎ防止 */
+.gallery-preview-item > p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* スマホは2列 */
+@media (max-width: 560px) {
+  .gallery-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .gallery-preview-image {
+    border-radius: 14px;
+  }
+}
