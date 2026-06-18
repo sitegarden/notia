@@ -6469,7 +6469,7 @@ body.modal-open {
 .stamp-preview-image {
   display: grid;
   place-items: center;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 370 / 320;
   border-radius: 18px;
   background:
     linear-gradient(45deg, rgba(255, 251, 238, 0.9) 25%, transparent 25%),
@@ -6518,4 +6518,22 @@ body.modal-open {
     padding: 10px;
     border-radius: 18px;
   }
+}
+
+
+.stamp-mini {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 370 / 320;
+  border-radius: 10px;
+  background: #f7f3ec;
+}
+
+.stamp-pack-thumb {
+  display: grid;
+  place-items: center;
+  min-height: 150px;
+  aspect-ratio: 370 / 320;
+  background:
+    linear-gradient(45deg, rgba(255, 246, 214, 0.8), rgba(232, 246, 255, 0.85));
 }
