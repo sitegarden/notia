@@ -3,21 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>ギャラリーメモ | notia</title>
   <meta
     name="description"
     content="イラスト・AI画像・アイコン・参考画像などをシリーズ単位でまとめて保存できるnotiaのギャラリーメモです。"
   />
-
   <link rel="stylesheet" href="/style.css" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
-
 <body class="gallery-page">
   <div id="commonHeader"></div>
-
   <header class="site-header gallery-header">
     <div>
       <p class="label">GALLERY MEMO</p>
@@ -26,7 +22,6 @@
         イラスト・AIアイコン・参考画像を、シリーズ単位でまとめて保管できます。
       </p>
     </div>
-
     <div class="auth-area">
       <a href="/home/" class="back-link">Homeへ</a>
       <button id="loginBtn" type="button">Googleでログイン</button>
@@ -34,165 +29,149 @@
       <p id="userInfo" class="user-info"></p>
     </div>
   </header>
-
   <main class="container gallery-layout">
     <section class="gallery-control-panel">
-      <div class="panel-head">
-        <div>
-          <p class="label">ADD COLLECTION</p>
-          <h2 id="galleryFormTitle">コレクションを追加</h2>
+      <details class="gallery-form-collapse">
+        <summary>
+          <span>
+            <small>ADD COLLECTION</small>
+            <strong id="galleryFormTitle">コレクションを追加</strong>
+          </span>
+          <b>開く</b>
+        </summary>
+        <div class="gallery-form-body">
+          <div class="panel-head">
+            <div>
+              <p class="label">COLLECTION FORM</p>
+              <h2>コレクション編集</h2>
+            </div>
+            <button id="newGalleryBtn" class="small-btn" type="button">新規</button>
+          </div>
+          <input
+            id="collectionTitleInput"
+            type="text"
+            placeholder="タイトル 例：AIアイコン集 / この人のイラスト"
+          />
+          <select id="collectionTypeInput"></select>
+          <select id="collectionSourceTypeInput">
+            <option value="">入手元：指定なし</option>
+          </select>
+          <input
+            id="collectionSourceInput"
+            type="text"
+            placeholder="作者・出典・キャラ名など 例：ごまちゃん / 〇〇さん"
+          />
+          <select id="collectionPersonInput">
+            <option value="">コレクション全体の人物：なし</option>
+          </select>
+          <select id="collectionAuthorInput">
+            <option value="">コレクション全体の作者：なし</option>
+          </select>
+          <input
+            id="collectionGenreInput"
+            type="text"
+            placeholder="ジャンルタグ 例：OCFA / SHUYAKU / 猫 / ゲームFA"
+          />
+          <input
+            id="collectionTagsInput"
+            type="text"
+            placeholder="タグ 例：AI, アイコン, かわいい, 丸い絵柄"
+          />
+          <textarea
+            id="collectionMemoInput"
+            placeholder="このコレクションについてのメモ"
+          ></textarea>
+          <div class="gallery-upload-box">
+            <label for="galleryImagesInput">
+              <span>画像を追加</span>
+              <small>複数選択OK / png・jpg・webp・gif</small>
+            </label>
+            <input
+              id="galleryImagesInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              multiple
+              class="hidden"
+            />
+            <p id="gallerySelectedText" class="image-help-text">
+              まだ画像は選択されていません。
+            </p>
+          </div>
+          <div id="galleryDraftList" class="gallery-draft-list"></div>
+          <div class="editor-actions">
+            <p id="galleryStatus">ログインしてください</p>
+            <button id="deleteGalleryBtn" class="danger-btn hidden" type="button">
+              削除
+            </button>
+            <button id="saveGalleryBtn" type="button">
+              保存
+            </button>
+          </div>
         </div>
-
-        <button id="newGalleryBtn" class="small-btn" type="button">新規</button>
-      </div>
-
-      <input
-        id="collectionTitleInput"
-        type="text"
-        placeholder="タイトル 例：AIアイコン集 / この人のイラスト"
-      />
-
-      <select id="collectionTypeInput"></select>
-
-      <select id="collectionSourceTypeInput">
-  <option value="">入手元：指定なし</option>
-</select>
-
-      <input
-        id="collectionSourceInput"
-        type="text"
-        placeholder="作者・出典・キャラ名など 例：ごまちゃん / 〇〇さん"
-      />
-
-      <select id="collectionPersonInput">
-  <option value="">コレクション全体の人物：なし</option>
-</select>
-
-      <select id="collectionAuthorInput">
-  <option value="">コレクション全体の作者：なし</option>
-</select>
-
-<input
-  id="collectionGenreInput"
-  type="text"
-  placeholder="ジャンルタグ 例：OCFA / SHUYAKU / 猫 / ゲームFA"
-/>
-
-      <input
-        id="collectionTagsInput"
-        type="text"
-        placeholder="タグ 例：AI, アイコン, かわいい, 丸い絵柄"
-      />
-
-      <textarea
-        id="collectionMemoInput"
-        placeholder="このコレクションについてのメモ"
-      ></textarea>
-
-      <div class="gallery-upload-box">
-        <label for="galleryImagesInput">
-          <span>画像を追加</span>
-          <small>複数選択OK / png・jpg・webp・gif</small>
-        </label>
-
-        <input
-          id="galleryImagesInput"
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
-          multiple
-          class="hidden"
-        />
-
-        <p id="gallerySelectedText" class="image-help-text">
-          まだ画像は選択されていません。
-        </p>
-      </div>
-
-      <div id="galleryDraftList" class="gallery-draft-list"></div>
-
-      <div class="editor-actions">
-        <p id="galleryStatus">ログインしてください</p>
-        <button id="deleteGalleryBtn" class="danger-btn hidden" type="button">削除</button>
-        <button id="saveGalleryBtn" type="button">保存</button>
-      </div>
+      </details>
     </section>
-
     <section class="gallery-list-panel">
       <div class="panel-head">
         <div>
           <p class="label">COLLECTION LIST</p>
           <h2>コレクション一覧</h2>
         </div>
-
-        <button id="reloadGalleryBtn" class="small-btn icon-btn" type="button" aria-label="再読み込み">
+        <button
+          id="reloadGalleryBtn"
+          class="small-btn icon-btn"
+          type="button"
+          aria-label="再読み込み"
+        >
           ↻
         </button>
       </div>
-
-      <div class="image-toolbar">
-
-        <div class="gallery-filters">
+      <div class="gallery-filters">
         <input
           id="gallerySearchInput"
           type="search"
           placeholder="タイトル・作者・タグ・メモを検索"
         />
-
         <select id="galleryTypeFilter"></select>
+        <select id="gallerySourceTypeFilter">
+          <option value="all">入手元すべて</option>
+        </select>
+        <select id="galleryPersonFilter">
+          <option value="all">人物すべて</option>
+        </select>
+        <select id="galleryAuthorFilter">
+          <option value="all">作者すべて</option>
+        </select>
+        <select id="galleryGenreFilter">
+          <option value="all">ジャンルすべて</option>
+        </select>
       </div>
-
-      <select id="galleryPersonFilter">
-  <option value="all">人物すべて</option>
-</select>
-
-<select id="galleryAuthorFilter">
-  <option value="all">作者すべて</option>
-</select>
-
-<select id="galleryGenreFilter">
-  <option value="all">ジャンルすべて</option>
-</select>
-        </div>
-      
       <div id="galleryCollectionList" class="gallery-collection-grid"></div>
-
       <button type="button" id="loadMoreCollectionsBtn" class="secondary-btn hidden">
-  もっと見る
-</button>
-      
+        もっと見る
+      </button>
     </section>
   </main>
-
   <div id="galleryPreviewModal" class="gallery-preview-modal hidden">
     <div class="gallery-preview-backdrop" id="galleryPreviewBackdrop"></div>
-
     <section class="gallery-preview-box">
-      <button id="closeGalleryPreviewBtn" class="gallery-preview-close" type="button">×</button>
-
+      <button id="closeGalleryPreviewBtn" class="gallery-preview-close" type="button">
+        ×
+      </button>
       <div class="gallery-preview-head">
         <div>
           <p class="label">GALLERY PREVIEW</p>
           <h2 id="previewGalleryTitle">ギャラリー</h2>
           <p id="previewGalleryMeta"></p>
         </div>
-
         <span id="previewGalleryType" class="gallery-type-badge">イラスト</span>
       </div>
-
-      <select id="gallerySourceTypeFilter">
-  <option value="all">入手元すべて</option>
-</select>
-
       <p id="previewGalleryMemo" class="gallery-preview-memo"></p>
-
       <div id="previewGalleryGrid" class="gallery-preview-grid"></div>
-
       <button type="button" id="loadMorePreviewImagesBtn" class="secondary-btn hidden">
-  画像をもっと見る
-</button>
+        画像をもっと見る
+      </button>
     </section>
   </div>
-
   <script type="module" src="/header.js"></script>
   <script type="module" src="/gallery.js"></script>
 </body>
