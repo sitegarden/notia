@@ -69,6 +69,7 @@ const previewGalleryMeta = document.getElementById("previewGalleryMeta");
 const previewGalleryType = document.getElementById("previewGalleryType");
 const previewGalleryMemo = document.getElementById("previewGalleryMemo");
 const previewGalleryGrid = document.getElementById("previewGalleryGrid");
+const loadMorePreviewImagesBtn = document.getElementById("loadMorePreviewImagesBtn");
 
 const collectionPersonInput = document.getElementById("collectionPersonInput");
 const galleryPersonFilter = document.getElementById("galleryPersonFilter");
@@ -79,6 +80,8 @@ const collectionGenreInput = document.getElementById("collectionGenreInput");
 const galleryAuthorFilter = document.getElementById("galleryAuthorFilter");
 const galleryGenreFilter = document.getElementById("galleryGenreFilter");
 
+
+
 [
   loginBtn,
   logoutBtn,
@@ -87,7 +90,8 @@ const galleryGenreFilter = document.getElementById("galleryGenreFilter");
   deleteGalleryBtn,
   reloadGalleryBtn,
   closeGalleryPreviewBtn,
-  loadMoreCollectionsBtn
+  loadMoreCollectionsBtn,
+  loadMorePreviewImagesBtn
 ].forEach((btn) => {
   if (btn) btn.type = "button";
 });
@@ -108,6 +112,10 @@ let existingImages = [];
 
 const COLLECTION_PAGE_SIZE = 30;
 let visibleCollectionCount = COLLECTION_PAGE_SIZE;
+
+const PREVIEW_IMAGE_PAGE_SIZE = 30;
+let currentPreviewCollectionId = null;
+let visiblePreviewImageCount = PREVIEW_IMAGE_PAGE_SIZE;
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -819,9 +827,78 @@ if (collectionSourceTypeInput) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function renderPreviewImages() {
+  if (!currentPreviewCollectionId) return;
+
+  const item = galleryCollections.find((collection) => collection.id === currentPreviewCollectionId);
+  if (!item) return;
+
+  const images = item.images || [];
+
+  if (!images.length) {
+    previewGalleryGrid.innerHTML = `<p class="empty-text">画像がありません。</p>`;
+
+    if (loadMorePreviewImagesBtn) {
+      loadMorePreviewImagesBtn.classList.add("hidden");
+    }
+
+    return;
+  }
+
+  const visibleImages = images.slice(0, visiblePreviewImageCount);
+
+  previewGalleryGrid.innerHTML = visibleImages.map((image, index) => `
+    <article class="gallery-preview-item">
+      ${
+        image.personName
+          ? `<div class="gallery-image-person">
+              ${
+                image.personIconUrl
+                  ? `<img src="${escapeHtml(image.personIconUrl)}" alt="${escapeHtml(image.personName)}" />`
+                  : `<span>${escapeHtml(image.personName.slice(0, 1))}</span>`
+              }
+              <p>${escapeHtml(image.personName)}</p>
+            </div>`
+          : ""
+      }
+
+      ${
+        image.authorName
+          ? `<div class="gallery-image-person">
+              ${
+                image.authorIconUrl
+                  ? `<img src="${escapeHtml(image.authorIconUrl)}" alt="${escapeHtml(image.authorName)}" />`
+                  : `<span>${escapeHtml(image.authorName.slice(0, 1))}</span>`
+              }
+              <p>作者：${escapeHtml(image.authorName)}</p>
+            </div>`
+          : ""
+      }
+
+      <div class="gallery-preview-image">
+        <img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.memo || `画像${index + 1}`)}" />
+      </div>
+
+      <p>${escapeHtml(image.memo || `画像 ${index + 1}`)}</p>
+    </article>
+  `).join("");
+
+  if (loadMorePreviewImagesBtn) {
+    if (visiblePreviewImageCount < images.length) {
+      loadMorePreviewImagesBtn.classList.remove("hidden");
+      loadMorePreviewImagesBtn.textContent = `画像をもっと見る（${images.length - visiblePreviewImageCount}枚）`;
+    } else {
+      loadMorePreviewImagesBtn.classList.add("hidden");
+    }
+  }
+}
+
 function openGalleryPreview(collectionId) {
   const item = galleryCollections.find((collection) => collection.id === collectionId);
   if (!item) return;
+
+  currentPreviewCollectionId = collectionId;
+  visiblePreviewImageCount = PREVIEW_IMAGE_PAGE_SIZE;
 
   previewGalleryTitle.textContent = item.title || "無題のコレクション";
   previewGalleryType.textContent = item.type || "";
@@ -829,57 +906,17 @@ function openGalleryPreview(collectionId) {
   const imageCount = item.images?.length || 0;
 
   previewGalleryMeta.textContent = [
-  item.type ? `種類：${item.type}` : "種類なし",
-  item.sourceType ? `入手元：${item.sourceType}` : "入手元なし",
-  item.genre ? `ジャンル：${item.genre}` : "ジャンルなし",
-  item.personName ? `人物：${item.personName}` : "人物なし",
-  item.authorName ? `作者：${item.authorName}` : item.source || "作者・出典未設定",
-  `${imageCount}枚`
-].join(" / ");
+    item.type ? `種類：${item.type}` : "種類なし",
+    item.sourceType ? `入手元：${item.sourceType}` : "入手元なし",
+    item.genre ? `ジャンル：${item.genre}` : "ジャンルなし",
+    item.personName ? `人物：${item.personName}` : "人物なし",
+    item.authorName ? `作者：${item.authorName}` : item.source || "作者・出典未設定",
+    `${imageCount}枚`
+  ].join(" / ");
 
   previewGalleryMemo.textContent = item.memo || "";
 
-  const images = item.images || [];
-
-  if (!images.length) {
-    previewGalleryGrid.innerHTML = `<p class="empty-text">画像がありません。</p>`;
-  } else {
-    previewGalleryGrid.innerHTML = images.map((image, index) => `
-  <article class="gallery-preview-item">
-    ${
-      image.personName
-        ? `<div class="gallery-image-person">
-            ${
-              image.personIconUrl
-                ? `<img src="${escapeHtml(image.personIconUrl)}" alt="${escapeHtml(image.personName)}" />`
-                : `<span>${escapeHtml(image.personName.slice(0, 1))}</span>`
-            }
-            <p>${escapeHtml(image.personName)}</p>
-          </div>`
-        : ""
-    }
-
-    ${
-  image.authorName
-    ? `<div class="gallery-image-person">
-        ${
-          image.authorIconUrl
-            ? `<img src="${escapeHtml(image.authorIconUrl)}" alt="${escapeHtml(image.authorName)}" />`
-            : `<span>${escapeHtml(image.authorName.slice(0, 1))}</span>`
-        }
-        <p>作者：${escapeHtml(image.authorName)}</p>
-      </div>`
-    : ""
-}
-
-    <div class="gallery-preview-image">
-      <img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.memo || `画像${index + 1}`)}" />
-    </div>
-
-    <p>${escapeHtml(image.memo || `画像 ${index + 1}`)}</p>
-  </article>
-`).join("");
-  }
+  renderPreviewImages();
 
   galleryPreviewModal.classList.remove("hidden");
   document.body.classList.add("modal-open");
@@ -888,6 +925,13 @@ function openGalleryPreview(collectionId) {
 function closeGalleryPreview() {
   galleryPreviewModal.classList.add("hidden");
   document.body.classList.remove("modal-open");
+
+  currentPreviewCollectionId = null;
+  visiblePreviewImageCount = PREVIEW_IMAGE_PAGE_SIZE;
+
+  if (loadMorePreviewImagesBtn) {
+    loadMorePreviewImagesBtn.classList.add("hidden");
+  }
 }
 
 async function saveGalleryCollection() {
@@ -1188,4 +1232,9 @@ collectionSourceTypeInput?.addEventListener("change", () => {
 loadMoreCollectionsBtn?.addEventListener("click", () => {
   visibleCollectionCount += COLLECTION_PAGE_SIZE;
   renderCollections();
+});
+
+loadMorePreviewImagesBtn?.addEventListener("click", () => {
+  visiblePreviewImageCount += PREVIEW_IMAGE_PAGE_SIZE;
+  renderPreviewImages();
 });
