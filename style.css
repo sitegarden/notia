@@ -7490,3 +7490,35 @@ body.modal-open {
     border-radius: 14px;
   }
 }
+
+/* ==============================
+   Gallery / image crop fix
+============================== */
+
+/* 一覧サムネは見栄え優先。ただし少し上寄せ */
+.gallery-collection-thumb img,
+.gallery-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* プレビューは切らずに全体表示 */
+.gallery-preview-image {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f7f3ec;
+}
+
+.gallery-preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+}
