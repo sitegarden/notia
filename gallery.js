@@ -576,7 +576,7 @@ function editCollection(collectionId) {
   editingCollectionId = item.id;
 
   collectionTitleInput.value = item.title || "";
-  collectionTypeInput.value = COLLECTION_TYPES[0] || "その他";
+  collectionTypeInput.value = item.type || COLLECTION_TYPES[0] || "その他";
   collectionSourceInput.value = item.source || "";
   collectionPersonInput.value = item.personId || "";
   collectionTagsInput.value = item.tags || "";
@@ -599,7 +599,7 @@ function openGalleryPreview(collectionId) {
   if (!item) return;
 
   previewGalleryTitle.textContent = item.title || "無題のコレクション";
-  previewGalleryType.textContent = item.type || "イラスト";
+  collectionTypeInput.value = COLLECTION_TYPES[0] || "その他";
 
   const imageCount = item.images?.length || 0;
 
@@ -804,6 +804,7 @@ galleryImagesInput.addEventListener("change", () => {
 });
 
 galleryDraftList.addEventListener("input", syncDraftTexts);
+galleryDraftList.addEventListener("change", syncDraftTexts);
 
 galleryDraftList.addEventListener("click", async (event) => {
   const removeDraftIndex = event.target.dataset.removeDraft;
