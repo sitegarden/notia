@@ -6968,3 +6968,265 @@ body.modal-open {
   font-size: 13px;
   font-weight: 800;
 }
+
+/* ==============================
+   Gallery Memo / update
+   sourceType・author・genre・load more
+============================== */
+
+.gallery-control-panel input,
+.gallery-control-panel select,
+.gallery-control-panel textarea,
+.gallery-list-panel input,
+.gallery-list-panel select {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid rgba(70, 58, 40, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #3b332b;
+  font: inherit;
+}
+
+.gallery-control-panel input:focus,
+.gallery-control-panel select:focus,
+.gallery-control-panel textarea:focus,
+.gallery-list-panel input:focus,
+.gallery-list-panel select:focus {
+  outline: none;
+  border-color: rgba(120, 155, 190, 0.65);
+  box-shadow: 0 0 0 4px rgba(232, 246, 255, 0.9);
+}
+
+.gallery-control-panel select {
+  cursor: pointer;
+}
+
+.gallery-draft-fields select,
+.gallery-draft-fields input {
+  width: 100%;
+  margin: 0;
+}
+
+.gallery-image-person-select,
+.gallery-image-author-select {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid rgba(70, 58, 40, 0.12);
+  border-radius: 12px;
+  background: #f8fbff;
+  color: #4c4a45;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.gallery-image-author-select {
+  background: #fff8e8;
+}
+
+.gallery-meta {
+  overflow-wrap: anywhere;
+}
+
+.gallery-tags {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.gallery-type-badge {
+  max-width: 110px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.gallery-linked-person,
+.gallery-image-person {
+  max-width: 100%;
+}
+
+.gallery-linked-person p,
+.gallery-image-person p {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 作者タグを人物タグと少し見分けやすく */
+.gallery-image-person + .gallery-image-person {
+  background: rgba(255, 248, 232, 0.95);
+}
+
+/* フィルター増加対応 */
+.gallery-list-panel .memo-toolbar,
+.gallery-toolbar,
+.gallery-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 150px 150px 150px;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* 既存HTMLが専用classなしでも崩れにくくする */
+.gallery-list-panel > input,
+.gallery-list-panel > select {
+  margin-bottom: 10px;
+}
+
+/* もっと見るボタン */
+#loadMoreCollectionsBtn {
+  display: block;
+  width: min(320px, 100%);
+  min-height: 44px;
+  margin: 20px auto 0;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: #2f2924;
+  color: #fffaf3;
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(64, 50, 32, 0.12);
+}
+
+#loadMoreCollectionsBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(64, 50, 32, 0.16);
+}
+
+/* コレクションカードを大量表示向けに少し軽く */
+.gallery-collection-card {
+  min-width: 0;
+}
+
+.gallery-title-row h3 {
+  min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.gallery-collection-thumb {
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+}
+
+.gallery-collection-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* スマホ：ギャラリーを2列にして見やすく */
+@media (max-width: 760px) {
+  .gallery-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .gallery-control-panel,
+  .gallery-list-panel {
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .gallery-control-panel {
+    position: static;
+  }
+
+  .gallery-collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .gallery-collection-card {
+    border-radius: 16px;
+  }
+
+  .gallery-collection-body {
+    padding: 10px;
+  }
+
+  .gallery-title-row {
+    display: grid;
+    gap: 6px;
+  }
+
+  .gallery-title-row h3 {
+    font-size: 13px;
+  }
+
+  .gallery-type-badge {
+    width: fit-content;
+    max-width: 100%;
+    font-size: 10px;
+  }
+
+  .gallery-meta {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .gallery-tags,
+  .gallery-memo,
+  .gallery-date {
+    display: none;
+  }
+
+  .gallery-mini-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .gallery-card-actions {
+    gap: 6px;
+  }
+
+  .gallery-card-actions .small-btn {
+    width: auto;
+    height: auto;
+    min-height: 34px;
+    padding: 7px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+
+  .gallery-draft-card {
+    grid-template-columns: 64px 1fr 30px;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .gallery-draft-card img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+  }
+
+  .gallery-draft-card button {
+    width: 30px;
+    height: 30px;
+  }
+
+  #loadMoreCollectionsBtn {
+    margin-top: 16px;
+  }
+}
+
+/* かなり狭いスマホ */
+@media (max-width: 420px) {
+  .gallery-collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gallery-preview-grid {
+    columns: 2 130px;
+  }
+}
+
+.gallery-filters {
+  grid-template-columns: minmax(0, 1fr) 130px 130px 130px 130px 130px;
+}
