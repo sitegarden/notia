@@ -620,12 +620,17 @@ function renderCollections() {
           </div>
 
           <p class="gallery-meta">
-            ${escapeHtml(item.type || "種類なし")} /
-            ${escapeHtml(item.sourceType || "入手元なし")} /
-            ${escapeHtml(item.personName || "人物なし")} /
-            ${escapeHtml(item.authorName || "作者未設定")} /
-            ${imageCount}枚
-          </p>
+  ${[
+    item.type,
+    item.sourceType,
+    item.personName,
+    item.authorName,
+    `${imageCount}枚`
+  ]
+    .filter(Boolean)
+    .map((text) => escapeHtml(text))
+    .join(" / ")}
+</p>
 
           ${
             item.tags
@@ -877,12 +882,12 @@ function openGalleryPreview(collectionId) {
   const imageCount = item.images?.length || 0;
 
   previewGalleryMeta.textContent = [
-    item.type ? `種類：${item.type}` : "種類なし",
-    item.sourceType ? `入手元：${item.sourceType}` : "入手元なし",
-    item.personName ? `人物：${item.personName}` : "人物なし",
-    item.authorName ? `作者：${item.authorName}` : "作者未設定",
-    `${imageCount}枚`
-  ].join(" / ");
+  item.type ? `種類：${item.type}` : "",
+  item.sourceType ? `入手元：${item.sourceType}` : "",
+  item.personName ? `人物：${item.personName}` : "",
+  item.authorName ? `作者：${item.authorName}` : "",
+  `${imageCount}枚`
+].filter(Boolean).join(" / ");
 
   previewGalleryMemo.textContent = item.memo || "";
 
