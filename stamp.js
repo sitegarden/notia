@@ -43,6 +43,8 @@ const packTitleInput = document.getElementById("packTitleInput");
 const packCharacterInput = document.getElementById("packCharacterInput");
 const packStatusInput = document.getElementById("packStatusInput");
 const packTagsInput = document.getElementById("packTagsInput");
+const packAiInput = document.getElementById("packAiInput");
+const packPhotoInput = document.getElementById("packPhotoInput");
 const packMemoInput = document.getElementById("packMemoInput");
 
 const mainImageInput = document.getElementById("mainImageInput");
@@ -58,6 +60,8 @@ const reloadStampPacksBtn = document.getElementById("reloadStampPacksBtn");
 
 const stampSearchInput = document.getElementById("stampSearchInput");
 const stampStatusFilter = document.getElementById("stampStatusFilter");
+const aiFilterBtn = document.getElementById("aiFilterBtn");
+const photoFilterBtn = document.getElementById("photoFilterBtn");
 const stampPackList = document.getElementById("stampPackList");
 
 const stampPreviewModal = document.getElementById("stampPreviewModal");
@@ -98,6 +102,7 @@ let stampDrafts = [];
 let existingMainImage = null;
 let existingTabImage = null;
 let existingStickers = [];
+let activeKindFilters = new Set();
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -123,6 +128,31 @@ function formatDate(timestamp) {
     hour: "2-digit",
     minute: "2-digit"
   });
+}
+
+
+function normalizeStatus(status = "制作中") {
+  if (status === "完成" || status === "申請済み" || status === "申請中") {
+    return "完成/申請中";
+  }
+
+  if (status === "保留") {
+    return "制作中";
+  }
+
+  return status || "制作中";
+}
+
+function getStatusClass(status = "制作中") {
+  const normalized = normalizeStatus(status);
+
+  if (normalized === "制作中") return "status-progress";
+  if (normalized === "完成/申請中") return "status-review";
+  if (normalized === "販売中") return "status-sale";
+  if (normalized === "リジェクト") return "status-reject";
+  if (normalized === "販売停止") return "status-stop";
+
+  return "status-progress";
 }
 
 function validateFile(file) {
@@ -183,6 +213,9 @@ function resetForm() {
   packStatusInput.value = "制作中";
   packTagsInput.value = "";
   packMemoInput.value = "";
+
+  packAiInput.checked = false;
+  packPhotoInput.checked = false;
 
   mainImageInput.value = "";
   tabImageInput.value = "";
@@ -309,6 +342,8 @@ function syncDraftTexts() {
 function renderPacks() {
   const searchText = stampSearchInput.value.trim().toLowerCase();
   const statusFilter = stampStatusFilter.value;
+  const aiFilterActive = activeKindFilters.has("ai");
+  const photoFilterActive = activeKindFilters.has("photo");
 
   const filtered = stampPacks.filter((pack) => {
     const joined = [
@@ -317,15 +352,20 @@ function renderPacks() {
       pack.tags,
       pack.memo,
       pack.status,
+      pack.aiGenerated ? "AI生成" : "",
+      pack.photoUsed ? "写真使用" : "",
       ...(pack.stickers || []).map((item) => item.text || "")
     ]
       .join(" ")
       .toLowerCase();
 
     const matchSearch = !searchText || joined.includes(searchText);
-    const matchStatus = statusFilter === "all" || pack.status === statusFilter;
+    const packStatus = normalizeStatus(pack.status);
+const matchStatus = statusFilter === "all" || packStatus === statusFilter;
+const matchAi = !aiFilterActive || !!pack.aiGenerated;
+const matchPhoto = !photoFilterActive || !!pack.photoUsed;
 
-    return matchSearch && matchStatus;
+return matchSearch && matchStatus && matchAi && matchPhoto;
   });
 
   if (!filtered.length) {
@@ -356,7 +396,9 @@ function renderPacks() {
         <div class="stamp-pack-body">
           <div class="stamp-pack-title-row">
             <h3>${escapeHtml(pack.title || "無題のスタンプ")}</h3>
-            <span class="stamp-status-badge">${escapeHtml(pack.status || "制作中")}</span>
+            <span class="stamp-status-badge ${getStatusClass(pack.status)}">
+  ${escapeHtml(normalizeStatus(pack.status))}
+</span>
           </div>
 
           <p class="stamp-pack-meta">
@@ -368,6 +410,15 @@ function renderPacks() {
               ? `<p class="stamp-pack-tags">${escapeHtml(pack.tags)}</p>`
               : ""
           }
+
+          ${
+  pack.aiGenerated || pack.photoUsed
+  ? `<div class="stamp-kind-badges">
+      ${pack.aiGenerated ? `<span>AI生成</span>` : ""}
+      ${pack.photoUsed ? `<span>写真使用</span>` : ""}
+    </div>`
+  : ""
+}
 
           ${
             pack.memo
@@ -441,8 +492,10 @@ function editPack(packId) {
 
   packTitleInput.value = pack.title || "";
   packCharacterInput.value = pack.character || "";
-  packStatusInput.value = pack.status || "制作中";
-  packTagsInput.value = pack.tags || "";
+  packStatusInput.value = normalizeStatus(pack.status);
+packTagsInput.value = pack.tags || "";
+packAiInput.checked = !!pack.aiGenerated;
+packPhotoInput.checked = !!pack.photoUsed;
   packMemoInput.value = pack.memo || "";
 
   mainImageInput.value = "";
@@ -470,7 +523,8 @@ function openStampPreview(packId) {
   if (!pack) return;
 
   previewPackTitle.textContent = pack.title || "無題のスタンプ";
-  previewPackStatus.textContent = pack.status || "制作中";
+  previewPackStatus.textContent = normalizeStatus(pack.status);
+  previewPackStatus.className = `stamp-status-badge ${getStatusClass(pack.status)}`;
 
   const stickerCount = pack.stickers?.length || 0;
 
@@ -519,8 +573,10 @@ async function saveStampPack() {
   const title = packTitleInput.value.trim();
   const character = packCharacterInput.value.trim();
   const status = packStatusInput.value;
-  const tags = packTagsInput.value.trim();
-  const memo = packMemoInput.value.trim();
+const tags = packTagsInput.value.trim();
+const memo = packMemoInput.value.trim();
+const aiGenerated = packAiInput.checked;
+const photoUsed = packPhotoInput.checked;
 
   if (!title) {
     alert("セット名を入力してください。");
@@ -570,17 +626,19 @@ async function saveStampPack() {
     ];
 
     const payload = {
-      uid: currentUser.uid,
-      title,
-      character,
-      status,
-      tags,
-      memo,
-      mainImage,
-      tabImage,
-      stickers,
-      updatedAt: serverTimestamp()
-    };
+  uid: currentUser.uid,
+  title,
+  character,
+  status,
+  tags,
+  memo,
+  aiGenerated,
+  photoUsed,
+  mainImage,
+  tabImage,
+  stickers,
+  updatedAt: serverTimestamp()
+};
 
     if (editingPackId) {
       await updateDoc(doc(db, "stampPacks", editingPackId), payload);
@@ -756,6 +814,25 @@ stampPackList.addEventListener("click", (event) => {
     openStampPreview(card.dataset.id);
   }
 });
+
+function updateKindFilterButtons() {
+  aiFilterBtn.classList.toggle("active", activeKindFilters.has("ai"));
+  photoFilterBtn.classList.toggle("active", activeKindFilters.has("photo"));
+}
+
+function toggleKindFilter(kind) {
+  if (activeKindFilters.has(kind)) {
+    activeKindFilters.delete(kind);
+  } else {
+    activeKindFilters.add(kind);
+  }
+
+  updateKindFilterButtons();
+  renderPacks();
+}
+
+aiFilterBtn.addEventListener("click", () => toggleKindFilter("ai"));
+photoFilterBtn.addEventListener("click", () => toggleKindFilter("photo"));
 
 stampSearchInput.addEventListener("input", renderPacks);
 stampStatusFilter.addEventListener("change", renderPacks);
