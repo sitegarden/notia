@@ -59,18 +59,30 @@
       />
 
       <select id="packStatusInput">
-        <option value="制作中">制作中</option>
-        <option value="完成">完成</option>
-        <option value="申請済み">申請済み</option>
-        <option value="販売中">販売中</option>
-        <option value="保留">保留</option>
-      </select>
+  <option value="制作中">制作中</option>
+  <option value="完成/申請中">完成/申請中</option>
+  <option value="販売中">販売中</option>
+  <option value="リジェクト">リジェクト</option>
+  <option value="販売停止">販売停止</option>
+</select>
 
       <input
         id="packTagsInput"
         type="text"
         placeholder="タグ 例：ごまちゃん, 相撲, ネタ"
       />
+
+      <div class="stamp-kind-options">
+  <label>
+    <input id="packAiInput" type="checkbox" />
+    <span>AI生成</span>
+  </label>
+
+  <label>
+    <input id="packPhotoInput" type="checkbox" />
+    <span>写真使用</span>
+  </label>
+</div>
 
       <textarea
         id="packMemoInput"
@@ -137,13 +149,23 @@
         />
 
         <select id="stampStatusFilter">
-          <option value="all">すべて</option>
-          <option value="制作中">制作中</option>
-          <option value="完成">完成</option>
-          <option value="申請済み">申請済み</option>
-          <option value="販売中">販売中</option>
-          <option value="保留">保留</option>
-        </select>
+  <option value="all">すべて</option>
+  <option value="制作中">制作中</option>
+  <option value="完成/申請中">完成/申請中</option>
+  <option value="販売中">販売中</option>
+  <option value="リジェクト">リジェクト</option>
+  <option value="販売停止">販売停止</option>
+</select>
+
+        <div class="stamp-filter-buttons">
+  <button id="aiFilterBtn" type="button" class="stamp-filter-btn" data-filter="ai">
+    AI生成
+  </button>
+
+  <button id="photoFilterBtn" type="button" class="stamp-filter-btn" data-filter="photo">
+    写真使用
+  </button>
+</div>
       </div>
 
       <div id="stampPackList" class="stamp-pack-grid"></div>
