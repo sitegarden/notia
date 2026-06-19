@@ -55,6 +55,9 @@ let listMemos = [];
 const LIST_LIMIT = 50;
 const ITEM_LIMIT = 100;
 
+const ITEM_TEXT_LIMIT = 80;
+const ITEM_MEMO_LIMIT = 300;
+
 const LIST_TITLE_LIMIT = 80;
 const LIST_DESCRIPTION_LIMIT = 1000;
 const ITEM_TEXT_LIMIT = 80;
@@ -174,7 +177,7 @@ async function loadListMemos() {
     return {
       id: docSnap.id,
       ...data,
-      items: Array.isArray(data.items) ? data.items : []
+      items: Array.isArray(data.items) ? data.items.map(normalizeItem) : []
     };
   });
 
@@ -201,7 +204,10 @@ function renderListMemos() {
     filtered = filtered.filter((memo) => {
       const title = (memo.title || "").toLowerCase();
       const description = (memo.description || "").toLowerCase();
-      const itemsText = getSortedItems(memo.items).join(" ").toLowerCase();
+      const itemsText = getSortedItems(memo.items)
+  .map((item) => `${item.text} ${item.memo}`)
+  .join(" ")
+  .toLowerCase();
 
       return (
         title.includes(keyword) ||
@@ -290,7 +296,7 @@ function createListMemoCard(memo) {
     empty.textContent = "まだ項目がありません";
     items.appendChild(empty);
   } else {
-    getSortedItems(memo.items).forEach((itemText) => {
+    getSortedItems(memo.items).forEach((itemData) => {
   const item = document.createElement("div");
   item.className = "listmemo-item";
 
@@ -298,12 +304,24 @@ function createListMemoCard(memo) {
   bullet.className = "listmemo-item-bullet";
   bullet.textContent = "・";
 
-  const text = document.createElement("span");
+  const body = document.createElement("div");
+  body.className = "listmemo-item-body";
+
+  const text = document.createElement("p");
   text.className = "listmemo-item-text";
-  text.textContent = itemText;
+  text.textContent = itemData.text;
+
+  body.appendChild(text);
+
+  if (itemData.memo) {
+    const memoText = document.createElement("p");
+    memoText.className = "listmemo-item-memo";
+    memoText.textContent = itemData.memo;
+    body.appendChild(memoText);
+  }
 
   item.appendChild(bullet);
-  item.appendChild(text);
+  item.appendChild(body);
   items.appendChild(item);
 });
   }
@@ -316,7 +334,7 @@ function createListMemoCard(memo) {
 
 function openListEditModal(memo) {
   editingListId = memo.id;
-  editingItems = [...memo.items];
+  editingItems = getSortedItems(memo.items);
 
   editListTitleInput.value = memo.title || "";
   editListDescriptionInput.value = memo.description || "";
@@ -344,12 +362,29 @@ function renderEditingItems() {
     return;
   }
 
-  editingItems.forEach((itemText, index) => {
+  editingItems.forEach((itemData, index) => {
     const row = document.createElement("div");
-    row.className = "listmemo-modal-item-row";
+    row.className = "listmemo-modal-item-row memo-mode";
 
-    const text = document.createElement("span");
-    text.textContent = itemText;
+    const fields = document.createElement("div");
+    fields.className = "listmemo-modal-item-fields";
+
+    const textInput = document.createElement("input");
+    textInput.type = "text";
+    textInput.value = itemData.text || "";
+    textInput.placeholder = "プロパティ名";
+
+    textInput.addEventListener("input", () => {
+      editingItems[index].text = textInput.value;
+    });
+
+    const memoInput = document.createElement("textarea");
+    memoInput.value = itemData.memo || "";
+    memoInput.placeholder = "このプロパティのメモ 任意";
+
+    memoInput.addEventListener("input", () => {
+      editingItems[index].memo = memoInput.value;
+    });
 
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
@@ -361,7 +396,10 @@ function renderEditingItems() {
       renderEditingItems();
     });
 
-    row.appendChild(text);
+    fields.appendChild(textInput);
+    fields.appendChild(memoInput);
+
+    row.appendChild(fields);
     row.appendChild(deleteBtn);
 
     editListItems.appendChild(row);
@@ -386,7 +424,10 @@ function addEditingItem() {
     return;
   }
 
-  editingItems.push(text);
+  editingItems.push({
+  text,
+  memo: ""
+});
   editListItemInput.value = "";
   renderEditingItems();
 }
@@ -428,7 +469,7 @@ saveListEditBtn.addEventListener("click", async () => {
     await updateDoc(doc(db, "listMemos", editingListId), {
       title,
       description,
-      items: editingItems,
+      items: cleanItems,
       updatedAt: serverTimestamp()
     });
 
@@ -440,6 +481,25 @@ saveListEditBtn.addEventListener("click", async () => {
     alert("リスト編集に失敗しました");
   }
 });
+
+const cleanItems = editingItems
+  .map(normalizeItem)
+  .filter((item) => item.text);
+
+if (!isAdmin(currentUser)) {
+  const overText = cleanItems.some((item) => item.text.length > ITEM_TEXT_LIMIT);
+  const overMemo = cleanItems.some((item) => item.memo.length > ITEM_MEMO_LIMIT);
+
+  if (overText) {
+    alert(`項目は${ITEM_TEXT_LIMIT}文字までです`);
+    return;
+  }
+
+  if (overMemo) {
+    alert(`項目メモは${ITEM_MEMO_LIMIT}文字までです`);
+    return;
+  }
+}
 
 deleteListEditBtn.addEventListener("click", async () => {
   if (!currentUser || !editingListId) return;
@@ -459,12 +519,27 @@ deleteListEditBtn.addEventListener("click", async () => {
   }
 });
 
+function normalizeItem(item) {
+  if (typeof item === "string") {
+    return {
+      text: item.trim(),
+      memo: ""
+    };
+  }
+
+  return {
+    text: String(item?.text || "").trim(),
+    memo: String(item?.memo || "").trim()
+  };
+}
+
 function getSortedItems(items = []) {
   return [...items]
-    .map((item) => String(item || "").trim())
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b, "ja"));
+    .map(normalizeItem)
+    .filter((item) => item.text)
+    .sort((a, b) => a.text.localeCompare(b.text, "ja"));
 }
+
 
 cancelListEditBtn.addEventListener("click", () => {
   closeListEditModal();
