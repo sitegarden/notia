@@ -49,11 +49,8 @@ const savePersonBtn = document.getElementById("savePersonBtn");
 
 const PERSON_TYPES = [
   "リアル",
-  "オリキャラ",
-  "よその子",
-  "友人",
-  "絵チャ",
-  "家族",
+  "キャラクター",
+  "ネット",
   "その他"
 ];
 
@@ -64,13 +61,9 @@ const SELECT_OPTIONS = {
     "B型事業所",
     "家族",
     "友達",
-    "創作仲間",
-    "OCFA",
-    "FA",
+    "絵チャ",
+    "オープンチャット",
     "ゲーム",
-    "一次創作",
-    "二次創作",
-    "リアル",
     "その他"
   ],
 
