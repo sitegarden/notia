@@ -27,6 +27,7 @@ const userInfo = document.getElementById("userInfo");
 const listTitleInput = document.getElementById("listTitleInput");
 const listDescriptionInput = document.getElementById("listDescriptionInput");
 const addListBtn = document.getElementById("addListBtn");
+const listSortSelect = document.getElementById("listSortSelect");
 
 const listStatusText = document.getElementById("listStatusText");
 const listSearchInput = document.getElementById("listSearchInput");
@@ -258,6 +259,18 @@ function createListMemoCard(memo) {
     openListEditModal(memo);
   });
 
+  const sortType = listSortSelect.value;
+
+filtered = [...filtered].sort((a, b) => {
+  if (sortType === "name") {
+    return (a.title || "").localeCompare(b.title || "", "ja");
+  }
+
+  const aTime = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+  const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
+  return bTime - aTime;
+});
+
   headerActions.appendChild(count);
   headerActions.appendChild(editBtn);
 
@@ -274,11 +287,21 @@ function createListMemoCard(memo) {
     items.appendChild(empty);
   } else {
     memo.items.forEach((itemText) => {
-      const item = document.createElement("span");
-      item.className = "listmemo-item";
-      item.textContent = itemText;
-      items.appendChild(item);
-    });
+  const item = document.createElement("div");
+  item.className = "listmemo-item";
+
+  const bullet = document.createElement("span");
+  bullet.className = "listmemo-item-bullet";
+  bullet.textContent = "・";
+
+  const text = document.createElement("span");
+  text.className = "listmemo-item-text";
+  text.textContent = itemText;
+
+  item.appendChild(bullet);
+  item.appendChild(text);
+  items.appendChild(item);
+});
   }
 
   card.appendChild(header);
@@ -441,5 +464,9 @@ listEditModalBg.addEventListener("click", () => {
 });
 
 listSearchInput.addEventListener("input", () => {
+  renderListMemos();
+});
+
+listSortSelect.addEventListener("change", () => {
   renderListMemos();
 });
