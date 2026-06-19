@@ -92,42 +92,42 @@
             </label>
 
             <label class="draw-field">
-              <span>拡大</span>
-              <input id="zoomRange" type="range" min="25" max="300" value="100" />
-            </label>
+  <span>拡大</span>
+  <input id="zoomRange" type="range" min="25" max="300" value="100" />
+</label>
 
-            <div class="draw-panel">
-              
-<div class="draw-panel reference-panel">
-  <div>
-    <p class="label">REFERENCE</p>
-    <h2>下絵</h2>
+<div class="draw-panel reference-panel compact-reference-panel">
+  <div class="reference-head">
+    <div>
+      <p class="label">REFERENCE</p>
+      <h2>下絵</h2>
+    </div>
+
+    <button type="button" id="clearReferenceBtn" class="reference-clear-btn">
+      外す
+    </button>
   </div>
 
-  <label class="draw-field">
-    <span>画像を読み込む</span>
+  <label class="reference-file-btn">
+    画像を選ぶ
     <input id="referenceImageInput" type="file" accept="image/*" />
   </label>
 
-  <label class="draw-field">
+  <label class="reference-opacity-row">
     <span>不透明度</span>
     <input id="referenceOpacityRange" type="range" min="0" max="100" value="20" />
   </label>
 
-  <div class="draw-buttons">
-    <button type="button" id="clearReferenceBtn">下絵を外す</button>
-  </div>
-
-  <p class="draw-note">
-    下絵はキャンバスに合わせて表示されます。保存画像には含まれません。
+  <p class="draw-note reference-note">
+    下絵は保存されません。
   </p>
 </div>
 
-            <div class="draw-zoom-buttons">
-              <button type="button" id="zoomOutBtn">−</button>
-              <button type="button" id="zoomResetBtn">100%</button>
-              <button type="button" id="zoomInBtn">＋</button>
-            </div>
+<div class="draw-zoom-buttons">
+  <button type="button" id="zoomOutBtn">−</button>
+  <button type="button" id="zoomResetBtn">100%</button>
+  <button type="button" id="zoomInBtn">＋</button>
+</div>
 
             <div class="draw-buttons">
               <button type="button" id="penBtn" class="active">ペン</button>
