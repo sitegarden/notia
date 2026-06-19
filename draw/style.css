@@ -414,7 +414,6 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: auto;
-  touch-action: none;
   background:
     linear-gradient(45deg, #ded8e6 25%, transparent 25%),
     linear-gradient(-45deg, #ded8e6 25%, transparent 25%),
@@ -439,6 +438,7 @@
   height: 900px;
   transform-origin: 0 0;
   will-change: transform;
+  touch-action: none;
   background:
     linear-gradient(45deg, #e8e2ef 25%, transparent 25%),
     linear-gradient(-45deg, #e8e2ef 25%, transparent 25%),
