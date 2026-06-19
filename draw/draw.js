@@ -173,6 +173,9 @@ function createLayer(name = "") {
   canvas.addEventListener("pointercancel", endDrawing);
   canvas.addEventListener("pointerleave", endDrawing);
 
+  window.addEventListener("pointerup", handleCanvasPointerEnd, { capture: true });
+window.addEventListener("pointercancel", handleCanvasPointerEnd, { capture: true });
+
   const layer = {
     id,
     name: name || `Layer ${layers.length + 1}`,
@@ -539,8 +542,6 @@ function clearCanvas() {
   clearAllLayers();
   markDirty();
 }
-
-/* ---------- zoom ---------- */
 
 /* ---------- zoom / gesture ---------- */
 
