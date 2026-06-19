@@ -534,8 +534,8 @@ function renderPeople() {
     }
 
     if (person.mbti) {
-      badges.appendChild(createBadge(person.mbti));
-    }
+  badges.appendChild(createBadge(person.mbti, getMbtiClass(person.mbti)));
+}
 
     if (person.enneagram) {
       badges.appendChild(createBadge(person.enneagram));
@@ -891,11 +891,32 @@ function clearPersonForm() {
   }
 }
 
-function createBadge(text) {
+function createBadge(text, type = "") {
   const badge = document.createElement("span");
   badge.className = "person-badge";
+
+  if (type) {
+    badge.classList.add(type);
+  }
+
   badge.textContent = text;
   return badge;
+}
+
+function getMbtiClass(mbti = "") {
+  const type = String(mbti).toUpperCase();
+
+  const analysts = ["INTJ", "INTP", "ENTJ", "ENTP"];
+  const diplomats = ["INFJ", "INFP", "ENFJ", "ENFP"];
+  const sentinels = ["ISTJ", "ISFJ", "ESTJ", "ESFJ"];
+  const explorers = ["ISTP", "ISFP", "ESTP", "ESFP"];
+
+  if (analysts.includes(type)) return "mbti-analyst";
+  if (diplomats.includes(type)) return "mbti-diplomat";
+  if (sentinels.includes(type)) return "mbti-sentinel";
+  if (explorers.includes(type)) return "mbti-explorer";
+
+  return "";
 }
 
 function getTypeLabel(type) {
