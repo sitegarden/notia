@@ -7611,3 +7611,26 @@ body.modal-open {
   }
 }
 
+.person-badge.mbti-analyst {
+  background: #efe7ff;
+  color: #5b3f91;
+  border-color: #d8c6ff;
+}
+
+.person-badge.mbti-diplomat {
+  background: #e7f7ee;
+  color: #2f7a4f;
+  border-color: #bfe8cf;
+}
+
+.person-badge.mbti-sentinel {
+  background: #e7f1ff;
+  color: #315f9f;
+  border-color: #bfd8ff;
+}
+
+.person-badge.mbti-explorer {
+  background: #fff3d8;
+  color: #9a6a13;
+  border-color: #f1d28a;
+}
