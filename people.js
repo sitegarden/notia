@@ -57,6 +57,88 @@ const PERSON_TYPES = [
   "その他"
 ];
 
+const SELECT_OPTIONS = {
+  subType: [
+    "",
+    "自立支援",
+    "B型事業所",
+    "家族",
+    "友達",
+    "創作仲間",
+    "OCFA",
+    "FA",
+    "ゲーム",
+    "一次創作",
+    "二次創作",
+    "リアル",
+    "その他"
+  ],
+
+  relation: [
+    "",
+    "本人",
+    "家族",
+    "父",
+    "母",
+    "兄弟",
+    "祖父母",
+    "親戚",
+    "友達",
+    "親友",
+    "知り合い",
+    "職員",
+    "利用者",
+    "管理人",
+    "メンバー",
+    "推し",
+    "うちの子",
+    "よその子",
+    "相方",
+    "ライバル",
+    "その他"
+  ],
+
+  mbti: [
+    "",
+    "INTJ",
+    "INTP",
+    "ENTJ",
+    "ENTP",
+    "INFJ",
+    "INFP",
+    "ENFJ",
+    "ENFP",
+    "ISTJ",
+    "ISFJ",
+    "ESTJ",
+    "ESFJ",
+    "ISTP",
+    "ISFP",
+    "ESTP",
+    "ESFP",
+    "不明"
+  ]
+};
+
+function setupSelectOptions(select, options, emptyLabel) {
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  options.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value || emptyLabel;
+    select.appendChild(option);
+  });
+}
+
+function setupPeopleSelects() {
+  setupSelectOptions(personSubTypeInput, SELECT_OPTIONS.subType, "サブジャンルなし");
+  setupSelectOptions(personRelationInput, SELECT_OPTIONS.relation, "関係性なし");
+  setupSelectOptions(personMbtiInput, SELECT_OPTIONS.mbti, "MBTIなし");
+}
+
 let personReadingInput = document.getElementById("personReadingInput");
 let personIconInput = null;
 let peopleViewMode = localStorage.getItem("notiaPeopleViewMode") || "list";
@@ -71,6 +153,24 @@ let selectedPersonId = null;
 createPeopleViewSwitcher();
 setupPersonTypeOptions();
 createPersonIconInput();
+setupPeopleSelects();
+
+function setSelectValue(select, value) {
+  const safeValue = value || "";
+
+  const exists = Array.from(select.options).some((option) => {
+    return option.value === safeValue;
+  });
+
+  if (!exists && safeValue) {
+    const option = document.createElement("option");
+    option.value = safeValue;
+    option.textContent = safeValue;
+    select.appendChild(option);
+  }
+
+  select.value = safeValue;
+}
 
 /* ---------- auth ---------- */
 
@@ -167,7 +267,11 @@ peopleTypeFilter.addEventListener("change", () => {
   personMemoInput,
   personPropsInput
 ].forEach((input) => {
-  input.addEventListener("input", () => {
+  if (!input) return;
+
+  const eventName = input.tagName === "SELECT" ? "change" : "input";
+
+  input.addEventListener(eventName, () => {
     peopleStatus.textContent = selectedPersonId ? "未保存の変更あり" : "新規人物";
   });
 });
@@ -471,9 +575,9 @@ function selectPerson(person) {
 
   personNicknameInput.value = person.nickname || "";
   personTypeInput.value = person.type || PERSON_TYPES[0] || "その他";
-  personSubTypeInput.value = person.subType || "";
-  personRelationInput.value = person.relation || "";
-  personMbtiInput.value = person.mbti || "";
+  setSelectValue(personSubTypeInput, person.subType || "");
+setSelectValue(personRelationInput, person.relation || "");
+setSelectValue(personMbtiInput, person.mbti || "");
   personEnneagramInput.value = person.enneagram || "";
   personTagsInput.value = person.tags || "";
   personTraitsInput.value = person.traits || "";
