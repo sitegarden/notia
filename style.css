@@ -7756,3 +7756,42 @@ body.modal-open {
     grid-template-columns: 1fr;
   }
 }
+
+.listmemo-item-body {
+  display: grid;
+  gap: 4px;
+}
+
+.listmemo-item-text {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.listmemo-item-memo {
+  margin: 0;
+  color: #6f6258;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.listmemo-modal-item-row.memo-mode {
+  align-items: stretch;
+}
+
+.listmemo-modal-item-fields {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.listmemo-modal-item-fields input,
+.listmemo-modal-item-fields textarea {
+  width: 100%;
+}
+
+.listmemo-modal-item-fields textarea {
+  min-height: 72px;
+  resize: vertical;
+}
