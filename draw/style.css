@@ -414,14 +414,7 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: auto;
-  background:
-    radial-gradient(circle at 12% 12%, rgba(255, 124, 171, 0.08), transparent 26%),
-    radial-gradient(circle at 86% 16%, rgba(140, 123, 255, 0.1), transparent 28%),
-    linear-gradient(45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(98, 68, 96, 0.035) 25%, transparent 25%),
-    #fffaf2;
-  background-size: auto, auto, 24px 24px, 24px 24px, auto;
-  user-select: none;
+  touch-action: none;
 }
 
 .draw-canvas-inner {
@@ -437,11 +430,9 @@
   position: relative;
   width: 1200px;
   height: 900px;
-  transform-origin: center center;
+  transform-origin: 0 0;
+  will-change: transform;
   background: #fff;
-  box-shadow:
-    0 16px 44px rgba(74, 48, 92, 0.16),
-    0 0 0 1px rgba(98, 68, 96, 0.08);
 }
 
 .layer-canvas {
@@ -449,7 +440,6 @@
   inset: 0;
   width: 1200px;
   height: 900px;
-  cursor: crosshair;
   touch-action: none;
 }
 
