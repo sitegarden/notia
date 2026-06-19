@@ -25,8 +25,8 @@ import {
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
-const CANVAS_WIDTH = 1200;
-const CANVAS_HEIGHT = 900;
+const CANVAS_WIDTH = 1240;
+const CANVAS_HEIGHT = 1754;
 const MAX_DRAW_SIZE = 5 * 1024 * 1024;
 
 const authGate = document.getElementById("authGate");
