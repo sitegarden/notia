@@ -162,6 +162,9 @@ let people = [];
 let imageMemos = [];
 let selectedPersonId = null;
 
+const PEOPLE_PAGE_SIZE = 30;
+let visiblePeopleCount = PEOPLE_PAGE_SIZE;
+
 /* ---------- init ui ---------- */
 
 createPeopleViewSwitcher();
@@ -248,6 +251,7 @@ onAuthStateChanged(auth, async (user) => {
 
 newPersonBtn.addEventListener("click", () => {
   selectedPersonId = null;
+  visiblePeopleCount = PEOPLE_PAGE_SIZE;
   clearPersonForm();
   peopleStatus.textContent = "新規人物";
   renderPeople();
@@ -262,15 +266,18 @@ deletePersonBtn.addEventListener("click", async () => {
 });
 
 peopleSearchInput.addEventListener("input", () => {
+  visiblePeopleCount = PEOPLE_PAGE_SIZE;
   renderPeople();
 });
 
 peopleTypeFilter.addEventListener("change", () => {
+  visiblePeopleCount = PEOPLE_PAGE_SIZE;
   renderPeople();
 });
 
 if (peopleSubTypeFilter) {
   peopleSubTypeFilter.addEventListener("change", () => {
+    visiblePeopleCount = PEOPLE_PAGE_SIZE;
     renderPeople();
   });
 }
@@ -474,18 +481,18 @@ function renderPeople() {
   peopleList.classList.toggle("people-list", peopleViewMode === "list");
 
   const keyword = peopleSearchInput.value.trim().toLowerCase();
-const typeFilter = peopleTypeFilter.value;
-const subTypeFilter = peopleSubTypeFilter?.value || "all";
+  const typeFilter = peopleTypeFilter.value;
+  const subTypeFilter = peopleSubTypeFilter?.value || "all";
 
-let filtered = [...people];
+  let filtered = [...people];
 
-if (typeFilter !== "all") {
-  filtered = filtered.filter((person) => person.type === typeFilter);
-}
+  if (typeFilter !== "all") {
+    filtered = filtered.filter((person) => person.type === typeFilter);
+  }
 
-if (subTypeFilter !== "all") {
-  filtered = filtered.filter((person) => person.subType === subTypeFilter);
-}
+  if (subTypeFilter !== "all") {
+    filtered = filtered.filter((person) => person.subType === subTypeFilter);
+  }
 
   if (keyword) {
     filtered = filtered.filter((person) => {
@@ -513,6 +520,9 @@ if (subTypeFilter !== "all") {
 
   filtered.sort(comparePeopleByReading);
 
+  const totalCount = filtered.length;
+  const visiblePeople = filtered.slice(0, visiblePeopleCount);
+
   if (filtered.length === 0) {
     const empty = document.createElement("p");
     empty.className = "empty-text";
@@ -521,7 +531,7 @@ if (subTypeFilter !== "all") {
     return;
   }
 
-  filtered.forEach((person) => {
+  visiblePeople.forEach((person) => {
     const card = document.createElement("button");
     card.type = "button";
     card.className = selectedPersonId === person.id ? "person-card active" : "person-card";
@@ -560,8 +570,8 @@ if (subTypeFilter !== "all") {
     }
 
     if (person.mbti) {
-  badges.appendChild(createBadge(person.mbti, getMbtiClass(person.mbti)));
-}
+      badges.appendChild(createBadge(person.mbti, getMbtiClass(person.mbti)));
+    }
 
     if (person.enneagram) {
       badges.appendChild(createBadge(person.enneagram));
@@ -584,6 +594,20 @@ if (subTypeFilter !== "all") {
 
     peopleList.appendChild(card);
   });
+
+  if (visiblePeopleCount < totalCount) {
+    const moreBtn = document.createElement("button");
+    moreBtn.type = "button";
+    moreBtn.className = "people-more-btn";
+    moreBtn.textContent = `もっと見る（${visiblePeople.length}/${totalCount}）`;
+
+    moreBtn.addEventListener("click", () => {
+      visiblePeopleCount += PEOPLE_PAGE_SIZE;
+      renderPeople();
+    });
+
+    peopleList.appendChild(moreBtn);
+  }
 }
 
 /* ---------- select ---------- */
