@@ -412,7 +412,7 @@
 .draw-canvas-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1.414;
   overflow: hidden;
   background:
     linear-gradient(45deg, #ded8e6 25%, transparent 25%),
@@ -435,8 +435,8 @@
 
 .canvas-stack {
   position: relative;
-  width: 1200px;
-  height: 900px;
+  width: 1240px;
+  height: 1754px;
   transform-origin: 0 0;
   will-change: transform;
   touch-action: none;
@@ -447,8 +447,8 @@
 .layer-canvas {
   position: absolute;
   inset: 0;
-  width: 1200px;
-  height: 900px;
+  width: 1240px;
+  height: 1754px;
   display: block;
   touch-action: none;
 }
@@ -494,7 +494,7 @@
 .draw-thumb {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1.414;
   object-fit: contain;
   background: #fff;
   border-bottom: 1px solid rgba(98, 68, 96, 0.1);
