@@ -584,13 +584,4 @@
     grid-template-columns: 76px 1fr;
   }
 
-  .canvas-stack {
-    width: 900px;
-    height: 675px;
-  }
-
-  .layer-canvas {
-    width: 900px;
-    height: 675px;
-  }
 }
