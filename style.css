@@ -7634,3 +7634,21 @@ body.modal-open {
   color: #9a6a13;
   border-color: #f1d28a;
 }
+
+
+.people-more-btn {
+  width: 100%;
+  margin: 18px 0 4px;
+  padding: 14px 18px;
+  border: 1px solid #d9d1ee;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #5b4b78;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(80, 64, 120, 0.08);
+}
+
+.people-more-btn:hover {
+  transform: translateY(-1px);
+}
