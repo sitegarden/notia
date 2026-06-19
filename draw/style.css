@@ -413,7 +413,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  overflow: auto;
+  overflow: hidden;
   background:
     linear-gradient(45deg, #ded8e6 25%, transparent 25%),
     linear-gradient(-45deg, #ded8e6 25%, transparent 25%),
@@ -427,8 +427,9 @@
 
 .draw-canvas-inner {
   position: relative;
-  min-width: 1200px;
-  min-height: 900px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   padding: 24px;
 }
 
@@ -439,14 +440,7 @@
   transform-origin: 0 0;
   will-change: transform;
   touch-action: none;
-  background:
-    linear-gradient(45deg, #e8e2ef 25%, transparent 25%),
-    linear-gradient(-45deg, #e8e2ef 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #e8e2ef 75%),
-    linear-gradient(-45deg, transparent 75%, #e8e2ef 75%);
-  background-color: #ffffff;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
-  background-size: 20px 20px;
+  background: #ffffff;
   box-shadow: 0 16px 40px rgba(48, 40, 58, 0.18);
 }
 
