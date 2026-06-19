@@ -58,6 +58,7 @@ const eraserBtn = document.getElementById("eraserBtn");
 
 const canvasStatus = document.getElementById("canvasStatus");
 const canvasStack = document.getElementById("canvasStack");
+const canvasWrap = document.querySelector(".draw-canvas-wrap");
 const drawList = document.getElementById("drawList");
 
 const layerList = document.getElementById("layerList");
@@ -636,8 +637,14 @@ function updatePanGesture(touch) {
   applyZoom();
 }
 
+function isCanvasAreaEvent(event) {
+  return event.target === canvasStack || event.target.closest?.("#canvasStack");
+}
+
+
 function handleCanvasPointerDown(event) {
   if (event.pointerType !== "touch") return;
+  if (!isCanvasAreaEvent(event)) return;
 
   canvasStack.setPointerCapture?.(event.pointerId);
 
@@ -1258,6 +1265,23 @@ canvasStack.addEventListener("pointermove", handleCanvasPointerMove, { capture: 
 canvasStack.addEventListener("pointerup", handleCanvasPointerEnd, { capture: true });
 canvasStack.addEventListener("pointercancel", handleCanvasPointerEnd, { capture: true });
 canvasStack.addEventListener("pointerleave", handleCanvasPointerEnd, { capture: true });
+
+
+window.addEventListener("pointerup", handleCanvasPointerEnd, { capture: true });
+window.addEventListener("pointercancel", handleCanvasPointerEnd, { capture: true });
+
+canvasWrap?.addEventListener("gesturestart", (event) => {
+  event.preventDefault();
+});
+
+canvasWrap?.addEventListener("gesturechange", (event) => {
+  event.preventDefault();
+});
+
+canvasWrap?.addEventListener("gestureend", (event) => {
+  event.preventDefault();
+});
+
 addLayerBtn.addEventListener("click", addLayer);
 
 deleteLayerBtn.addEventListener("click", deleteActiveLayer);
