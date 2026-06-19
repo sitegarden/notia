@@ -7923,3 +7923,18 @@ body.modal-open {
   content: none !important;
   display: none !important;
 }
+
+
+/* list memo / weight adjust */
+
+.listmemo-item {
+  font-weight: 600;
+}
+
+.listmemo-item-text {
+  font-weight: 700;
+}
+
+.listmemo-item-memo {
+  font-weight: 500;
+}
