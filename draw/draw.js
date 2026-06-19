@@ -82,8 +82,8 @@ let undoStack = [];
 let redoStack = [];
 
 let zoom = 1;
-let panX = 0;
-let panY = 0;
+let panX = 24;
+let panY = 24;
 
 const activePointers = new Map();
 let canvasGestureMode = "none";
@@ -546,10 +546,20 @@ function clearCanvas() {
 
 /* ---------- zoom / gesture ---------- */
 
+let viewAnimationFrame = null;
+
 function applyZoom() {
   zoom = Number(zoomRange.value) / 100;
-  canvasStack.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
   zoomResetBtn.textContent = `${Math.round(zoom * 100)}%`;
+
+  if (viewAnimationFrame) {
+    cancelAnimationFrame(viewAnimationFrame);
+  }
+
+  viewAnimationFrame = requestAnimationFrame(() => {
+    canvasStack.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
+    viewAnimationFrame = null;
+  });
 }
 
 function setZoom(value) {
@@ -559,8 +569,8 @@ function setZoom(value) {
 }
 
 function resetView() {
-  panX = 0;
-  panY = 0;
+  panX = 24;
+  panY = 24;
   setZoom(100);
 }
 
