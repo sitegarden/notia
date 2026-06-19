@@ -816,10 +816,14 @@ stampPackList.addEventListener("click", (event) => {
 });
 
 function updateKindFilterButtons() {
-  aiFilterBtn.classList.toggle("active", activeKindFilters.has("ai"));
-  photoFilterBtn.classList.toggle("active", activeKindFilters.has("photo"));
-}
+  if (aiFilterBtn) {
+    aiFilterBtn.classList.toggle("active", activeKindFilters.has("ai"));
+  }
 
+  if (photoFilterBtn) {
+    photoFilterBtn.classList.toggle("active", activeKindFilters.has("photo"));
+  }
+}
 function toggleKindFilter(kind) {
   if (activeKindFilters.has(kind)) {
     activeKindFilters.delete(kind);
@@ -831,8 +835,13 @@ function toggleKindFilter(kind) {
   renderPacks();
 }
 
-aiFilterBtn.addEventListener("click", () => toggleKindFilter("ai"));
-photoFilterBtn.addEventListener("click", () => toggleKindFilter("photo"));
+if (aiFilterBtn) {
+  aiFilterBtn.addEventListener("click", () => toggleKindFilter("ai"));
+}
+
+if (photoFilterBtn) {
+  photoFilterBtn.addEventListener("click", () => toggleKindFilter("photo"));
+}
 
 stampSearchInput.addEventListener("input", renderPacks);
 stampStatusFilter.addEventListener("change", renderPacks);
