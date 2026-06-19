@@ -71,6 +71,12 @@ const referenceImageInput = document.getElementById("referenceImageInput");
 const referenceOpacityRange = document.getElementById("referenceOpacityRange");
 const clearReferenceBtn = document.getElementById("clearReferenceBtn");
 
+const pressureToggle = document.getElementById("pressureToggle");
+const fingerDrawToggle = document.getElementById("fingerDrawToggle");
+
+const smoothingToggle = document.getElementById("smoothingToggle");
+const smoothingRange = document.getElementById("smoothingRange");
+
 let referenceImageUrl = "";
 let referenceImageVisible = false;
 
@@ -84,6 +90,7 @@ let activeLayerId = null;
 let currentTool = "pen";
 let drawing = false;
 let lastPoint = null;
+let smoothedPoint = null;
 
 let undoStack = [];
 let redoStack = [];
@@ -503,6 +510,28 @@ function getLineWidth(point) {
   return Math.max(1, baseSize * pressure);
 }
 
+function getStabilizedPoint(point) {
+  if (!smoothingToggle?.checked) {
+    return point;
+  }
+
+  if (!smoothedPoint) {
+    smoothedPoint = point;
+    return point;
+  }
+
+  const strength = Number(smoothingRange?.value || 55) / 100;
+  const follow = 1 - strength;
+
+  smoothedPoint = {
+    x: smoothedPoint.x + (point.x - smoothedPoint.x) * follow,
+    y: smoothedPoint.y + (point.y - smoothedPoint.y) * follow,
+    pressure: point.pressure
+  };
+
+  return smoothedPoint;
+}
+
 function drawLine(from, to) {
   const ctx = getActiveContext();
   if (!ctx) return;
@@ -542,7 +571,9 @@ function startDrawing(event) {
 
   drawing = true;
 
-  lastPoint = getCanvasPoint(event);
+  const point = getCanvasPoint(event);
+  smoothedPoint = point;
+  lastPoint = point;
 
   pushUndo();
 
@@ -564,7 +595,8 @@ function moveDrawing(event) {
 
   event.preventDefault();
 
-  const point = getCanvasPoint(event);
+  const rawPoint = getCanvasPoint(event);
+  const point = getStabilizedPoint(rawPoint);
 
   drawLine(lastPoint, point);
 
@@ -576,6 +608,7 @@ function endDrawing(event) {
 
   drawing = false;
   lastPoint = null;
+  smoothedPoint = null;
 
   getActiveCanvas()?.releasePointerCapture?.(event.pointerId);
 }
@@ -1287,6 +1320,15 @@ function sanitizeFileName(text) {
 }
 
 /* ---------- events ---------- */
+
+drawApp?.addEventListener("selectstart", (event) => {
+  if (event.target.matches("input[type='text'], textarea")) return;
+  event.preventDefault();
+});
+
+canvasWrap?.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
+});
 
 penBtn.addEventListener("click", () => {
   setTool("pen");
