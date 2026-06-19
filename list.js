@@ -193,14 +193,15 @@ function renderListMemos() {
   listMemoList.innerHTML = "";
 
   const keyword = listSearchInput.value.trim().toLowerCase();
+  const sortType = listSortSelect.value;
 
-  let filtered = listMemos;
+  let filtered = [...listMemos];
 
   if (keyword) {
     filtered = filtered.filter((memo) => {
       const title = (memo.title || "").toLowerCase();
       const description = (memo.description || "").toLowerCase();
-      const itemsText = memo.items.join(" ").toLowerCase();
+      const itemsText = getSortedItems(memo.items).join(" ").toLowerCase();
 
       return (
         title.includes(keyword) ||
@@ -209,6 +210,22 @@ function renderListMemos() {
       );
     });
   }
+
+  filtered.sort((a, b) => {
+    if (sortType === "title") {
+      return (a.title || "").localeCompare(b.title || "", "ja");
+    }
+
+    if (sortType === "items") {
+      const aFirst = getSortedItems(a.items)[0] || "";
+      const bFirst = getSortedItems(b.items)[0] || "";
+      return aFirst.localeCompare(bFirst, "ja");
+    }
+
+    const aTime = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+    const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
+    return bTime - aTime;
+  });
 
   if (filtered.length === 0) {
     const empty = document.createElement("p");
@@ -222,7 +239,6 @@ function renderListMemos() {
     listMemoList.appendChild(createListMemoCard(memo));
   });
 }
-
 function createListMemoCard(memo) {
   const card = document.createElement("article");
   card.className = "listmemo-card";
@@ -259,18 +275,6 @@ function createListMemoCard(memo) {
     openListEditModal(memo);
   });
 
-  const sortType = listSortSelect.value;
-
-filtered = [...filtered].sort((a, b) => {
-  if (sortType === "name") {
-    return (a.title || "").localeCompare(b.title || "", "ja");
-  }
-
-  const aTime = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
-  const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
-  return bTime - aTime;
-});
-
   headerActions.appendChild(count);
   headerActions.appendChild(editBtn);
 
@@ -286,7 +290,7 @@ filtered = [...filtered].sort((a, b) => {
     empty.textContent = "まだ項目がありません";
     items.appendChild(empty);
   } else {
-    memo.items.forEach((itemText) => {
+    getSortedItems(memo.items).forEach((itemText) => {
   const item = document.createElement("div");
   item.className = "listmemo-item";
 
@@ -454,6 +458,13 @@ deleteListEditBtn.addEventListener("click", async () => {
     alert("リスト削除に失敗しました");
   }
 });
+
+function getSortedItems(items = []) {
+  return [...items]
+    .map((item) => String(item || "").trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "ja"));
+}
 
 cancelListEditBtn.addEventListener("click", () => {
   closeListEditModal();
