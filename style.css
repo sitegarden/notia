@@ -7938,3 +7938,111 @@ body.modal-open {
 .listmemo-item-memo {
   font-weight: 500;
 }
+
+.stamp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.stamp-status-badge.status-progress {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.stamp-status-badge.status-review {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.stamp-status-badge.status-sale {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
+.stamp-status-badge.status-reject {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.stamp-status-badge.status-stop {
+  background: #1f2937;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+.stamp-kind-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stamp-kind-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 8px 12px;
+  border: 1px solid #ddd4c8;
+  border-radius: 999px;
+  background: #fffaf3;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stamp-kind-options input {
+  width: auto;
+  margin: 0;
+}
+
+.stamp-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stamp-filter-btn {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #ddd4c8;
+  background: #fffaf3;
+  color: #3a332c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stamp-filter-btn.active {
+  background: #2f2924;
+  color: #fffaf3;
+  border-color: #2f2924;
+}
+
+.stamp-kind-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.stamp-kind-badges span {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f3efe8;
+  color: #51483f;
+  font-size: 11px;
+  font-weight: 700;
+}
