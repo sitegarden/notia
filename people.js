@@ -1000,10 +1000,10 @@ function comparePeopleByReading(a, b) {
   const aKey = getPersonSortKey(a);
   const bKey = getPersonSortKey(b);
 
-  const result = aKey.localeCompare(bKey, "ja", {
-    numeric: true,
-    sensitivity: "base"
-  });
+  const result = aKey.localeCompare(bKey, "ja-JP", {
+  numeric: true,
+  sensitivity: "base"
+});
 
   if (result !== 0) {
     return result;
@@ -1016,7 +1016,21 @@ function comparePeopleByReading(a, b) {
 }
 
 function getPersonSortKey(person) {
-  return String(person.reading || person.name || "")
+  const reading = String(person.reading || "")
     .trim()
+    .replace(/\s+/g, "")
     .toLowerCase();
+
+  const name = String(person.name || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .toLowerCase();
+
+  return kanaToKatakana(reading || name);
+}
+
+function kanaToKatakana(text = "") {
+  return String(text).replace(/[\u3041-\u3096]/g, (char) => {
+    return String.fromCharCode(char.charCodeAt(0) + 0x60);
+  });
 }
