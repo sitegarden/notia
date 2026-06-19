@@ -3,7 +3,6 @@ import { isAdmin } from "../admin.js";
 
 import {
   signInWithPopup,
-  signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
@@ -34,8 +33,6 @@ const authGate = document.getElementById("authGate");
 const drawApp = document.getElementById("drawApp");
 
 const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const appLogoutBtn = document.getElementById("appLogoutBtn");
 const userInfo = document.getElementById("userInfo");
 const drawStatus = document.getElementById("drawStatus");
 
@@ -105,18 +102,6 @@ loginBtn.addEventListener("click", async () => {
   }
 });
 
-logoutBtn.addEventListener("click", logout);
-appLogoutBtn.addEventListener("click", logout);
-
-async function logout() {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    console.error(error);
-    alert("ログアウトに失敗しました");
-  }
-}
-
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
@@ -145,7 +130,6 @@ function showGate(message = "") {
   drawApp.classList.add("hidden");
 
   loginBtn.classList.remove("hidden");
-  logoutBtn.classList.add("hidden");
 
   userInfo.textContent = "";
   drawStatus.textContent = message || "ログインしてください";
@@ -156,7 +140,6 @@ function showApp(user) {
   drawApp.classList.remove("hidden");
 
   loginBtn.classList.add("hidden");
-  logoutBtn.classList.remove("hidden");
 
   userInfo.textContent = user.displayName || user.email || "ログイン中";
   drawStatus.textContent = "管理人としてログイン中";
