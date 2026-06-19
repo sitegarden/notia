@@ -88,7 +88,7 @@ let lastPoint = null;
 let undoStack = [];
 let redoStack = [];
 
-let zoom = 0.35;
+let zoom = 0.7;
 let panX = 24;
 let panY = 24;
 
@@ -627,7 +627,7 @@ function setZoom(value) {
 function resetView() {
   panX = 24;
   panY = 24;
-  setZoom(35);
+  setZoom(70);
 }
 
 function getTouchPointers() {
