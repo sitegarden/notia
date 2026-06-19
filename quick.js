@@ -42,6 +42,7 @@ const memoList = document.getElementById("memoList");
 const memoEditor = document.getElementById("memoEditor");
 const saveMemoBtn = document.getElementById("saveMemoBtn");
 const deleteMemoBtn = document.getElementById("deleteMemoBtn");
+const copyMemoBtn = document.getElementById("copyMemoBtn");
 const saveStatus = document.getElementById("saveStatus");
 
 const shareMemoBtn = document.getElementById("shareMemoBtn");
@@ -231,6 +232,33 @@ newMemoBtn.addEventListener("click", () => {
 
 saveMemoBtn.addEventListener("click", async () => {
   await saveMemo();
+});
+
+copyMemoBtn.addEventListener("click", async () => {
+  const text = memoEditor.value;
+
+  if (!text.trim()) {
+    alert("コピーするメモがありません");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    saveStatus.textContent = "コピーしました";
+  } catch (error) {
+    console.error(error);
+
+    memoEditor.focus();
+    memoEditor.select();
+
+    const copied = document.execCommand("copy");
+
+    if (copied) {
+      saveStatus.textContent = "コピーしました";
+    } else {
+      alert("コピーに失敗しました");
+    }
+  }
 });
 
 deleteMemoBtn.addEventListener("click", async () => {
