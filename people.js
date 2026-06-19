@@ -1016,17 +1016,17 @@ function comparePeopleByReading(a, b) {
 }
 
 function getPersonSortKey(person) {
-  const reading = String(person.reading || "")
+  const key = String(
+    person.reading ||
+    person.nickname ||
+    person.name ||
+    ""
+  )
     .trim()
     .replace(/\s+/g, "")
     .toLowerCase();
 
-  const name = String(person.name || "")
-    .trim()
-    .replace(/\s+/g, "")
-    .toLowerCase();
-
-  return kanaToKatakana(reading || name);
+  return kanaToKatakana(key);
 }
 
 function kanaToKatakana(text = "") {
