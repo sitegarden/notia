@@ -26,6 +26,7 @@ const userInfo = document.getElementById("userInfo");
 
 const peopleSearchInput = document.getElementById("peopleSearchInput");
 const peopleTypeFilter = document.getElementById("peopleTypeFilter");
+const peopleSubTypeFilter = document.getElementById("peopleSubTypeFilter");
 const peopleList = document.getElementById("peopleList");
 
 const peopleFormTitle = document.getElementById("peopleFormTitle");
@@ -132,6 +133,26 @@ function setupPeopleSelects() {
   setupSelectOptions(personMbtiInput, SELECT_OPTIONS.mbti, "MBTIなし");
 }
 
+function setupSubTypeFilterOptions() {
+  if (!peopleSubTypeFilter) return;
+
+  peopleSubTypeFilter.innerHTML = "";
+
+  const allOption = document.createElement("option");
+  allOption.value = "all";
+  allOption.textContent = "すべてのサブジャンル";
+  peopleSubTypeFilter.appendChild(allOption);
+
+  SELECT_OPTIONS.subType
+    .filter(Boolean)
+    .forEach((subType) => {
+      const option = document.createElement("option");
+      option.value = subType;
+      option.textContent = subType;
+      peopleSubTypeFilter.appendChild(option);
+    });
+}
+
 let personReadingInput = document.getElementById("personReadingInput");
 let personIconInput = null;
 let peopleViewMode = localStorage.getItem("notiaPeopleViewMode") || "list";
@@ -145,8 +166,9 @@ let selectedPersonId = null;
 
 createPeopleViewSwitcher();
 setupPersonTypeOptions();
-createPersonIconInput();
 setupPeopleSelects();
+setupSubTypeFilterOptions();
+createPersonIconInput();
 
 function setSelectValue(select, value) {
   const safeValue = value || "";
@@ -246,6 +268,12 @@ peopleSearchInput.addEventListener("input", () => {
 peopleTypeFilter.addEventListener("change", () => {
   renderPeople();
 });
+
+if (peopleSubTypeFilter) {
+  peopleSubTypeFilter.addEventListener("change", () => {
+    renderPeople();
+  });
+}
 
 [
   personNameInput,
@@ -446,13 +474,18 @@ function renderPeople() {
   peopleList.classList.toggle("people-list", peopleViewMode === "list");
 
   const keyword = peopleSearchInput.value.trim().toLowerCase();
-  const typeFilter = peopleTypeFilter.value;
+const typeFilter = peopleTypeFilter.value;
+const subTypeFilter = peopleSubTypeFilter?.value || "all";
 
-  let filtered = [...people];
+let filtered = [...people];
 
-  if (typeFilter !== "all") {
-    filtered = filtered.filter((person) => person.type === typeFilter);
-  }
+if (typeFilter !== "all") {
+  filtered = filtered.filter((person) => person.type === typeFilter);
+}
+
+if (subTypeFilter !== "all") {
+  filtered = filtered.filter((person) => person.subType === subTypeFilter);
+}
 
   if (keyword) {
     filtered = filtered.filter((person) => {
