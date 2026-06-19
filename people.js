@@ -563,19 +563,19 @@ function renderPeople() {
     const badges = document.createElement("div");
     badges.className = "person-badges";
 
-    badges.appendChild(createBadge(getTypeLabel(person.type)));
-
-    if (person.subType) {
-      badges.appendChild(createBadge(person.subType));
-    }
-
     if (person.mbti) {
-      badges.appendChild(createBadge(person.mbti, getMbtiClass(person.mbti)));
-    }
+  badges.appendChild(createBadge(person.mbti, getMbtiClass(person.mbti)));
+}
 
-    if (person.enneagram) {
-      badges.appendChild(createBadge(person.enneagram));
-    }
+badges.appendChild(createBadge(getTypeLabel(person.type)));
+
+if (person.enneagram) {
+  badges.appendChild(createBadge(person.enneagram));
+}
+
+if (person.subType) {
+  badges.appendChild(createBadge(person.subType));
+}
 
     splitTags(person.tags).slice(0, 4).forEach((tag) => {
       badges.appendChild(createBadge(tag));
