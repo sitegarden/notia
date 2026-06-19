@@ -55,12 +55,10 @@ let listMemos = [];
 const LIST_LIMIT = 50;
 const ITEM_LIMIT = 100;
 
-const ITEM_TEXT_LIMIT = 80;
-const ITEM_MEMO_LIMIT = 300;
-
 const LIST_TITLE_LIMIT = 80;
 const LIST_DESCRIPTION_LIMIT = 1000;
 const ITEM_TEXT_LIMIT = 80;
+const ITEM_MEMO_LIMIT = 300;
 
 /* auth */
 
@@ -223,10 +221,10 @@ function renderListMemos() {
     }
 
     if (sortType === "items") {
-      const aFirst = getSortedItems(a.items)[0] || "";
-      const bFirst = getSortedItems(b.items)[0] || "";
-      return aFirst.localeCompare(bFirst, "ja");
-    }
+  const aFirst = getSortedItems(a.items)[0]?.text || "";
+  const bFirst = getSortedItems(b.items)[0]?.text || "";
+  return aFirst.localeCompare(bFirst, "ja");
+}
 
     const aTime = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
     const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
@@ -465,6 +463,25 @@ saveListEditBtn.addEventListener("click", async () => {
     return;
   }
 
+  const cleanItems = editingItems
+    .map(normalizeItem)
+    .filter((item) => item.text);
+
+  if (!isAdmin(currentUser)) {
+    const overText = cleanItems.some((item) => item.text.length > ITEM_TEXT_LIMIT);
+    const overMemo = cleanItems.some((item) => item.memo.length > ITEM_MEMO_LIMIT);
+
+    if (overText) {
+      alert(`項目は${ITEM_TEXT_LIMIT}文字までです`);
+      return;
+    }
+
+    if (overMemo) {
+      alert(`項目メモは${ITEM_MEMO_LIMIT}文字までです`);
+      return;
+    }
+  }
+
   try {
     await updateDoc(doc(db, "listMemos", editingListId), {
       title,
@@ -481,25 +498,6 @@ saveListEditBtn.addEventListener("click", async () => {
     alert("リスト編集に失敗しました");
   }
 });
-
-const cleanItems = editingItems
-  .map(normalizeItem)
-  .filter((item) => item.text);
-
-if (!isAdmin(currentUser)) {
-  const overText = cleanItems.some((item) => item.text.length > ITEM_TEXT_LIMIT);
-  const overMemo = cleanItems.some((item) => item.memo.length > ITEM_MEMO_LIMIT);
-
-  if (overText) {
-    alert(`項目は${ITEM_TEXT_LIMIT}文字までです`);
-    return;
-  }
-
-  if (overMemo) {
-    alert(`項目メモは${ITEM_MEMO_LIMIT}文字までです`);
-    return;
-  }
-}
 
 deleteListEditBtn.addEventListener("click", async () => {
   if (!currentUser || !editingListId) return;
