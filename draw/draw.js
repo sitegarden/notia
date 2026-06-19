@@ -84,6 +84,15 @@ let undoStack = [];
 let redoStack = [];
 
 let zoom = 1;
+let panX = 0;
+let panY = 0;
+
+const activePointers = new Map();
+let canvasGestureMode = "none";
+let gestureStartDistance = 0;
+let gestureStartZoom = 100;
+let gestureStartCenter = null;
+let gestureStartPan = { x: 0, y: 0 };
 
 /* ---------- auth ---------- */
 
@@ -478,14 +487,18 @@ function drawLine(from, to) {
 }
 
 function startDrawing(event) {
+  if (event.pointerType === "touch" && isCanvasGesturing()) return;
+  if (event.pointerType === "touch" && activePointers.size >= 2) return;
   if (!canDrawWithPointer(event)) return;
 
   const activeCanvas = getActiveCanvas();
+
   if (!activeCanvas) return;
 
   event.preventDefault();
 
   drawing = true;
+
   lastPoint = getCanvasPoint(event);
 
   pushUndo();
@@ -502,13 +515,16 @@ function startDrawing(event) {
 }
 
 function moveDrawing(event) {
+  if (event.pointerType === "touch" && isCanvasGesturing()) return;
   if (!drawing || !lastPoint) return;
   if (!canDrawWithPointer(event)) return;
 
   event.preventDefault();
 
   const point = getCanvasPoint(event);
+
   drawLine(lastPoint, point);
+
   lastPoint = point;
 }
 
@@ -543,9 +559,11 @@ function clearCanvas() {
 
 /* ---------- zoom ---------- */
 
+/* ---------- zoom / gesture ---------- */
+
 function applyZoom() {
   zoom = Number(zoomRange.value) / 100;
-  canvasStack.style.transform = `scale(${zoom})`;
+  canvasStack.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
   zoomResetBtn.textContent = `${Math.round(zoom * 100)}%`;
 }
 
@@ -553,6 +571,169 @@ function setZoom(value) {
   const next = Math.min(300, Math.max(25, value));
   zoomRange.value = String(next);
   applyZoom();
+}
+
+function resetView() {
+  panX = 0;
+  panY = 0;
+  setZoom(100);
+}
+
+function getTouchPointers() {
+  return [...activePointers.values()].filter((pointer) => pointer.pointerType === "touch");
+}
+
+function getPointerDistance(pointerA, pointerB) {
+  return Math.hypot(
+    pointerA.clientX - pointerB.clientX,
+    pointerA.clientY - pointerB.clientY
+  );
+}
+
+function getPointerCenter(pointerA, pointerB) {
+  return {
+    x: (pointerA.clientX + pointerB.clientX) / 2,
+    y: (pointerA.clientY + pointerB.clientY) / 2
+  };
+}
+
+function stopCurrentDrawingForGesture() {
+  drawing = false;
+  lastPoint = null;
+}
+
+function beginPinchGesture(touches) {
+  if (touches.length < 2) return;
+
+  const [pointerA, pointerB] = touches;
+
+  canvasGestureMode = "pinch";
+  gestureStartDistance = getPointerDistance(pointerA, pointerB);
+  gestureStartZoom = Number(zoomRange.value);
+  gestureStartCenter = getPointerCenter(pointerA, pointerB);
+  gestureStartPan = { x: panX, y: panY };
+
+  stopCurrentDrawingForGesture();
+}
+
+function updatePinchGesture(touches) {
+  if (touches.length < 2 || gestureStartDistance <= 0 || !gestureStartCenter) return;
+
+  const [pointerA, pointerB] = touches;
+  const center = getPointerCenter(pointerA, pointerB);
+  const distance = getPointerDistance(pointerA, pointerB);
+
+  const nextZoom = Math.min(300, Math.max(25, gestureStartZoom * (distance / gestureStartDistance)));
+  const scaleRatio = nextZoom / gestureStartZoom;
+
+  panX = center.x - (gestureStartCenter.x - gestureStartPan.x) * scaleRatio;
+  panY = center.y - (gestureStartCenter.y - gestureStartPan.y) * scaleRatio;
+
+  zoomRange.value = String(Math.round(nextZoom));
+  applyZoom();
+}
+
+function beginPanGesture(touch) {
+  canvasGestureMode = "pan";
+  gestureStartCenter = {
+    x: touch.clientX,
+    y: touch.clientY
+  };
+  gestureStartPan = { x: panX, y: panY };
+}
+
+
+function updatePanGesture(touch) {
+  if (!gestureStartCenter) return;
+
+  panX = gestureStartPan.x + touch.clientX - gestureStartCenter.x;
+  panY = gestureStartPan.y + touch.clientY - gestureStartCenter.y;
+
+  applyZoom();
+}
+
+function handleCanvasPointerDown(event) {
+  if (event.pointerType !== "touch") return;
+
+  canvasStack.setPointerCapture?.(event.pointerId);
+
+  activePointers.set(event.pointerId, {
+    pointerId: event.pointerId,
+    pointerType: event.pointerType,
+    clientX: event.clientX,
+    clientY: event.clientY
+  });
+
+  const touches = getTouchPointers();
+
+  if (touches.length >= 2) {
+    event.preventDefault();
+    beginPinchGesture(touches);
+    return;
+  }
+
+  if (!fingerDrawToggle.checked && touches.length === 1) {
+    event.preventDefault();
+    beginPanGesture(touches[0]);
+  }
+}
+
+function handleCanvasPointerMove(event) {
+  if (event.pointerType !== "touch") return;
+  if (!activePointers.has(event.pointerId)) return;
+
+  activePointers.set(event.pointerId, {
+    pointerId: event.pointerId,
+    pointerType: event.pointerType,
+    clientX: event.clientX,
+    clientY: event.clientY
+  });
+
+  const touches = getTouchPointers();
+
+  if (touches.length >= 2) {
+    event.preventDefault();
+
+    if (canvasGestureMode !== "pinch") {
+      beginPinchGesture(touches);
+    }
+
+    updatePinchGesture(touches);
+    return;
+  }
+
+  if (canvasGestureMode === "pan" && touches.length === 1) {
+    event.preventDefault();
+    updatePanGesture(touches[0]);
+  }
+}
+
+function handleCanvasPointerEnd(event) {
+  if (event.pointerType !== "touch") return;
+
+  canvasStack.releasePointerCapture?.(event.pointerId);
+
+  activePointers.delete(event.pointerId);
+
+  const touches = getTouchPointers();
+
+  if (touches.length >= 2) {
+    beginPinchGesture(touches);
+    return;
+  }
+
+  if (touches.length === 1 && !fingerDrawToggle.checked) {
+    beginPanGesture(touches[0]);
+    return;
+  }
+
+  canvasGestureMode = "none";
+  gestureStartDistance = 0;
+  gestureStartCenter = null;
+}
+
+function isCanvasGesturing() {
+  return canvasGestureMode !== "none" || getTouchPointers().length >= 2;
 }
 
 /* ---------- firebase load ---------- */
@@ -1086,10 +1267,13 @@ zoomInBtn.addEventListener("click", () => {
   setZoom(Number(zoomRange.value) + 25);
 });
 
-zoomResetBtn.addEventListener("click", () => {
-  setZoom(100);
-});
+zoomResetBtn.addEventListener("click", resetView);
 
+canvasStack.addEventListener("pointerdown", handleCanvasPointerDown, { capture: true });
+canvasStack.addEventListener("pointermove", handleCanvasPointerMove, { capture: true });
+canvasStack.addEventListener("pointerup", handleCanvasPointerEnd, { capture: true });
+canvasStack.addEventListener("pointercancel", handleCanvasPointerEnd, { capture: true });
+canvasStack.addEventListener("pointerleave", handleCanvasPointerEnd, { capture: true });
 addLayerBtn.addEventListener("click", addLayer);
 
 deleteLayerBtn.addEventListener("click", deleteActiveLayer);
