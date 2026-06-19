@@ -96,6 +96,31 @@
               <input id="zoomRange" type="range" min="25" max="300" value="100" />
             </label>
 
+            <div class="draw-panel">
+  <div>
+    <p class="label">REFERENCE</p>
+    <h2>下絵</h2>
+  </div>
+
+  <label class="draw-field">
+    <span>画像を読み込む</span>
+    <input id="referenceImageInput" type="file" accept="image/*" />
+  </label>
+
+  <label class="draw-field">
+    <span>不透明度</span>
+    <input id="referenceOpacityRange" type="range" min="0" max="100" value="35" />
+  </label>
+
+  <div class="draw-buttons">
+    <button type="button" id="clearReferenceBtn">下絵を外す</button>
+  </div>
+
+  <p class="draw-note">
+    下絵はキャンバスに合わせて表示されます。保存画像には含まれません。
+  </p>
+</div>
+
             <div class="draw-zoom-buttons">
               <button type="button" id="zoomOutBtn">−</button>
               <button type="button" id="zoomResetBtn">100%</button>
