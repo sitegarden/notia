@@ -255,6 +255,11 @@ copyMemoBtn.addEventListener("click", async () => {
 
     if (copied) {
       saveStatus.textContent = "コピーしました";
+
+setTimeout(() => {
+  saveStatus.textContent = selectedMemoId ? "編集中" : "新規メモ";
+}, 1200);
+      
     } else {
       alert("コピーに失敗しました");
     }
