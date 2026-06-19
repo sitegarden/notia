@@ -67,6 +67,13 @@ const moveLayerUpBtn = document.getElementById("moveLayerUpBtn");
 const moveLayerDownBtn = document.getElementById("moveLayerDownBtn");
 const deleteLayerBtn = document.getElementById("deleteLayerBtn");
 
+const referenceImageInput = document.getElementById("referenceImageInput");
+const referenceOpacityRange = document.getElementById("referenceOpacityRange");
+const clearReferenceBtn = document.getElementById("clearReferenceBtn");
+
+let referenceImageUrl = "";
+let referenceImageVisible = false;
+
 let currentUser = null;
 let drawMemos = [];
 let selectedDrawMemoId = null;
@@ -210,15 +217,61 @@ function getActiveContext() {
 function renderCanvasStack() {
   canvasStack.innerHTML = "";
 
+  if (referenceImageVisible && referenceImageUrl) {
+    referenceImageElement.src = referenceImageUrl;
+    referenceImageElement.hidden = false;
+    referenceImageElement.style.opacity = String(
+      Number(referenceOpacityRange?.value || 35) / 100
+    );
+    canvasStack.appendChild(referenceImageElement);
+  } else {
+    referenceImageElement.hidden = true;
+    referenceImageElement.removeAttribute("src");
+  }
+
   [...layers].reverse().forEach((layer) => {
     layer.canvas.style.display = layer.visible ? "block" : "none";
     layer.canvas.style.pointerEvents = layer.id === activeLayerId ? "auto" : "none";
-    layer.canvas.style.zIndex = String(layers.indexOf(layer) + 1);
+    layer.canvas.style.zIndex = "1";
 
     canvasStack.appendChild(layer.canvas);
   });
 
   applyZoom();
+}
+
+async function loadReferenceImage(file) {
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("画像ファイルを選んでください");
+    return;
+  }
+
+  if (referenceImageUrl) {
+    URL.revokeObjectURL(referenceImageUrl);
+  }
+
+  referenceImageUrl = URL.createObjectURL(file);
+  referenceImageVisible = true;
+
+  renderCanvasStack();
+}
+
+function updateReferenceOpacity() {
+  const opacity = Number(referenceOpacityRange.value) / 100;
+  referenceImageElement.style.opacity = String(opacity);
+}
+
+function clearReferenceImage() {
+  if (referenceImageUrl) {
+    URL.revokeObjectURL(referenceImageUrl);
+  }
+
+  referenceImageUrl = "";
+  referenceImageVisible = false;
+  referenceImageInput.value = "";
+  renderCanvasStack();
 }
 
 function renderLayers() {
@@ -1157,6 +1210,7 @@ function resetCanvas() {
   titleInput.value = "";
 
   resetLayers();
+  clearReferenceImage();
 
   canvasStatus.textContent = "新規作成中";
   renderDrawMemos();
@@ -1303,6 +1357,28 @@ moveLayerUpBtn.addEventListener("click", () => {
 moveLayerDownBtn.addEventListener("click", () => {
   moveActiveLayer(1);
 });
+
+function createReferenceImageElement() {
+  const img = document.createElement("img");
+  img.className = "reference-image";
+  img.alt = "下絵";
+  img.hidden = true;
+  img.draggable = false;
+  img.style.opacity = String(Number(referenceOpacityRange?.value || 35) / 100);
+  return img;
+}
+
+const referenceImageElement = createReferenceImageElement();
+
+referenceImageInput?.addEventListener("change", async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  await loadReferenceImage(file);
+});
+
+referenceOpacityRange?.addEventListener("input", updateReferenceOpacity);
+
+clearReferenceBtn?.addEventListener("click", clearReferenceImage);
 
 /* ---------- init ---------- */
 
