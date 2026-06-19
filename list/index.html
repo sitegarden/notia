@@ -59,30 +59,22 @@
     </section>
 
     <section class="listmemo-main-panel">
-      <div class="listmemo-toolbar">
-        <input
-          type="text"
-          id="listSearchInput"
-          placeholder="リストや項目を検索"
-        />
+  <div class="listmemo-toolbar">
+    <input
+      type="text"
+      id="listSearchInput"
+      placeholder="リストや項目を検索"
+    />
 
-        <div class="listmemo-toolbar">
+    <select id="listSortSelect">
+      <option value="updated">更新順</option>
+      <option value="title">リスト名順</option>
+      <option value="items">プロパティ名順</option>
+    </select>
+  </div>
 
-  <input
-    type="text"
-    id="listSearchInput"
-    placeholder="リストや項目を検索"
-  />
-
-  <select id="listSortSelect">
-    <option value="updated">更新順</option>
-    <option value="title">リスト名順</option>
-    <option value="items">プロパティ名順</option>
-  </select>
-      </div>
-
-      <div id="listMemoList" class="listmemo-grid"></div>
-    </section>
+  <div id="listMemoList" class="listmemo-grid"></div>
+</section>
   </main>
 
   <div id="listEditModal" class="listmemo-modal hidden">
