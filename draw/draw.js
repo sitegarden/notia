@@ -181,9 +181,6 @@ function createLayer(name = "") {
   canvas.addEventListener("pointercancel", endDrawing);
   canvas.addEventListener("pointerleave", endDrawing);
 
-  window.addEventListener("pointerup", handleCanvasPointerEnd, { capture: true });
-window.addEventListener("pointercancel", handleCanvasPointerEnd, { capture: true });
-
   const layer = {
     id,
     name: name || `Layer ${layers.length + 1}`,
@@ -259,6 +256,8 @@ async function loadReferenceImage(file) {
 }
 
 function updateReferenceOpacity() {
+  if (!referenceOpacityRange) return;
+
   const opacity = Number(referenceOpacityRange.value) / 100;
   referenceImageElement.style.opacity = String(opacity);
 }
@@ -270,7 +269,11 @@ function clearReferenceImage() {
 
   referenceImageUrl = "";
   referenceImageVisible = false;
-  referenceImageInput.value = "";
+
+  if (referenceImageInput) {
+    referenceImageInput.value = "";
+  }
+
   renderCanvasStack();
 }
 
