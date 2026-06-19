@@ -71,9 +71,6 @@ const referenceImageInput = document.getElementById("referenceImageInput");
 const referenceOpacityRange = document.getElementById("referenceOpacityRange");
 const clearReferenceBtn = document.getElementById("clearReferenceBtn");
 
-const pressureToggle = document.getElementById("pressureToggle");
-const fingerDrawToggle = document.getElementById("fingerDrawToggle");
-
 const smoothingToggle = document.getElementById("smoothingToggle");
 const smoothingRange = document.getElementById("smoothingRange");
 
