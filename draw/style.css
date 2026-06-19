@@ -760,3 +760,32 @@
   margin: 8px 0 0;
   font-size: 0.74rem;
 }
+
+.draw-app,
+.draw-tools,
+.draw-canvas-card,
+.draw-canvas-wrap,
+.draw-canvas-inner,
+.canvas-stack,
+.layer-canvas {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.draw-app button,
+.draw-app label,
+.draw-app span,
+.draw-app p,
+.draw-app h1,
+.draw-app h2,
+.draw-app strong {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.draw-app input[type="text"],
+.draw-app textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
