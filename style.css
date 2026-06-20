@@ -8046,3 +8046,141 @@ body.modal-open {
   font-size: 11px;
   font-weight: 700;
 }
+
+/* stamp folders */
+
+.stamp-folder-create {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.stamp-folder-select-label {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.stamp-folder-select-label span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6d6259;
+}
+
+.stamp-folder-panel {
+  margin: 0 0 18px;
+  padding: 15px;
+  border: 1px solid #e4d9cd;
+  border-radius: 18px;
+  background: #fffdf9;
+}
+
+.stamp-folder-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stamp-folder-panel-head > div {
+  margin-right: auto;
+}
+
+.stamp-folder-panel-head h3 {
+  margin: 2px 0 0;
+  font-size: 16px;
+}
+
+.stamp-folder-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.stamp-folder-card {
+  display: flex;
+  flex: 0 0 145px;
+  align-items: center;
+  gap: 10px;
+  min-height: 68px;
+  padding: 11px;
+  border: 1px solid #e1d4c6;
+  border-radius: 14px;
+  background: #fffaf5;
+  color: #4a4038;
+  text-align: left;
+  transition: 0.18s ease;
+}
+
+.stamp-folder-card:hover {
+  transform: translateY(-2px);
+  border-color: #af947d;
+}
+
+.stamp-folder-card.active {
+  border-color: #695644;
+  background: #695644;
+  color: #fffdf9;
+}
+
+.stamp-folder-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 9px;
+  background: #efe2d4;
+  color: #765e49;
+  font-size: 18px;
+}
+
+.stamp-folder-card.active .stamp-folder-icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.stamp-folder-card-text {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.stamp-folder-card-text strong {
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stamp-folder-card-text small {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.stamp-card-folder {
+  margin: 7px 0 0;
+  color: #786653;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .stamp-folder-create {
+    grid-template-columns: 1fr;
+  }
+
+  .stamp-folder-panel-head {
+    flex-wrap: wrap;
+  }
+
+  .stamp-folder-panel-head > div {
+    width: 100%;
+  }
+
+  .stamp-folder-card {
+    flex-basis: 135px;
+  }
+}
