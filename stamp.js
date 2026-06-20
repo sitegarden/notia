@@ -41,6 +41,16 @@ const newStampPackBtn = document.getElementById("newStampPackBtn");
 
 const packTitleInput = document.getElementById("packTitleInput");
 const packCharacterInput = document.getElementById("packCharacterInput");
+
+const newFolderNameInput = document.getElementById("newFolderNameInput");
+const createFolderBtn = document.getElementById("createFolderBtn");
+
+const packFolderSelect = document.getElementById("packFolderSelect");
+
+const stampFolderList = document.getElementById("stampFolderList");
+const renameFolderBtn = document.getElementById("renameFolderBtn");
+const deleteFolderBtn = document.getElementById("deleteFolderBtn");
+
 const packStatusInput = document.getElementById("packStatusInput");
 const packTagsInput = document.getElementById("packTagsInput");
 const packAiInput = document.getElementById("packAiInput");
@@ -94,6 +104,9 @@ document.querySelectorAll("form").forEach((form) => {
 let currentUser = null;
 let editingPackId = null;
 let stampPacks = [];
+let stampFolders = [];
+
+let activeFolderId = "all";
 
 let mainImageFile = null;
 let tabImageFile = null;
@@ -141,6 +154,98 @@ function normalizeStatus(status = "制作中") {
   }
 
   return status || "制作中";
+}
+
+function getFolderName(folderId) {
+  if (!folderId) return "未分類";
+
+  const folder = stampFolders.find((item) => item.id === folderId);
+
+  return folder?.name || "未分類";
+}
+
+function getFolderPackCount(folderId) {
+  return stampPacks.filter((pack) => (pack.folderId || "") === folderId).length;
+}
+
+function updateFolderSelect() {
+  if (!packFolderSelect) return;
+
+  const currentValue = packFolderSelect.value;
+
+  packFolderSelect.innerHTML = `
+    <option value="">未分類</option>
+    ${stampFolders
+      .map(
+        (folder) => `
+          <option value="${folder.id}">
+            ${escapeHtml(folder.name)}
+          </option>
+        `
+      )
+      .join("")}
+  `;
+
+  const stillExists = stampFolders.some(
+    (folder) => folder.id === currentValue
+  );
+
+  packFolderSelect.value = stillExists ? currentValue : "";
+}
+
+function renderFolderList() {
+  if (!stampFolderList) return;
+
+  const folders = [
+    {
+      id: "all",
+      name: "すべて",
+      count: stampPacks.length,
+      icon: "▦"
+    },
+    {
+      id: "",
+      name: "未分類",
+      count: getFolderPackCount(""),
+      icon: "□"
+    },
+    ...stampFolders.map((folder) => ({
+      id: folder.id,
+      name: folder.name,
+      count: getFolderPackCount(folder.id),
+      icon: "▣"
+    }))
+  ];
+
+  stampFolderList.innerHTML = folders
+    .map((folder) => {
+      const isActive = activeFolderId === folder.id;
+
+      return `
+        <button
+          class="stamp-folder-card ${isActive ? "active" : ""}"
+          type="button"
+          data-folder-id="${escapeHtml(folder.id)}"
+        >
+          <span class="stamp-folder-icon">${folder.icon}</span>
+
+          <span class="stamp-folder-card-text">
+            <strong>${escapeHtml(folder.name)}</strong>
+            <small>${folder.count}セット</small>
+          </span>
+        </button>
+      `;
+    })
+    .join("");
+
+  const selectedFolder = stampFolders.find(
+    (folder) => folder.id === activeFolderId
+  );
+
+  const canManageFolder = !!selectedFolder;
+
+  renameFolderBtn?.classList.toggle("hidden", !canManageFolder);
+  deleteFolderBtn?.classList.toggle("hidden", !canManageFolder);
 }
 
 function getStatusClass(status = "制作中") {
@@ -210,6 +315,7 @@ function resetForm() {
 
   packTitleInput.value = "";
   packCharacterInput.value = "";
+  packFolderSelect.value = "";
   packStatusInput.value = "制作中";
   packTagsInput.value = "";
   packMemoInput.value = "";
@@ -344,6 +450,7 @@ function renderPacks() {
   const statusFilter = stampStatusFilter.value;
   const aiFilterActive = activeKindFilters.has("ai");
   const photoFilterActive = activeKindFilters.has("photo");
+  const folderFilter = activeFolderId;
 
   const filtered = stampPacks.filter((pack) => {
     const joined = [
@@ -365,7 +472,19 @@ const matchStatus = statusFilter === "all" || packStatus === statusFilter;
 const matchAi = !aiFilterActive || !!pack.aiGenerated;
 const matchPhoto = !photoFilterActive || !!pack.photoUsed;
 
-return matchSearch && matchStatus && matchAi && matchPhoto;
+const packFolderId = pack.folderId || "";
+
+const matchFolder =
+  folderFilter === "all" ||
+  packFolderId === folderFilter;
+
+return (
+  matchSearch &&
+  matchStatus &&
+  matchAi &&
+  matchPhoto &&
+  matchFolder
+);
   });
 
   if (!filtered.length) {
@@ -396,6 +515,9 @@ return matchSearch && matchStatus && matchAi && matchPhoto;
         <div class="stamp-pack-body">
           <div class="stamp-pack-title-row">
             <h3>${escapeHtml(pack.title || "無題のスタンプ")}</h3>
+            <p class="stamp-card-folder">
+  📁 ${escapeHtml(getFolderName(pack.folderId))}
+</p>
             <span class="stamp-status-badge ${getStatusClass(pack.status)}">
   ${escapeHtml(normalizeStatus(pack.status))}
 </span>
@@ -454,6 +576,39 @@ return matchSearch && matchStatus && matchAi && matchPhoto;
   }).join("");
 }
 
+async function loadStampFolders() {
+  if (!currentUser) {
+    stampFolders = [];
+
+    updateFolderSelect();
+    renderFolderList();
+
+    return;
+  }
+
+  const q = query(
+    collection(db, "stampFolders"),
+    where("uid", "==", currentUser.uid)
+  );
+
+  const snapshot = await getDocs(q);
+
+  stampFolders = snapshot.docs
+    .map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }))
+    .sort((a, b) =>
+      String(a.name || "").localeCompare(
+        String(b.name || ""),
+        "ja"
+      )
+    );
+
+  updateFolderSelect();
+  renderFolderList();
+}
+
 async function loadStampPacks() {
   if (!currentUser) {
     stampPacks = [];
@@ -480,8 +635,10 @@ stampPacks = snapshot.docs
     const bTime = b.updatedAt?.toMillis?.() || b.createdAt?.toMillis?.() || 0;
     return bTime - aTime;
   });
-  renderPacks();
-  setStatus("読み込み完了");
+  renderFolderList();
+renderPacks();
+
+setStatus("読み込み完了");
 }
 
 function editPack(packId) {
@@ -492,7 +649,8 @@ function editPack(packId) {
 
   packTitleInput.value = pack.title || "";
   packCharacterInput.value = pack.character || "";
-  packStatusInput.value = normalizeStatus(pack.status);
+packFolderSelect.value = pack.folderId || "";
+packStatusInput.value = normalizeStatus(pack.status);
 packTagsInput.value = pack.tags || "";
 packAiInput.checked = !!pack.aiGenerated;
 packPhotoInput.checked = !!pack.photoUsed;
@@ -529,9 +687,10 @@ function openStampPreview(packId) {
   const stickerCount = pack.stickers?.length || 0;
 
   previewPackMeta.textContent = [
-    pack.character || "キャラ未設定",
-    `${stickerCount}枚`
-  ].join(" / ");
+  getFolderName(pack.folderId),
+  pack.character || "キャラ未設定",
+  `${stickerCount}枚`
+].join(" / ");
 
   previewPackMemo.textContent = pack.memo || "";
 
@@ -562,6 +721,155 @@ function closeStampPreview() {
   document.body.classList.remove("modal-open");
 }
 
+async function createFolder() {
+  if (!currentUser) {
+    alert("ログインしてください。");
+    return;
+  }
+
+  const name = newFolderNameInput.value.trim();
+
+  if (!name) {
+    alert("フォルダ名を入力してください。");
+    return;
+  }
+
+  const duplicate = stampFolders.some(
+    (folder) => folder.name.trim() === name
+  );
+
+  if (duplicate) {
+    alert("同じ名前のフォルダがあります。");
+    return;
+  }
+
+  try {
+    const docRef = await addDoc(
+      collection(db, "stampFolders"),
+      {
+        uid: currentUser.uid,
+        name,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+    );
+
+    newFolderNameInput.value = "";
+
+    await loadStampFolders();
+
+activeFolderId = docRef.id;
+packFolderSelect.value = docRef.id;
+
+renderFolderList();
+renderPacks();
+
+    setStatus("フォルダを追加しました");
+  } catch (error) {
+    console.error(error);
+    alert("フォルダの追加に失敗しました。");
+  }
+}
+
+async function renameActiveFolder() {
+  const folder = stampFolders.find(
+    (item) => item.id === activeFolderId
+  );
+
+  if (!folder) return;
+
+  const name = prompt(
+    "新しいフォルダ名を入力してください。",
+    folder.name
+  );
+
+  if (name === null) return;
+
+  const trimmedName = name.trim();
+
+  if (!trimmedName) {
+    alert("フォルダ名を入力してください。");
+    return;
+  }
+
+  const duplicate = stampFolders.some(
+    (item) =>
+      item.id !== folder.id &&
+      item.name.trim() === trimmedName
+  );
+
+  if (duplicate) {
+    alert("同じ名前のフォルダがあります。");
+    return;
+  }
+
+  try {
+    await updateDoc(
+      doc(db, "stampFolders", folder.id),
+      {
+        name: trimmedName,
+        updatedAt: serverTimestamp()
+      }
+    );
+
+    await loadStampFolders();
+
+    renderPacks();
+
+    setStatus("フォルダ名を変更しました");
+  } catch (error) {
+    console.error(error);
+    alert("フォルダ名の変更に失敗しました。");
+  }
+}
+
+async function deleteActiveFolder() {
+  const folder = stampFolders.find(
+    (item) => item.id === activeFolderId
+  );
+
+  if (!folder) return;
+
+  const count = getFolderPackCount(folder.id);
+
+  const ok = confirm(
+    `「${folder.name}」を削除しますか？\n` +
+    `中の${count}セットは未分類へ移動します。`
+  );
+
+  if (!ok) return;
+
+  try {
+    const packsInFolder = stampPacks.filter(
+      (pack) => (pack.folderId || "") === folder.id
+    );
+
+    for (const pack of packsInFolder) {
+      await updateDoc(
+        doc(db, "stampPacks", pack.id),
+        {
+          folderId: "",
+          updatedAt: serverTimestamp()
+        }
+      );
+    }
+
+    await deleteDoc(
+      doc(db, "stampFolders", folder.id)
+    );
+
+    activeFolderId = "all";
+
+    await loadStampFolders();
+    await loadStampPacks();
+
+    setStatus("フォルダを削除しました");
+  } catch (error) {
+    console.error(error);
+    alert("フォルダの削除に失敗しました。");
+  }
+}
+
 async function saveStampPack() {
   if (!currentUser) {
     alert("ログインしてください。");
@@ -571,8 +879,9 @@ async function saveStampPack() {
   syncDraftTexts();
 
   const title = packTitleInput.value.trim();
-  const character = packCharacterInput.value.trim();
-  const status = packStatusInput.value;
+const character = packCharacterInput.value.trim();
+const folderId = packFolderSelect.value;
+const status = packStatusInput.value;
 const tags = packTagsInput.value.trim();
 const memo = packMemoInput.value.trim();
 const aiGenerated = packAiInput.checked;
@@ -629,6 +938,7 @@ const photoUsed = packPhotoInput.checked;
   uid: currentUser.uid,
   title,
   character,
+  folderId,
   status,
   tags,
   memo,
@@ -710,7 +1020,10 @@ logoutBtn.addEventListener("click", async () => {
 newStampPackBtn.addEventListener("click", resetForm);
 saveStampPackBtn.addEventListener("click", saveStampPack);
 deleteStampPackBtn.addEventListener("click", deleteStampPack);
-reloadStampPacksBtn.addEventListener("click", loadStampPacks);
+reloadStampPacksBtn.addEventListener("click", async () => {
+  await loadStampFolders();
+  await loadStampPacks();
+});
 
 mainImageInput.addEventListener("change", () => {
   const file = mainImageInput.files?.[0] || null;
@@ -855,6 +1168,8 @@ onAuthStateChanged(auth, async (user) => {
     userInfo.textContent = user.displayName || user.email || "ログイン中";
 
     saveStampPackBtn.disabled = false;
+
+    await loadStampFolders();
     resetForm();
     await loadStampPacks();
   } else {
@@ -866,9 +1181,39 @@ onAuthStateChanged(auth, async (user) => {
     deleteStampPackBtn.classList.add("hidden");
 
     stampPacks = [];
+    stampFolders = [];
+    activeFolderId = "all";
+
+    updateFolderSelect();
+    renderFolderList();
     renderPacks();
+
     resetForm();
   }
 });
+
+createFolderBtn?.addEventListener("click", createFolder);
+
+newFolderNameInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    createFolder();
+  }
+});
+
+stampFolderList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-folder-id]");
+
+  if (!button) return;
+
+  activeFolderId = button.dataset.folderId;
+
+  renderFolderList();
+  renderPacks();
+});
+
+renameFolderBtn?.addEventListener("click", renameActiveFolder);
+
+deleteFolderBtn?.addEventListener("click", deleteActiveFolder);
+
 
 resetForm();
