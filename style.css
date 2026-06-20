@@ -8184,3 +8184,8 @@ body.modal-open {
     flex-basis: 135px;
   }
 }
+
+#deleteFolderBtn,
+#deleteFolderBtn * {
+  color: #fff;
+}
