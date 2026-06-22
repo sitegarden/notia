@@ -8595,3 +8595,21 @@ body.modal-open {
 .person-icon-preview img {
   background: #eef4ff;
 }
+
+/* ギャラリー：PCでも追加フォームを上にする */
+
+.gallery-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.gallery-control-panel,
+.gallery-list-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+.gallery-control-panel {
+  position: static;
+}
