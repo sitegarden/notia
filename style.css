@@ -8803,3 +8803,67 @@ body.modal-open {
   width: fit-content !important;
   max-width: 100%;
 }
+
+/* ギャラリー人物タグ：横長化を完全停止 */
+
+.gallery-preview-item .gallery-image-person,
+.gallery-preview-item .gallery-linked-person {
+  display: inline-grid !important;
+  grid-template-columns: 26px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 7px !important;
+
+  width: fit-content !important;
+  max-width: 100% !important;
+  min-height: 34px !important;
+  padding: 4px 8px !important;
+
+  border-radius: 12px !important;
+}
+
+/* アイコン画像そのもの */
+.gallery-preview-item .gallery-image-person > img,
+.gallery-preview-item .gallery-linked-person > img {
+  display: block !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
+
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 6px !important;
+}
+
+/* 文字アイコン時も同じ */
+.gallery-preview-item .gallery-image-person > span,
+.gallery-preview-item .gallery-linked-person > span {
+  display: grid !important;
+  place-items: center !important;
+
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
+
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 6px !important;
+}
+
+/* 名前だけ省略。タグ全体は無駄に横へ伸ばさない */
+.gallery-preview-item .gallery-image-person > p,
+.gallery-preview-item .gallery-linked-person > p {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
