@@ -8534,106 +8534,49 @@ body.modal-open {
    人物帳：アイコン画像
 ========================= */
 
-.person-icon {
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #f1ece7;
-  font-weight: 800;
-  font-size: 20px;
-}
+/* 人物帳アイコン：既存レイアウトを壊さない最終調整 */
 
-.person-icon img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 編集画面のアップロード後プレビュー */
-.person-icon-field {
-  display: grid;
-  gap: 8px;
-  margin: 14px 0;
-}
-
-.person-icon-preview {
-  width: 96px;
-  height: 96px;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  border-radius: 18px;
-  background: #f1ece7;
-}
-
+.person-icon img,
+.person-modal-icon img,
 .person-icon-preview img {
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center;
+}
+
+/* 一覧アイコン */
+.person-icon {
+  overflow: hidden;
+}
+
+/* 詳細モーダルアイコン */
+.person-modal-icon {
+  overflow: hidden;
+}
+
+/* 編集画面のアップロードプレビューだけ固定サイズ */
+.person-icon-preview {
+  width: 82px;
+  height: 82px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: #f1ece7;
 }
 
 .person-icon-preview span {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
 }
 
-.person-icon-help {
-  color: #8a7d70;
-  font-size: 12px;
-}
-
-.person-icon-remove {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: fit-content;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-/* 詳細モーダルのアイコン */
-.person-modal-icon {
-  width: 88px;
-  height: 88px;
-  flex: 0 0 88px;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #f1ece7;
-  font-size: 30px;
-  font-weight: 800;
-}
-
-.person-modal-icon img {
-  display: block;
+/* ファイル選択欄は横にはみ出させない */
+.person-icon-field input[type="file"] {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* スマホ */
-@media (max-width: 600px) {
-  .person-icon {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
-  }
-
-  .person-modal-icon {
-    width: 72px;
-    height: 72px;
-    flex-basis: 72px;
-  }
-
-  .person-icon-preview {
-    width: 82px;
-    height: 82px;
-  }
+  max-width: 100%;
 }
