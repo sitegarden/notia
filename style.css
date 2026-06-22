@@ -8630,3 +8630,123 @@ body.modal-open {
 .gallery-page .gallery-control-panel {
   position: static !important;
 }
+
+/* =========================
+   ギャラリー：画像を正方形固定
+   人物アイコンは小さく保つ
+========================= */
+
+/* 一覧カードのメイン画像 */
+.gallery-collection-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1 !important;
+  overflow: hidden;
+}
+
+.gallery-collection-thumb > img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  object-fit: cover !important;
+  object-position: center;
+}
+
+/* 一覧カード内の小さい画像 */
+.gallery-mini {
+  width: 100%;
+  aspect-ratio: 1 / 1 !important;
+  overflow: hidden;
+}
+
+.gallery-mini > img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  object-fit: cover !important;
+  object-position: center;
+}
+
+/* プレビュー内の画像枠 */
+.gallery-preview-item {
+  min-width: 0;
+}
+
+.gallery-preview-image {
+  width: 100%;
+  aspect-ratio: 1 / 1 !important;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.gallery-preview-image > img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+  object-position: center;
+}
+
+/* 人物・作者タグ本体 */
+.gallery-linked-person,
+.gallery-image-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/*
+  ここが重要。
+  .gallery-preview-grid img の大きい指定を
+  人物アイコンには適用させない。
+*/
+.gallery-linked-person > img,
+.gallery-image-person > img,
+.gallery-preview-grid .gallery-linked-person > img,
+.gallery-preview-grid .gallery-image-person > img {
+  display: block !important;
+  flex: 0 0 26px !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  max-width: 26px !important;
+  min-height: 26px !important;
+  max-height: 26px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 999px !important;
+}
+
+/* アイコン未設定時の頭文字 */
+.gallery-linked-person > span,
+.gallery-image-person > span {
+  display: grid !important;
+  place-items: center;
+  flex: 0 0 26px;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px;
+  border-radius: 999px;
+}
+
+/* 人物名・作者名が長くてもカードを押し広げない */
+.gallery-linked-person p,
+.gallery-image-person p {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
