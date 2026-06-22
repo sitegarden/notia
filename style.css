@@ -8750,3 +8750,56 @@ body.modal-open {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* ギャラリー人物・作者タグのアイコンを小さい正方形に固定 */
+
+.gallery-preview-grid .gallery-image-person > img,
+.gallery-preview-grid .gallery-linked-person > img,
+.gallery-image-person > img,
+.gallery-linked-person > img {
+  display: block !important;
+  flex: 0 0 26px !important;
+
+  width: 26px !important;
+  min-width: 26px !important;
+  max-width: 26px !important;
+
+  height: 26px !important;
+  min-height: 26px !important;
+  max-height: 26px !important;
+
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 6px !important;
+}
+
+/* アイコン未設定時の頭文字も同じ大きさ */
+.gallery-preview-grid .gallery-image-person > span,
+.gallery-preview-grid .gallery-linked-person > span,
+.gallery-image-person > span,
+.gallery-linked-person > span {
+  display: grid !important;
+  place-items: center;
+  flex: 0 0 26px !important;
+
+  width: 26px !important;
+  min-width: 26px !important;
+  max-width: 26px !important;
+
+  height: 26px !important;
+  min-height: 26px !important;
+  max-height: 26px !important;
+
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 6px !important;
+}
+
+/* タグ自体が変に広がらないようにする */
+.gallery-image-person,
+.gallery-linked-person {
+  display: inline-flex !important;
+  align-items: center;
+  width: fit-content !important;
+  max-width: 100%;
+}
