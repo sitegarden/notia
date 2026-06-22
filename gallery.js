@@ -155,13 +155,17 @@ function setupTypeOptions() {
 
   galleryTypeFilter.innerHTML = [
     `<option value="all">種類すべて</option>`,
-    ...COLLECTION_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+    ...COLLECTION_TYPES.map(
+      (type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`
+    )
   ].join("");
 
   if (collectionSourceTypeInput) {
     collectionSourceTypeInput.innerHTML = [
       `<option value="">入手元：指定なし</option>`,
-      ...SOURCE_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+      ...SOURCE_TYPES.map(
+        (type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`
+      )
     ].join("");
   }
 
@@ -169,7 +173,9 @@ function setupTypeOptions() {
     gallerySourceTypeFilter.innerHTML = [
       `<option value="all">入手元すべて</option>`,
       `<option value="">入手元なし</option>`,
-      ...SOURCE_TYPES.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+      ...SOURCE_TYPES.map(
+        (type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`
+      )
     ].join("");
   }
 }
@@ -204,6 +210,7 @@ function updatePersonOptions() {
 
   const personOptions = people.map((person) => {
     const label = getPersonLabel(person);
+
     return `<option value="${escapeHtml(person.id)}">${escapeHtml(label)}</option>`;
   });
 
@@ -213,7 +220,9 @@ function updatePersonOptions() {
       ...personOptions
     ].join("");
 
-    collectionPersonInput.value = people.some((person) => person.id === currentPersonValue)
+    collectionPersonInput.value = people.some(
+      (person) => person.id === currentPersonValue
+    )
       ? currentPersonValue
       : "";
   }
@@ -224,7 +233,9 @@ function updatePersonOptions() {
       ...personOptions
     ].join("");
 
-    collectionAuthorInput.value = people.some((person) => person.id === currentAuthorValue)
+    collectionAuthorInput.value = people.some(
+      (person) => person.id === currentAuthorValue
+    )
       ? currentAuthorValue
       : "";
   }
@@ -241,7 +252,9 @@ function updatePersonOptions() {
       currentFilterValue === "" ||
       people.some((person) => person.id === currentFilterValue);
 
-    galleryPersonFilter.value = filterExists ? currentFilterValue : "all";
+    galleryPersonFilter.value = filterExists
+      ? currentFilterValue
+      : "all";
   }
 
   if (galleryAuthorFilter) {
@@ -256,7 +269,9 @@ function updatePersonOptions() {
       currentAuthorFilterValue === "" ||
       people.some((person) => person.id === currentAuthorFilterValue);
 
-    galleryAuthorFilter.value = authorFilterExists ? currentAuthorFilterValue : "all";
+    galleryAuthorFilter.value = authorFilterExists
+      ? currentAuthorFilterValue
+      : "all";
   }
 }
 
@@ -310,6 +325,47 @@ function getAuthorData(authorId) {
   };
 }
 
+/*
+  ギャラリーに保存されている古い名前・アイコンではなく、
+  人物帳の現在のデータを優先して返す。
+
+  人物帳から人物を消した場合だけ、
+  ギャラリー保存時点のデータを予備として使う。
+*/
+function getLivePerson(personId, fallback = {}, role = "person") {
+  const person = people.find((item) => item.id === personId);
+
+  const isAuthor = role === "author";
+
+  const fallbackName = isAuthor
+    ? fallback.authorName || ""
+    : fallback.personName || "";
+
+  const fallbackNickname = isAuthor
+    ? fallback.authorNickname || ""
+    : fallback.personNickname || "";
+
+  const fallbackIconUrl = isAuthor
+    ? fallback.authorIconUrl || ""
+    : fallback.personIconUrl || "";
+
+  if (!person) {
+    return {
+      id: personId || "",
+      name: fallbackName,
+      nickname: fallbackNickname,
+      iconUrl: fallbackIconUrl
+    };
+  }
+
+  return {
+    id: person.id,
+    name: person.name || "",
+    nickname: person.nickname || "",
+    iconUrl: person.iconImageUrl || ""
+  };
+}
+
 function validateFile(file) {
   if (!file) return true;
 
@@ -329,7 +385,10 @@ function validateFile(file) {
 function createStoragePath(userId, file, type) {
   const ext = file.name.split(".").pop() || "png";
   const safeExt = ext.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return `galleryCollections/${userId}/${Date.now()}_${Math.random().toString(36).slice(2)}_${type}.${safeExt}`;
+
+  return `galleryCollections/${userId}/${Date.now()}_${Math.random()
+    .toString(36)
+    .slice(2)}_${type}.${safeExt}`;
 }
 
 async function uploadImage(file, type) {
@@ -339,6 +398,7 @@ async function uploadImage(file, type) {
   const imageRef = ref(storage, storagePath);
 
   await uploadBytes(imageRef, file);
+
   const url = await getDownloadURL(imageRef);
 
   return {
@@ -394,53 +454,65 @@ function resetForm() {
 }
 
 function syncDraftTexts() {
-  galleryDraftList.querySelectorAll("[data-draft-index]").forEach((input) => {
-    const index = Number(input.dataset.draftIndex);
+  galleryDraftList
+    .querySelectorAll("[data-draft-index]")
+    .forEach((input) => {
+      const index = Number(input.dataset.draftIndex);
 
-    if (galleryDrafts[index]) {
-      galleryDrafts[index].memo = input.value;
-    }
-  });
+      if (galleryDrafts[index]) {
+        galleryDrafts[index].memo = input.value;
+      }
+    });
 
-  galleryDraftList.querySelectorAll("[data-existing-index]").forEach((input) => {
-    const index = Number(input.dataset.existingIndex);
+  galleryDraftList
+    .querySelectorAll("[data-existing-index]")
+    .forEach((input) => {
+      const index = Number(input.dataset.existingIndex);
 
-    if (existingImages[index]) {
-      existingImages[index].memo = input.value;
-    }
-  });
+      if (existingImages[index]) {
+        existingImages[index].memo = input.value;
+      }
+    });
 
-  galleryDraftList.querySelectorAll("[data-draft-person-index]").forEach((select) => {
-    const index = Number(select.dataset.draftPersonIndex);
+  galleryDraftList
+    .querySelectorAll("[data-draft-person-index]")
+    .forEach((select) => {
+      const index = Number(select.dataset.draftPersonIndex);
 
-    if (galleryDrafts[index]) {
-      galleryDrafts[index].personId = select.value;
-    }
-  });
+      if (galleryDrafts[index]) {
+        galleryDrafts[index].personId = select.value;
+      }
+    });
 
-  galleryDraftList.querySelectorAll("[data-existing-person-index]").forEach((select) => {
-    const index = Number(select.dataset.existingPersonIndex);
+  galleryDraftList
+    .querySelectorAll("[data-existing-person-index]")
+    .forEach((select) => {
+      const index = Number(select.dataset.existingPersonIndex);
 
-    if (existingImages[index]) {
-      existingImages[index].personId = select.value;
-    }
-  });
+      if (existingImages[index]) {
+        existingImages[index].personId = select.value;
+      }
+    });
 
-  galleryDraftList.querySelectorAll("[data-draft-author-index]").forEach((select) => {
-    const index = Number(select.dataset.draftAuthorIndex);
+  galleryDraftList
+    .querySelectorAll("[data-draft-author-index]")
+    .forEach((select) => {
+      const index = Number(select.dataset.draftAuthorIndex);
 
-    if (galleryDrafts[index]) {
-      galleryDrafts[index].authorId = select.value;
-    }
-  });
+      if (galleryDrafts[index]) {
+        galleryDrafts[index].authorId = select.value;
+      }
+    });
 
-  galleryDraftList.querySelectorAll("[data-existing-author-index]").forEach((select) => {
-    const index = Number(select.dataset.existingAuthorIndex);
+  galleryDraftList
+    .querySelectorAll("[data-existing-author-index]")
+    .forEach((select) => {
+      const index = Number(select.dataset.existingAuthorIndex);
 
-    if (existingImages[index]) {
-      existingImages[index].authorId = select.value;
-    }
-  });
+      if (existingImages[index]) {
+        existingImages[index].authorId = select.value;
+      }
+    });
 }
 
 function renderDraftList() {
@@ -517,23 +589,40 @@ function renderCollections() {
   const authorFilter = galleryAuthorFilter?.value || "all";
 
   const filtered = galleryCollections.filter((item) => {
+    const livePerson = getLivePerson(item.personId, item, "person");
+    const liveAuthor = getLivePerson(item.authorId, item, "author");
+
     const joined = [
       item.title,
       item.type,
       item.sourceType,
-      item.personName,
-      item.personNickname,
-      item.authorName,
-      item.authorNickname,
+      livePerson.name,
+      livePerson.nickname,
+      liveAuthor.name,
+      liveAuthor.nickname,
       item.tags,
       item.memo,
-      ...(item.images || []).map((image) => [
-        image.memo,
-        image.personName,
-        image.personNickname,
-        image.authorName,
-        image.authorNickname
-      ].join(" "))
+      ...(item.images || []).map((image) => {
+        const liveImagePerson = getLivePerson(
+          image.personId,
+          image,
+          "person"
+        );
+
+        const liveImageAuthor = getLivePerson(
+          image.authorId,
+          image,
+          "author"
+        );
+
+        return [
+          image.memo,
+          liveImagePerson.name,
+          liveImagePerson.nickname,
+          liveImageAuthor.name,
+          liveImageAuthor.nickname
+        ].join(" ");
+      })
     ]
       .join(" ")
       .toLowerCase();
@@ -557,7 +646,9 @@ function renderCollections() {
         !(item.images || []).some((image) => image.personId)
       ) ||
       item.personId === personFilter ||
-      (item.images || []).some((image) => image.personId === personFilter);
+      (item.images || []).some(
+        (image) => image.personId === personFilter
+      );
 
     const matchAuthor =
       authorFilter === "all" ||
@@ -567,13 +658,22 @@ function renderCollections() {
         !(item.images || []).some((image) => image.authorId)
       ) ||
       item.authorId === authorFilter ||
-      (item.images || []).some((image) => image.authorId === authorFilter);
+      (item.images || []).some(
+        (image) => image.authorId === authorFilter
+      );
 
-    return matchSearch && matchType && matchSourceType && matchPerson && matchAuthor;
+    return (
+      matchSearch &&
+      matchType &&
+      matchSourceType &&
+      matchPerson &&
+      matchAuthor
+    );
   });
 
   if (!filtered.length) {
-    galleryCollectionList.innerHTML = `<p class="empty-text">コレクションがありません。</p>`;
+    galleryCollectionList.innerHTML =
+      `<p class="empty-text">コレクションがありません。</p>`;
 
     if (loadMoreCollectionsBtn) {
       loadMoreCollectionsBtn.classList.add("hidden");
@@ -584,95 +684,121 @@ function renderCollections() {
 
   const visibleItems = filtered.slice(0, visibleCollectionCount);
 
-  galleryCollectionList.innerHTML = visibleItems.map((item) => {
-    const mainUrl = item.images?.[0]?.url || "";
-    const imageCount = item.images?.length || 0;
-    const created = formatDate(item.createdAt);
-    const updated = formatDate(item.updatedAt);
+  galleryCollectionList.innerHTML = visibleItems
+    .map((item) => {
+      const mainUrl = item.images?.[0]?.url || "";
+      const imageCount = item.images?.length || 0;
+      const created = formatDate(item.createdAt);
+      const updated = formatDate(item.updatedAt);
 
-    return `
-      <article class="gallery-collection-card" data-id="${item.id}">
-        <div class="gallery-collection-thumb">
-          ${
-            mainUrl
-              ? `<img src="${escapeHtml(mainUrl)}" alt="${escapeHtml(item.title || "")}" />`
-              : `<span>NO IMAGE</span>`
-          }
-        </div>
+      const livePerson = getLivePerson(item.personId, item, "person");
+      const liveAuthor = getLivePerson(item.authorId, item, "author");
 
-        <div class="gallery-collection-body">
-          ${
-            item.personName
-              ? `<div class="gallery-linked-person">
-                  ${
-                    item.personIconUrl
-                      ? `<img src="${escapeHtml(item.personIconUrl)}" alt="${escapeHtml(item.personName)}" />`
-                      : `<span>${escapeHtml(item.personName.slice(0, 1))}</span>`
-                  }
-                  <p>${escapeHtml(item.personName)}</p>
-                </div>`
-              : ""
-          }
-
-          <div class="gallery-title-row">
-            <h3>${escapeHtml(item.title || "無題のコレクション")}</h3>
-            <span class="gallery-type-badge">${escapeHtml(item.type || "種類なし")}</span>
+      return `
+        <article class="gallery-collection-card" data-id="${item.id}">
+          <div class="gallery-collection-thumb">
+            ${
+              mainUrl
+                ? `<img src="${escapeHtml(mainUrl)}" alt="${escapeHtml(item.title || "")}" />`
+                : `<span>NO IMAGE</span>`
+            }
           </div>
 
-          <p class="gallery-meta">
-  ${[
-    item.type,
-    item.sourceType,
-    item.personName,
-    item.authorName,
-    `${imageCount}枚`
-  ]
-    .filter(Boolean)
-    .map((text) => escapeHtml(text))
-    .join(" / ")}
-</p>
+          <div class="gallery-collection-body">
+            ${
+              livePerson.name
+                ? `<div class="gallery-linked-person">
+                    ${
+                      livePerson.iconUrl
+                        ? `<img src="${escapeHtml(livePerson.iconUrl)}" alt="${escapeHtml(livePerson.name)}" />`
+                        : `<span>${escapeHtml(livePerson.name.slice(0, 1))}</span>`
+                    }
+                    <p>${escapeHtml(livePerson.name)}</p>
+                  </div>`
+                : ""
+            }
 
-          ${
-            item.tags
-              ? `<p class="gallery-tags">${escapeHtml(item.tags)}</p>`
-              : ""
-          }
+            <div class="gallery-title-row">
+              <h3>${escapeHtml(item.title || "無題のコレクション")}</h3>
+              <span class="gallery-type-badge">${escapeHtml(item.type || "種類なし")}</span>
+            </div>
 
-          ${
-            item.memo
-              ? `<p class="gallery-memo">${escapeHtml(item.memo)}</p>`
-              : ""
-          }
+            <p class="gallery-meta">
+              ${[
+                item.type,
+                item.sourceType,
+                livePerson.name,
+                liveAuthor.name,
+                `${imageCount}枚`
+              ]
+                .filter(Boolean)
+                .map((text) => escapeHtml(text))
+                .join(" / ")}
+            </p>
 
-          <div class="gallery-mini-grid">
-            ${(item.images || []).slice(0, 6).map((image) => `
-              <div class="gallery-mini">
-                <img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.memo || "")}" />
-              </div>
-            `).join("")}
+            ${
+              item.tags
+                ? `<p class="gallery-tags">${escapeHtml(item.tags)}</p>`
+                : ""
+            }
+
+            ${
+              item.memo
+                ? `<p class="gallery-memo">${escapeHtml(item.memo)}</p>`
+                : ""
+            }
+
+            <div class="gallery-mini-grid">
+              ${(item.images || [])
+                .slice(0, 6)
+                .map(
+                  (image) => `
+                    <div class="gallery-mini">
+                      <img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.memo || "")}" />
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
+
+            <p class="gallery-date">
+              ${
+                updated
+                  ? `更新：${updated}`
+                  : created
+                    ? `作成：${created}`
+                    : ""
+              }
+            </p>
+
+            <div class="gallery-card-actions">
+              <button
+                type="button"
+                class="small-btn preview-gallery-btn"
+                data-preview-id="${item.id}"
+              >
+                プレビュー
+              </button>
+
+              <button
+                type="button"
+                class="small-btn edit-gallery-btn"
+                data-edit-id="${item.id}"
+              >
+                編集
+              </button>
+            </div>
           </div>
-
-          <p class="gallery-date">
-            ${updated ? `更新：${updated}` : created ? `作成：${created}` : ""}
-          </p>
-
-          <div class="gallery-card-actions">
-            <button type="button" class="small-btn preview-gallery-btn" data-preview-id="${item.id}">
-              プレビュー
-            </button>
-            <button type="button" class="small-btn edit-gallery-btn" data-edit-id="${item.id}">
-              編集
-            </button>
-          </div>
-        </div>
-      </article>
-    `;
-  }).join("");
+        </article>
+      `;
+    })
+    .join("");
 
   if (loadMoreCollectionsBtn) {
     if (visibleCollectionCount < filtered.length) {
       loadMoreCollectionsBtn.classList.remove("hidden");
-      loadMoreCollectionsBtn.textContent = `もっと見る（${filtered.length - visibleCollectionCount}件）`;
+      loadMoreCollectionsBtn.textContent =
+        `もっと見る（${filtered.length - visibleCollectionCount}件）`;
     } else {
       loadMoreCollectionsBtn.classList.add("hidden");
     }
@@ -712,12 +838,18 @@ async function loadPeopleForGallery() {
 
         const aTime = a.updatedAt?.seconds || 0;
         const bTime = b.updatedAt?.seconds || 0;
+
         return bTime - aTime;
       });
 
     updatePersonOptions();
+
+    if (galleryCollections.length) {
+      renderCollections();
+    }
   } catch (error) {
     console.error("人物読み込みエラー:", error);
+
     people = [];
     updatePersonOptions();
   }
@@ -752,8 +884,16 @@ async function loadGalleryCollections() {
         ...docSnap.data()
       }))
       .sort((a, b) => {
-        const aTime = a.updatedAt?.toMillis?.() || a.createdAt?.toMillis?.() || 0;
-        const bTime = b.updatedAt?.toMillis?.() || b.createdAt?.toMillis?.() || 0;
+        const aTime =
+          a.updatedAt?.toMillis?.() ||
+          a.createdAt?.toMillis?.() ||
+          0;
+
+        const bTime =
+          b.updatedAt?.toMillis?.() ||
+          b.createdAt?.toMillis?.() ||
+          0;
+
         return bTime - aTime;
       });
 
@@ -768,13 +908,19 @@ async function loadGalleryCollections() {
 }
 
 function editCollection(collectionId) {
-  const item = galleryCollections.find((collection) => collection.id === collectionId);
+  const item = galleryCollections.find(
+    (collection) => collection.id === collectionId
+  );
+
   if (!item) return;
 
   editingCollectionId = item.id;
 
   collectionTitleInput.value = item.title || "";
-  collectionTypeInput.value = item.type || COLLECTION_TYPES[0] || "その他";
+  collectionTypeInput.value =
+    item.type ||
+    COLLECTION_TYPES[0] ||
+    "その他";
 
   if (collectionSourceTypeInput) {
     collectionSourceTypeInput.value = item.sourceType || "";
@@ -800,19 +946,27 @@ function editCollection(collectionId) {
 
   renderDraftList();
   setStatus("編集中");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
 function renderPreviewImages() {
   if (!currentPreviewCollectionId) return;
 
-  const item = galleryCollections.find((collection) => collection.id === currentPreviewCollectionId);
+  const item = galleryCollections.find(
+    (collection) => collection.id === currentPreviewCollectionId
+  );
+
   if (!item) return;
 
   const images = item.images || [];
 
   if (!images.length) {
-    previewGalleryGrid.innerHTML = `<p class="empty-text">画像がありません。</p>`;
+    previewGalleryGrid.innerHTML =
+      `<p class="empty-text">画像がありません。</p>`;
 
     if (loadMorePreviewImagesBtn) {
       loadMorePreviewImagesBtn.classList.add("hidden");
@@ -821,48 +975,71 @@ function renderPreviewImages() {
     return;
   }
 
-  const visibleImages = images.slice(0, visiblePreviewImageCount);
+  const visibleImages = images.slice(
+    0,
+    visiblePreviewImageCount
+  );
 
-  previewGalleryGrid.innerHTML = visibleImages.map((image, index) => `
-    <article class="gallery-preview-item">
-      ${
-        image.personName
-          ? `<div class="gallery-image-person">
-              ${
-                image.personIconUrl
-                  ? `<img src="${escapeHtml(image.personIconUrl)}" alt="${escapeHtml(image.personName)}" />`
-                  : `<span>${escapeHtml(image.personName.slice(0, 1))}</span>`
-              }
-              <p>${escapeHtml(image.personName)}</p>
-            </div>`
-          : ""
-      }
+  previewGalleryGrid.innerHTML = visibleImages
+    .map((image, index) => {
+      const liveImagePerson = getLivePerson(
+        image.personId,
+        image,
+        "person"
+      );
 
-      ${
-        image.authorName
-          ? `<div class="gallery-image-person">
-              ${
-                image.authorIconUrl
-                  ? `<img src="${escapeHtml(image.authorIconUrl)}" alt="${escapeHtml(image.authorName)}" />`
-                  : `<span>${escapeHtml(image.authorName.slice(0, 1))}</span>`
-              }
-              <p>作者：${escapeHtml(image.authorName)}</p>
-            </div>`
-          : ""
-      }
+      const liveImageAuthor = getLivePerson(
+        image.authorId,
+        image,
+        "author"
+      );
 
-      <div class="gallery-preview-image">
-        <img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.memo || `画像${index + 1}`)}" />
-      </div>
+      return `
+        <article class="gallery-preview-item">
+          ${
+            liveImagePerson.name
+              ? `<div class="gallery-image-person">
+                  ${
+                    liveImagePerson.iconUrl
+                      ? `<img src="${escapeHtml(liveImagePerson.iconUrl)}" alt="${escapeHtml(liveImagePerson.name)}" />`
+                      : `<span>${escapeHtml(liveImagePerson.name.slice(0, 1))}</span>`
+                  }
+                  <p>${escapeHtml(liveImagePerson.name)}</p>
+                </div>`
+              : ""
+          }
 
-      <p>${escapeHtml(image.memo || `画像 ${index + 1}`)}</p>
-    </article>
-  `).join("");
+          ${
+            liveImageAuthor.name
+              ? `<div class="gallery-image-person">
+                  ${
+                    liveImageAuthor.iconUrl
+                      ? `<img src="${escapeHtml(liveImageAuthor.iconUrl)}" alt="${escapeHtml(liveImageAuthor.name)}" />`
+                      : `<span>${escapeHtml(liveImageAuthor.name.slice(0, 1))}</span>`
+                  }
+                  <p>作者：${escapeHtml(liveImageAuthor.name)}</p>
+                </div>`
+              : ""
+          }
+
+          <div class="gallery-preview-image">
+            <img
+              src="${escapeHtml(image.url)}"
+              alt="${escapeHtml(image.memo || `画像${index + 1}`)}"
+            />
+          </div>
+
+          <p>${escapeHtml(image.memo || `画像 ${index + 1}`)}</p>
+        </article>
+      `;
+    })
+    .join("");
 
   if (loadMorePreviewImagesBtn) {
     if (visiblePreviewImageCount < images.length) {
       loadMorePreviewImagesBtn.classList.remove("hidden");
-      loadMorePreviewImagesBtn.textContent = `画像をもっと見る（${images.length - visiblePreviewImageCount}枚）`;
+      loadMorePreviewImagesBtn.textContent =
+        `画像をもっと見る（${images.length - visiblePreviewImageCount}枚）`;
     } else {
       loadMorePreviewImagesBtn.classList.add("hidden");
     }
@@ -870,24 +1047,34 @@ function renderPreviewImages() {
 }
 
 function openGalleryPreview(collectionId) {
-  const item = galleryCollections.find((collection) => collection.id === collectionId);
+  const item = galleryCollections.find(
+    (collection) => collection.id === collectionId
+  );
+
   if (!item) return;
+
+  const livePerson = getLivePerson(item.personId, item, "person");
+  const liveAuthor = getLivePerson(item.authorId, item, "author");
 
   currentPreviewCollectionId = collectionId;
   visiblePreviewImageCount = PREVIEW_IMAGE_PAGE_SIZE;
 
-  previewGalleryTitle.textContent = item.title || "無題のコレクション";
+  previewGalleryTitle.textContent =
+    item.title || "無題のコレクション";
+
   previewGalleryType.textContent = item.type || "";
 
   const imageCount = item.images?.length || 0;
 
   previewGalleryMeta.textContent = [
-  item.type ? `種類：${item.type}` : "",
-  item.sourceType ? `入手元：${item.sourceType}` : "",
-  item.personName ? `人物：${item.personName}` : "",
-  item.authorName ? `作者：${item.authorName}` : "",
-  `${imageCount}枚`
-].filter(Boolean).join(" / ");
+    item.type ? `種類：${item.type}` : "",
+    item.sourceType ? `入手元：${item.sourceType}` : "",
+    livePerson.name ? `人物：${livePerson.name}` : "",
+    liveAuthor.name ? `作者：${liveAuthor.name}` : "",
+    `${imageCount}枚`
+  ]
+    .filter(Boolean)
+    .join(" / ");
 
   previewGalleryMemo.textContent = item.memo || "";
 
@@ -921,11 +1108,19 @@ async function saveGalleryCollection() {
   const type = collectionTypeInput.value;
   const sourceType = collectionSourceTypeInput?.value || "";
 
-  const collectionPersonId = collectionPersonInput?.value || "";
-  const collectionPersonData = getPersonData(collectionPersonId);
+  const collectionPersonId =
+    collectionPersonInput?.value || "";
 
-  const collectionAuthorId = collectionAuthorInput?.value || "";
-  const collectionAuthorData = getAuthorData(collectionAuthorId);
+  const collectionPersonData = getPersonData(
+    collectionPersonId
+  );
+
+  const collectionAuthorId =
+    collectionAuthorInput?.value || "";
+
+  const collectionAuthorData = getAuthorData(
+    collectionAuthorId
+  );
 
   const tags = collectionTagsInput.value.trim();
   const memo = collectionMemoInput.value.trim();
@@ -943,10 +1138,19 @@ async function saveGalleryCollection() {
 
     for (let i = 0; i < galleryDrafts.length; i++) {
       const draft = galleryDrafts[i];
-      const uploaded = await uploadImage(draft.file, `gallery_${i + 1}`);
 
-      const imagePersonData = getPersonData(draft.personId || "");
-      const imageAuthorData = getAuthorData(draft.authorId || "");
+      const uploaded = await uploadImage(
+        draft.file,
+        `gallery_${i + 1}`
+      );
+
+      const imagePersonData = getPersonData(
+        draft.personId || ""
+      );
+
+      const imageAuthorData = getAuthorData(
+        draft.authorId || ""
+      );
 
       uploadedImages.push({
         ...uploaded,
@@ -957,17 +1161,24 @@ async function saveGalleryCollection() {
       });
     }
 
-    const normalizedExistingImages = existingImages.map((image, index) => {
-      const imagePersonData = getPersonData(image.personId || "");
-      const imageAuthorData = getAuthorData(image.authorId || "");
+    const normalizedExistingImages = existingImages.map(
+      (image, index) => {
+        const imagePersonData = getPersonData(
+          image.personId || ""
+        );
 
-      return {
-        ...image,
-        ...imagePersonData,
-        ...imageAuthorData,
-        order: index + 1
-      };
-    });
+        const imageAuthorData = getAuthorData(
+          image.authorId || ""
+        );
+
+        return {
+          ...image,
+          ...imagePersonData,
+          ...imageAuthorData,
+          order: index + 1
+        };
+      }
+    );
 
     const images = [
       ...normalizedExistingImages,
@@ -997,19 +1208,27 @@ async function saveGalleryCollection() {
     };
 
     if (editingCollectionId) {
-      await updateDoc(doc(db, "galleryCollections", editingCollectionId), payload);
+      await updateDoc(
+        doc(db, "galleryCollections", editingCollectionId),
+        payload
+      );
     } else {
-      await addDoc(collection(db, "galleryCollections"), {
-        ...payload,
-        createdAt: serverTimestamp()
-      });
+      await addDoc(
+        collection(db, "galleryCollections"),
+        {
+          ...payload,
+          createdAt: serverTimestamp()
+        }
+      );
     }
 
     resetForm();
     await loadGalleryCollections();
+
     setStatus("保存しました");
   } catch (error) {
     console.error("保存エラー:", error);
+
     setStatus(`保存に失敗しました：${error.message}`);
     alert(`保存に失敗しました。\n${error.message}`);
   } finally {
@@ -1020,10 +1239,16 @@ async function saveGalleryCollection() {
 async function deleteGalleryCollection() {
   if (!currentUser || !editingCollectionId) return;
 
-  const ok = confirm("このコレクションを削除しますか？画像もStorageから削除します。");
+  const ok = confirm(
+    "このコレクションを削除しますか？画像もStorageから削除します。"
+  );
+
   if (!ok) return;
 
-  const item = galleryCollections.find((collection) => collection.id === editingCollectionId);
+  const item = galleryCollections.find(
+    (collection) => collection.id === editingCollectionId
+  );
+
   if (!item) return;
 
   setStatus("削除中...");
@@ -1035,13 +1260,17 @@ async function deleteGalleryCollection() {
       }
     }
 
-    await deleteDoc(doc(db, "galleryCollections", editingCollectionId));
+    await deleteDoc(
+      doc(db, "galleryCollections", editingCollectionId)
+    );
 
     resetForm();
     await loadGalleryCollections();
+
     setStatus("削除しました");
   } catch (error) {
     console.error("削除エラー:", error);
+
     setStatus(`削除に失敗しました：${error.message}`);
     alert(`削除に失敗しました。\n${error.message}`);
   }
@@ -1061,7 +1290,10 @@ deleteGalleryBtn.addEventListener("click", deleteGalleryCollection);
 reloadGalleryBtn.addEventListener("click", loadGalleryCollections);
 
 galleryImagesInput.addEventListener("change", () => {
-  const files = Array.from(galleryImagesInput.files || []);
+  const files = Array.from(
+    galleryImagesInput.files || []
+  );
+
   const validFiles = files.filter(validateFile);
 
   galleryDrafts.push(
@@ -1090,7 +1322,9 @@ galleryDraftList.addEventListener("click", async (event) => {
 
   if (removeDraftIndex !== undefined) {
     syncDraftTexts();
+
     galleryDrafts.splice(Number(removeDraftIndex), 1);
+
     renderDraftList();
   }
 
@@ -1100,7 +1334,10 @@ galleryDraftList.addEventListener("click", async (event) => {
     const index = Number(removeExistingIndex);
     const target = existingImages[index];
 
-    const ok = confirm("この保存済み画像を外しますか？Storageからも削除します。");
+    const ok = confirm(
+      "この保存済み画像を外しますか？Storageからも削除します。"
+    );
+
     if (!ok) return;
 
     if (target?.storagePath) {
@@ -1108,6 +1345,7 @@ galleryDraftList.addEventListener("click", async (event) => {
     }
 
     existingImages.splice(index, 1);
+
     renderDraftList();
   }
 });
@@ -1134,8 +1372,15 @@ galleryCollectionList.addEventListener("click", (event) => {
   }
 });
 
-closeGalleryPreviewBtn.addEventListener("click", closeGalleryPreview);
-galleryPreviewBackdrop.addEventListener("click", closeGalleryPreview);
+closeGalleryPreviewBtn.addEventListener(
+  "click",
+  closeGalleryPreview
+);
+
+galleryPreviewBackdrop.addEventListener(
+  "click",
+  closeGalleryPreview
+);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
@@ -1143,22 +1388,53 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-gallerySearchInput.addEventListener("input", resetCollectionPaging);
-galleryTypeFilter.addEventListener("change", resetCollectionPaging);
-gallerySourceTypeFilter?.addEventListener("change", resetCollectionPaging);
-galleryPersonFilter?.addEventListener("change", resetCollectionPaging);
-galleryAuthorFilter?.addEventListener("change", resetCollectionPaging);
+gallerySearchInput.addEventListener(
+  "input",
+  resetCollectionPaging
+);
+
+galleryTypeFilter.addEventListener(
+  "change",
+  resetCollectionPaging
+);
+
+gallerySourceTypeFilter?.addEventListener(
+  "change",
+  resetCollectionPaging
+);
+
+galleryPersonFilter?.addEventListener(
+  "change",
+  resetCollectionPaging
+);
+
+galleryAuthorFilter?.addEventListener(
+  "change",
+  resetCollectionPaging
+);
 
 collectionSourceTypeInput?.addEventListener("change", () => {
-  setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
+  setStatus(
+    editingCollectionId
+      ? "未保存の変更あり"
+      : "新規コレクション"
+  );
 });
 
 collectionPersonInput?.addEventListener("change", () => {
-  setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
+  setStatus(
+    editingCollectionId
+      ? "未保存の変更あり"
+      : "新規コレクション"
+  );
 });
 
 collectionAuthorInput?.addEventListener("change", () => {
-  setStatus(editingCollectionId ? "未保存の変更あり" : "新規コレクション");
+  setStatus(
+    editingCollectionId
+      ? "未保存の変更あり"
+      : "新規コレクション"
+  );
 });
 
 loadMoreCollectionsBtn?.addEventListener("click", () => {
@@ -1179,7 +1455,11 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     loginBtn.classList.add("hidden");
     logoutBtn.classList.remove("hidden");
-    userInfo.textContent = user.displayName || user.email || "ログイン中";
+
+    userInfo.textContent =
+      user.displayName ||
+      user.email ||
+      "ログイン中";
 
     saveGalleryBtn.disabled = false;
 
@@ -1189,6 +1469,7 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
+
     userInfo.textContent = "";
 
     saveGalleryBtn.disabled = true;
