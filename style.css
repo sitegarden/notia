@@ -8613,3 +8613,20 @@ body.modal-open {
 .gallery-control-panel {
   position: static;
 }
+
+/* gallery PC縦並び 強制fix */
+.gallery-page .gallery-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+}
+
+.gallery-page .gallery-control-panel,
+.gallery-page .gallery-list-panel {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.gallery-page .gallery-control-panel {
+  position: static !important;
+}
