@@ -8580,3 +8580,18 @@ body.modal-open {
   width: 100%;
   max-width: 100%;
 }
+
+/* 人物帳：アイコン未設定時の色を見やすく */
+.person-icon,
+.person-modal-icon,
+.person-icon-preview {
+  background: linear-gradient(135deg, #79aef2, #9b7be8);
+  color: #fff;
+}
+
+/* 画像ありの時の背景 */
+.person-icon img,
+.person-modal-icon img,
+.person-icon-preview img {
+  background: #eef4ff;
+}
